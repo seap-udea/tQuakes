@@ -1,6 +1,7 @@
 clean:
 	@echo "Cleaning..."
 	@find . -name "*~" -exec rm {} \;
+	@find . -name "*.pyc" -exec rm {} \;
 
 commit:
 	@echo "Commiting changes..."
