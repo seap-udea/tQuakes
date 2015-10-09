@@ -1,14 +1,16 @@
+/*
 create user 'tquakes'@'localhost' identified by 'quakes2015';
 create database tQuakes;
 grant all privileges on tQuakes.* to 'tquakes'@'localhost';
 flush privileges;
-
+*/
 use tQuakes;
 
 drop table if exists Quakes;
 
 create table Quakes (
        quakeid varchar(7),
+       quakestr varchar(255),
        qdate varchar(20),
        qtime varchar(20),
        qlat varchar(15),
