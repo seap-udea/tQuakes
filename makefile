@@ -1,3 +1,6 @@
+permissions:
+	chown -R www-data.www-data .
+
 clean:
 	@echo "Cleaning..."
 	@find . -name "*~" -exec rm {} \;
