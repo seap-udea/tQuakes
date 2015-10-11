@@ -22,7 +22,7 @@ import os
 #sys.path.insert(0, os.path.abspath('.'))
 
 # EXTRA BITS FOR SPICEYPY
-from unittest.mock import MagicMock
+from mock import MagicMock
 
 
 class Mock(MagicMock):
