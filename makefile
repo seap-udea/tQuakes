@@ -1,3 +1,11 @@
+run:	
+	@echo "Starting process..."
+	@nohup ./tquakesd > log/tquakes.out 2>&1 &
+
+stop:
+	@echo "Stopping process..."
+	@skill -9 tquakesd
+
 permissions:
 	chown -R www-data.www-data .
 
