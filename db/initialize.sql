@@ -1,9 +1,3 @@
-/*
-create user 'tquakes'@'localhost' identified by 'quakes2015';
-create database tQuakes;
-grant all privileges on tQuakes.* to 'tquakes'@'localhost';
-flush privileges;
-*/
 use tQuakes;
 
 drop table if exists Quakes,Stations;
@@ -55,18 +49,22 @@ create table Quakes (
 create table Stations
 (
 	/*BASIC IDENTIFICATION*/
-	stationid varchar(7),
+	station_id varchar(7),
+
+	/*USER INFORMATION*/
+	station_name varchar(50),
+	station_email varchar(50),
 
 	/*STATION INFORMATION*/
-	stationname varchar(50),
-	stationemail varchar(50),
-	stationpass varchar(50),
-	stationmd5 varchar(50),
+	station_arch varchar(255),
+	station_nproc int,
+	station_mem int,
+	station_mac varchar(50),
 
-	/*STATION INFORMATION*/
+	/*RESULTS INFORMATION*/
 	numquakes varchar(6),
-	stationscore varchar(100),
+	station_score varchar(100),
 	
        /*PRIMARY KEY*/       
-       primary key (stationid)
+       primary key (station_id)
 );

@@ -1,8 +1,12 @@
 import MySQLdb as mdb
-import csv,datetime
+import csv,datetime,commands,re,os
 from sys import exit,argv
-from os import system
 from util.jdcal import *
+
+###################################################
+#MACROS
+###################################################
+system=os.system
 
 ###################################################
 #CONFIGURACION
@@ -161,3 +165,36 @@ def date2jd(mydatetime):
     jd=century+mjd+(mydatetime.hour+mydatetime.minute/60.+\
                     (mydatetime.second+mydatetime.microsecond/1e6)/3600.)/24
     return jd
+
+def System(cmd,out=True):
+    """
+    Execute a command
+    """
+    if not out:
+        system(cmd)
+        output=""
+    else:
+        output=commands.getoutput(cmd)
+    return output
+
+def loadConf(filename):
+    """Load configuration file
+    Parameters:
+    ----------
+    filename: string
+       Filename with configuration values.
+    Returns:
+    -------
+    conf: dictobj
+       Object with attributes as variables in configuration file
+    Examples:
+    --------
+    >> loadconf('input.conf')
+    """
+    d=dict()
+    conf=dict2obj()
+    if os.path.lexists(filename):
+        execfile(filename,{},d)
+        conf+=dict2obj(d)
+    else:print "Configuration file '%s' does not found."%filename
+    return conf
