@@ -1,7 +1,7 @@
 # tQuakes
 Earthquakes and Tides
 
-Developed by [Gloria Moncayo](mailto:gloria.moncayo@udea.edu.co), [Jorge I. Zuluaga](mailto:jorge.zuluaga@udea.edu.co), [Gaspar Monsalve](mailto:gaspar.monsalvem@unalmed.edu.co)
+Developed by [Gloria Moncayo](mailto:gloria.moncayo@udea.edu.co), [Jorge I. Zuluaga](mailto:jorge.zuluaga@udea.edu.co), [Gaspar Monsalve](mailto:gmonsalvem@unal.edu.co)
 
 Presentation
 ------------
@@ -74,4 +74,4 @@ of the [copyleft philosophy](http://en.wikipedia.org/wiki/Copyleft).
 All wrongs reserved to [Gloria
 Moncayo](mailto:gloria.moncayo@udea.edu.co), [Jorge
 I. Zuluaga](mailto:jorge.zuluaga@udea.edu.co) and [Gaspar
-Monsalve](mailto:gaspar.monsalve@unalmed.edu.co)
+Monsalve](mailto:gmonsalvem@unal.edu.co)
