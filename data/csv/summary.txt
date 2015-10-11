@@ -1,0 +1,5 @@
+COLOMBIA-01_06_1993-11_10_2015.csv:
+	Number of quakes read:  138768
+	Number of quakes inserted:  138563
+	Number of quakes skipped:  205
+
