@@ -1,8 +1,8 @@
 import MySQLdb as mdb
-import csv
+import csv,datetime
 from sys import exit,argv
 from os import system
-from datetime import date
+from util.jdcal import *
 
 ###################################################
 #CONFIGURACION
@@ -30,16 +30,19 @@ for field in FIELDS_CSV:
     dbfield=FIELDS_CSV2DB[field]
     FIELDS_DB+=[dbfield]
     FIELDS_DB2CSV[dbfield]=field
+FIELDS_DB+=["quakeid","quakestr",
+            "qdatetime","qjd",
+            "astatus","adatetime","stationid"]
 
 FIELDSTXT="("
 FIELDSUP=""
 for field in FIELDS_DB:
     FIELDSTXT+="%s,"%field
     FIELDSUP+="%s=VALUES(%s),"%(field,field)
-FIELDSTXT+="quakeid,"
 FIELDSTXT=FIELDSTXT.strip(",")+")"
-FIELDSUP+="quakeid=VALUES(quakeid),"
 FIELDSUP=FIELDSUP.strip(",")
+
+DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
 
 ###################################################
 #ROUTINES
@@ -111,3 +114,50 @@ def randomStr(N):
     import string,random
     string=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
     return string
+
+def customdate2jd(mydate):
+    """
+    Calculate julian day at a given date in Greenwich
+    
+    Parameters:
+    
+      mydate: date of calculation (float)
+      
+         mydate format: MM/DD/CCYY HH:MM:SS.dcm [UTC-<D>]
+
+    Returns:
+
+      Julian day in Greenwich.
+    """
+
+    # SPLIT DATE STRING
+    parts=mydate.split()
+
+    # COMPONENTS OF DATE
+    month,day,year=parts[0].split("/")
+    hours,minutes,seconds=parts[1].split(":")
+    try:utc,lag=parts[2].split("-")
+    except:lag=0
+
+    # GET CENTURY AND MJD
+    century,mjd=gcal2jd(int(year),int(month),int(day))
+    jd=century+mjd+(int(hours)+int(minutes)/60.+float(seconds)/3600.+float(lag))/24
+    return jd
+
+def date2jd(mydatetime):
+    """
+    Calculate julian day at a given date in Greenwich
+    
+    Parameters:
+    
+      mydatetime: date of calculation (datetime object)
+
+    Returns:
+
+      Julian day.
+    """
+    # GET CENTURY AND MJD
+    century,mjd=gcal2jd(mydatetime.year,mydatetime.month,mydatetime.day)
+    jd=century+mjd+(mydatetime.hour+mydatetime.minute/60.+\
+                    (mydatetime.second+mydatetime.microsecond/1e6)/3600.)/24
+    return jd
