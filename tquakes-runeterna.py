@@ -83,9 +83,9 @@ for quake in qlist:
     numpy.savetxt("%s/%s.dat"%(quakedir,quakeid),data)
 
     # 7ZIP RESULTS
-    System("cd %s;tar cf %s.tar %s*.* %s*.*"%(quakedir,
+    System("cd %s;tar cf %s-eterna.tar %s*.* %s*.*"%(quakedir,
                                               quakeid,quakeid,lquakeid))  
-    System("cd %s;p7zip %s.tar"%(quakedir,quakeid))
+    System("cd %s;p7zip %s-eterna.tar"%(quakedir,quakeid))
     System("cd %s;rm PREDICT.EXE project* %s*.??? %s*.???"%(quakedir,
                                                quakeid,lquakeid))  
     
