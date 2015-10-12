@@ -1,0 +1,33 @@
+from tquakes import *
+# ##################################################
+# CONFIGURATION
+# ##################################################
+conf=loadConf("configuration")
+
+# ##################################################
+# LOAD STATION INFORMATION
+# ##################################################
+station=loadConf(".stationrc")
+
+# ##################################################
+# FECTH EVENTS
+# ##################################################
+print "Fecthing %d events..."%conf.NUMQUAKES,
+out=System("links -dump 'http://localhost/tQuakes/index.php?action=fetch&station_id=%s&numquakes=%d'"%(station.station_id,CONF.NUMQUAKES))
+print "Done."
+
+# ##################################################
+# CREATE QUAKES
+# ##################################################
+print "Creating directories of fetched quakes...",
+for quake in out.split("\n"):
+    quake=eval("dict(%s)"%quake.strip(" ,"))
+    quakedir="data/quakes/%s"%quake["quakeid"]
+    System("mkdir -p %s/.states"%(quakedir))
+    System("cp -r data/quakes/TEMPLATE/* %s"%(quakedir))
+    System("date +%%s > %s/.fetch"%quakedir)
+    fq=open(quakedir+"/quake.conf","w")
+    for key in quake.keys():
+        fq.write("%s='%s'\n"%(key,quake[key]))
+    fq.close()
+print "Done."
