@@ -1,4 +1,4 @@
-run:	
+start:	
 	@echo "Starting process..."
 	@nohup ./tquakesd > log/tquakes.out 2>&1 &
 
@@ -6,8 +6,13 @@ stop:
 	@echo "Stopping process..."
 	@skill -9 tquakesd
 
+install:
+	@echo "Installing tQuakes..."
+	@bash install.sh
+
 permissions:
-	chown -R www-data.www-data .
+	@echo "Setting permissions for web..."
+	@chown -R www-data.www-data .
 
 clean:
 	@echo "Cleaning..."
