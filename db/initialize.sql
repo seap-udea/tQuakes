@@ -61,8 +61,12 @@ create table Stations
 	station_mem int,
 	station_mac varchar(50),
 
+	/*STATION STATUS*/
+	station_receiving tinyint,
+	station_status tinyint,
+
 	/*RESULTS INFORMATION*/
-	numquakes varchar(6),
+	station_numquakes varchar(6),
 	station_score varchar(100),
 	
        /*PRIMARY KEY*/       

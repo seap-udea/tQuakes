@@ -1,0 +1,5 @@
+HOMEDIR="/home";
+TQUSER="tquakes";
+DBUSER="tquakes";
+DBPASSWORD="quakes2015";
+DBNAME="tQuakes";
