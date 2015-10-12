@@ -51,4 +51,4 @@ out=System("links -dump 'http://localhost/tQuakes/index.php?action=preregister&s
             station_nproc,
             station_mem,
             station_mac))
-print out
+

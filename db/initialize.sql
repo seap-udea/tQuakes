@@ -49,7 +49,7 @@ create table Quakes (
 create table Stations
 (
 	/*BASIC IDENTIFICATION*/
-	station_id varchar(7),
+	station_id varchar(20),
 
 	/*USER INFORMATION*/
 	station_name varchar(50),

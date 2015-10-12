@@ -9,14 +9,6 @@ from util.jdcal import *
 system=os.system
 
 ###################################################
-#CONFIGURACION
-###################################################
-BASENAME="tQuakes"
-DATABASE="tQuakes"
-USER="tquakes"
-PASSWORD="quakes2015"
-
-###################################################
 #GLOBAL
 ###################################################
 FIELDS_CSV2DB={'Fecha':'qdate','Hora UTC':'qtime','Latitud':'qlat','Longitud':'qlon','Profundidad':'qdepth',
@@ -49,7 +41,7 @@ FIELDSUP=FIELDSUP.strip(",")
 DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
 
 ###################################################
-#ROUTINES
+#CORE ROUTINES
 ###################################################
 class dict2obj(object):
     def __init__(self,dic={}):self.__dict__.update(dic)
@@ -58,10 +50,40 @@ class dict2obj(object):
             exec("self.%s=other.%s"%(attr,attr))
         return self
 
+def loadConf(filename):
+    """Load configuration file
+    Parameters:
+    ----------
+    filename: string
+       Filename with configuration values.
+    Returns:
+    -------
+    conf: dictobj
+       Object with attributes as variables in configuration file
+    Examples:
+    --------
+    >> loadconf('input.conf')
+    """
+    d=dict()
+    conf=dict2obj()
+    if os.path.lexists(filename):
+        execfile(filename,{},d)
+        conf+=dict2obj(d)
+    else:print "Configuration file '%s' does not found."%filename
+    return conf
+
+###################################################
+#CONFIGURATION
+###################################################
+CONF=loadConf("configuration")
+
+###################################################
+#REGULAR ROUTINES
+###################################################
 def loadDatabase(server='localhost',
-                 user=USER,
-                 password=PASSWORD,
-                 database=DATABASE):
+                 user=CONF.DBUSER,
+                 password=CONF.DBPASSWORD,
+                 database=CONF.DBNAME):
     con=mdb.connect(server,user,password,database)
     with con:
         dbdict=dict()
@@ -177,24 +199,4 @@ def System(cmd,out=True):
         output=commands.getoutput(cmd)
     return output
 
-def loadConf(filename):
-    """Load configuration file
-    Parameters:
-    ----------
-    filename: string
-       Filename with configuration values.
-    Returns:
-    -------
-    conf: dictobj
-       Object with attributes as variables in configuration file
-    Examples:
-    --------
-    >> loadconf('input.conf')
-    """
-    d=dict()
-    conf=dict2obj()
-    if os.path.lexists(filename):
-        execfile(filename,{},d)
-        conf+=dict2obj(d)
-    else:print "Configuration file '%s' does not found."%filename
-    return conf
+
