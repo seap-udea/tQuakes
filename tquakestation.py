@@ -10,7 +10,6 @@ station_id=System("hostid").upper()
 suffix=System("echo $HOME |md5sum |cut -f 1 -d ' '")[:3].upper()
 station_id=station_id+suffix
 print "\tStation ID:",station_id
-exit(0)
 
 # ARCHITECTURE
 station_arch=System("uname -ar")
