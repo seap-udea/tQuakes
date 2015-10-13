@@ -1,3 +1,8 @@
+BRANCH=$(shell bash .getbranch)
+
+show:
+	@echo "Branch: $(BRANCH)"
+
 start:	
 	@echo "Starting process..."
 	@nohup ./tquakesd > log/tquakes.out 2>&1 &
@@ -50,10 +55,9 @@ gitconfig:
 commit:
 	@echo "Commiting changes..."
 	@git commit -am "Commit"
-	@git push origin master
+	@git push origin $(BRANCH)
 
 pull:
 	@echo "Pulling from repository..."
 	@git reset --hard HEAD	
-	@git pull
-	@chown -R www-data.www-data .
+	@git pull origin $(BRANCH)
