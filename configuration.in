@@ -1,3 +1,5 @@
+PACKAGES_FULL="mysql-server python-mysqldb gnuplot-x11 apache2 php5 php5-mysql wget links p7zip";
+PACKAGES_STATION="gnuplot-x11 dosemu links p7zip";
 HOMEDIR="/home";
 TQUSER="tquakes";
 DBUSER="tquakes";

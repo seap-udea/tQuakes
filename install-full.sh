@@ -8,7 +8,7 @@ fi
 # CHECKING DEPENDENCIES
 # ##################################################
 echo "Installing required packages..."
-packages="mysql-server python-mysqldb gnuplot-x11 dosemu apache2 php5 php5-mysql wget links p7zip"
+packages=$PACKAGES_FULL
 packinst=""
 for package in $packages
 do
