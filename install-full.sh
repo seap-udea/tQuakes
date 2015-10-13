@@ -55,15 +55,12 @@ fi
 echo -en "Creating tquakes user..."
 if [ ! -d $HOMEDIR/$TQUSER ];then
     useradd -m -s /bin/bash -d $HOMEDIR/$TQUSER $TQUSER
-    mkdir -p $HOMEDIR/$TQUSER/.ssh
-    touch $HOMEDIR/$TQUSER/.ssh/authorized_keys
-    chmod -R og-rwx $HOMEDIR/$TQUSER/.ssh
-    chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/.ssh
     echo "Done." 
 else
     echo "user already created."
-    mkdir -p $HOMEDIR/$TQUSER/.ssh
-    touch $HOMEDIR/$TQUSER/.ssh/authorized_keys
-    chmod -R og-rwx $HOMEDIR/$TQUSER/.ssh
-    chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/.ssh
 fi
+mkdir -p $HOMEDIR/$TQUSER/.ssh
+mkdir -p $HOMEDIR/$TQUSER/tQuakes
+touch $HOMEDIR/$TQUSER/.ssh/authorized_keys
+chmod -R og-rwx $HOMEDIR/$TQUSER/.ssh
+chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/.ssh
