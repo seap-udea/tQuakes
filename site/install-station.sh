@@ -46,7 +46,7 @@ make install
 # ##################################################
 # PREREGISTERING STATION
 # ##################################################
-python tquakestation.py
+python tquakes-station.py
 . .stationrc
 
 # ##################################################
