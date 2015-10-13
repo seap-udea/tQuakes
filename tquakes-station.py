@@ -1,4 +1,5 @@
 from tquakes import *
+conf=loadConf("configuration")
 
 # ##################################################
 # GENERATE INFORMATION ABOUT THE STATION
@@ -45,10 +46,15 @@ fs.close()
 # ##################################################
 # GET STATION
 # ##################################################
-out=System("links -dump 'http://localhost/tQuakes/index.php?action=preregister&station_id=%s&station_arch=%s&station_nproc=%d&station_mem=%d&station_mac=%s'"%\
-           (station_id,
+out=System("links -dump '%s/index.php?action=preregister&station_id=%s&station_arch=%s&station_nproc=%d&station_mem=%d&station_mac=%s'"%\
+           (conf.WEBSERVER,
+            station_id,
             station_arch,
             station_nproc,
             station_mem,
             station_mac))
+print out
 
+# ##################################################
+# INFORMATION ABOUT STATION
+# ##################################################
