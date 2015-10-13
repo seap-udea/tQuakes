@@ -23,6 +23,7 @@ done
 
 if [ "x$packinst" != "x" ];then
     echo -e "Packages to install:\n\t$packinst"
+    sudo apt-get update
     sudo apt-get install $packinst
 else
     echo -e "No packages required to be installed."
@@ -43,7 +44,7 @@ fi
 # INSTALLING SPICEYPY
 # ##################################################
 echo "Installing SpiceyPy..."
-if ! python -c "import spiceypy"
+if ! python -c "import spiceypy" 2> /dev/null
 then
     cd util/SpiceyPy
     python setup.py install
@@ -66,3 +67,15 @@ mkdir -p $HOMEDIR/$TQUSER/tQuakes
 touch $HOMEDIR/$TQUSER/.ssh/authorized_keys
 chmod -R og-rwx $HOMEDIR/$TQUSER/.ssh
 chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/.ssh
+
+# ##################################################
+# CREATING DATABASE
+# ##################################################
+echo "Installing database..."
+echo -e "\tWhen prompted please use root mysql password."
+mysql -u root -p -e "use tQuakes"
+if $?;then
+    cd db
+    mysql -u root -p < db/user.sql
+    mysql -u root -p < db/initialize.sql
+    make restore

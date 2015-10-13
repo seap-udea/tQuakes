@@ -47,6 +47,10 @@ backupall:
 	@echo "Backuping tQuakes database..."
 	@mysqldump -u root -p tQuakes > data/sql/tQuakes.sql
 
+restore:
+	@echo "Restoring database..."
+	@mysql -u root -p tQuakes < data/sql/tQuakes.sql
+
 gitconfig:
 	@echo "Configuring git user..."
 	@git config --global user.email "seapudea@gmail.com"
