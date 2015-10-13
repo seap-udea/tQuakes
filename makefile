@@ -15,10 +15,6 @@ install:
 	@echo "Installing tQuakes..."
 	@bash install.sh
 
-permissions:
-	@echo "Setting permissions for web..."
-	@chown -R www-data.www-data .
-
 clean:
 	@echo "Cleaning..."
 	@find . -name "*~" -exec rm {} \;
@@ -27,25 +23,9 @@ clean:
 	@touch scratch/remove
 	@rm scratch/*
 
-cleandata:clean
-	@echo "Cleaning data..."
-	@touch data/quakes/ooooooo
-	@rm -r data/quakes/???????
-
-watch:
-	@watch -d -n 2 bash tquakes-status.sh
-
 unlock:
 	@echo "Unlocking all quakes..."
 	@find data/quakes -name ".lock" -exec rm {} \;
-
-backup:
-	@echo "Backuping Quakes data..."
-	@mysqldump -u root -p tQuakes Quakes > data/sql/Quakes.sql
-
-backupall:
-	@echo "Backuping tQuakes database..."
-	@mysqldump -u root -p tQuakes > data/sql/tQuakes.sql
 
 gitconfig:
 	@echo "Configuring git user..."

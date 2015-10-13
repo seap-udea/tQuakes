@@ -6,7 +6,7 @@ cp configuration.in configuration
 # CHECKING DEPENDENCIES
 # ##################################################
 echo "Installing required packages..."
-packages="mysql-server python-mysqldb gnuplot-x11 dosemu apache2 php5 php5-mysql wget links p7zip"
+packages="gnuplot-x11 dosemu links p7zip"
 packinst=""
 for package in $packages
 do
@@ -35,35 +35,4 @@ if [ ! -d /ETERNA33 ];then
     echo "Done."
 else
     echo "Already installed."
-fi
-
-# ##################################################
-# INSTALLING SPICEYPY
-# ##################################################
-echo "Installing SpiceyPy..."
-if ! python -c "import spiceypy"
-then
-    cd util/SpiceyPy
-    python setup.py install
-else
-    echo -e "\tSpiceyPy already installed."
-fi
-
-# ##################################################
-# CREATING tQUAKES USER
-# ##################################################
-echo -en "Creating tquakes user..."
-if [ ! -d $HOMEDIR/$TQUSER ];then
-    useradd -m -s /bin/bash -d $HOMEDIR/$TQUSER $TQUSER
-    mkdir -p $HOMEDIR/$TQUSER/.ssh
-    touch $HOMEDIR/$TQUSER/.ssh/authorized_keys
-    chmod -R og-rwx $HOMEDIR/$TQUSER/.ssh
-    chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/.ssh
-    echo "Done." 
-else
-    echo "user already created."
-    mkdir -p $HOMEDIR/$TQUSER/.ssh
-    touch $HOMEDIR/$TQUSER/.ssh/authorized_keys
-    chmod -R og-rwx $HOMEDIR/$TQUSER/.ssh
-    chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/.ssh
 fi
