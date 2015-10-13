@@ -53,7 +53,15 @@ out=System("links -dump '%s/index.php?action=preregister&station_id=%s&station_a
             station_nproc,
             station_mem,
             station_mac))
-print out
+if 'Not Found' in out:
+    print "Webserver '%s' not found."%conf.WEBSERVER
+    exit(1)
+
+print "\nYour station has been preregistered.  Please go to '%s/index.php?if=register' to finish the regsitration of the calculation station."%(conf.WEBSERVER)
+print "\nSTATION ID: %s"%station_id
+print "\nSTATION PUBLIC KEY:\n"
+system("cat $HOME/.ssh/id_rsa.pub")
+print
 
 # ##################################################
 # INFORMATION ABOUT STATION
