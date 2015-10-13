@@ -31,7 +31,7 @@ fi
 # ##################################################
 echo -n "Installing ETERNA..."
 if [ ! -d /ETERNA33 ];then 
-    sudo cp util/Eterna/ETERNA33 /
+    sudo cp -r util/Eterna/ETERNA33 /
     echo "Done."
 else
     echo "Already installed."
