@@ -96,7 +96,6 @@ for quake in qlist:
     # REPORT END OF CALCULATIONS
     print "\tReporting calculations..."
     out=System("links -dump 'http://localhost/tQuakes/index.php?action=report&station_id=%s&quakeid=%s'"%(station.station_id,quakeid))
-    
 
     # DELETE LOCKFILE
     System("rm "+lockfile)
