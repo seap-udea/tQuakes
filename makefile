@@ -19,6 +19,8 @@ clean:
 	@find . -name "*~" -exec rm {} \;
 	@find . -name "*.pyc" -exec rm {} \;
 	@find . -name "#*#" -exec rm {} \;
+	@touch scratch/remove
+	@rm scratch/*
 
 cleandata:
 	@echo "Cleaning data..."
