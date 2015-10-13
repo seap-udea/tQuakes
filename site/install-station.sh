@@ -1,9 +1,10 @@
 #!/bin/bash
+
 # ##################################################
 # CHECKING DEPENDENCIES
 # ##################################################
 echo "Installing required packages..."
-packages="mysql-server python-mysqldb gnuplot dosemu apache2 php5 php5-mysql wget links"
+packages="git"
 packinst=""
 for package in $packages
 do
@@ -12,7 +13,7 @@ do
 	echo "Installed."
     else
 	echo "Queued."
-	packinst=$packinst $package
+	packinst="$packinst $package"
     fi
 done
 
@@ -24,24 +25,52 @@ else
 fi
  
 # ##################################################
-# INSTALLING ETERNA
+# CLONE STATION BRANCH
 # ##################################################
-echo -n "Installing ETERNA..."
-if [ ! -d /ETERNA33 ];then 
-    sudo cp util/Eterna/ETERNA33 /
-    echo "Done."
+echo "Cloning tQuakes station package..."
+if [ ! -d tQuakes ];then
+    git clone --branch station http://github.com/seap-udea/tQuakes.git
 else
-    echo "Already installed."
+    echo -e "\ttQuakes already downloaded.  Updating."
+    cd tQuakes
+    make pull
+    cd -
 fi
 
 # ##################################################
-# INSTALLING SPICEYPY
+# INSTALLING PACKAGE
 # ##################################################
-echo "Installing SpiceyPy..."
-if ! python -c "import spiceypy"
-then
-    cd util/SpiceyPy
-    python setup.py install
+cd tQuakes
+make install
+
+# ##################################################
+# PREREGISTERING STATION
+# ##################################################
+python tquakestation.py
+. .stationrc
+
+# ##################################################
+# SSH KEY
+# ##################################################
+echo "Generating ssh keys..."
+if [ ! -e $HOME/.ssh/id_rsa.pub ];then
+    ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa
+    echo "Key generated."
 else
-    echo -e "\tSpiceyPy already installed."
+    echo "Key already generated."
 fi
+station_key=$(cat $HOME/.ssh/id_rsa.pub)
+
+# ##################################################
+# INFORMATION REQUIRED FOR NEXT STEP
+# ##################################################
+echo;echo
+echo "Your station is ready to be used.  Please register it using:"
+echo
+echo "ID: $station_id"
+echo
+echo "Public key:"
+echo
+echo $station_key
+echo;echo
+
