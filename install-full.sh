@@ -1,5 +1,7 @@
 #!/bin/bash
-cp configuration.in configuration
+if [ ! -e configuration ];then
+    cp configuration.in configuration
+fi
 . configuration
 
 # ##################################################
