@@ -4,6 +4,9 @@ DBUSER="tquakes";
 DBPASSWORD="quakes2015";
 DBNAME="tQuakes";
 
-NUMQUAKES=20;
-SAMPLERATE=60;
+NUMQUAKES=3;
+SAMPLERATE=3600;
 TIMEWIDTH=90.0;
+
+WEBSERVER="http://localhost/tQuakes"
+DATASERVER="localhost"

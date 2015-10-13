@@ -1,7 +1,16 @@
 #!/bin/bash
+. configuration
+. .stationrc
 
+j=0
 while [ 1 ]
 do
-    date
-    sleep 10
+    for i in $(seq 1 $station_nproc)
+    do
+	    python tquakes-pipeline.py >> log/tquakes-proc$i.log &
+	    sleep 1
+    done
+    wait
+    $((j++))
+    if [ $j -gt 0 ];then exit 0;fi
 done

@@ -1,4 +1,6 @@
 from tquakes import *
+print "*"*50+"\nRUNNING tquakes-fetch\n"+"*"*50
+
 # ##################################################
 # CONFIGURATION
 # ##################################################
@@ -15,6 +17,7 @@ station=loadConf(".stationrc")
 print "Fecthing %d events..."%conf.NUMQUAKES,
 out=System("links -dump 'http://localhost/tQuakes/index.php?action=fetch&station_id=%s&numquakes=%d'"%(station.station_id,conf.NUMQUAKES))
 print "Done."
+print out
 
 # ##################################################
 # CREATE QUAKES

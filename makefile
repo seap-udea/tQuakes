@@ -22,9 +22,13 @@ clean:
 	@touch scratch/remove
 	@rm scratch/*
 
-cleandata:
+cleandata:clean
 	@echo "Cleaning data..."
+	@touch data/quakes/ooooooo
 	@rm -r data/quakes/???????
+
+watch:
+	@watch -d -n 2 bash tquakes-status.sh
 
 unlock:
 	@echo "Unlocking all quakes..."
@@ -32,7 +36,11 @@ unlock:
 
 backup:
 	@echo "Backuping Quakes data..."
-	@mysqldump -u root -p tQuakes Quakes > data/sql/tQuakes.sql
+	@mysqldump -u root -p tQuakes Quakes > data/sql/Quakes.sql
+
+backupall:
+	@echo "Backuping tQuakes database..."
+	@mysqldump -u root -p tQuakes > data/sql/tQuakes.sql
 
 gitconfig:
 	@echo "Configuring git user..."

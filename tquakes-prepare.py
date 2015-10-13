@@ -1,4 +1,6 @@
 from tquakes import *
+print "*"*50+"\nRUNNING tquakes-prepare\n"+"*"*50
+
 # ##################################################
 # CONFIGURATION
 # ##################################################
@@ -24,16 +26,20 @@ else:
 # ##################################################
 # LOOP OVER QUAKES
 # ##################################################
-iq=0
+iq=1
 for quake in qlist.split("\n"):
     search=re.search("\/(\w+)\/\.fetch",quake)
     quakeid=search.group(1)
-    iq+=1
+
     print "Preparing quake %d '%s'"%(iq,quakeid)
 
     # LOAD QUAKE INFORMATION
     quakedir="data/quakes/%s/"%quakeid
     quake=loadConf(quakedir+"quake.conf")
+
+    if not os.path.lexists(quakedir+".fetch"):
+        print "\tQuake already prepared by other process..."
+        continue
 
     # ONLY PREPARE QUAKES NOT LOCKED
     lockfile=quakedir+".lock"
@@ -81,3 +87,5 @@ for quake in qlist.split("\n"):
     # DELETE LOCKFILE
     System("rm "+lockfile)
 
+    iq+=1
+    if iq>2*conf.NUMQUAKES:break

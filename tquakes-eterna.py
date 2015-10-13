@@ -9,6 +9,7 @@ predict="util/Eterna/ETERNA34/PREDICT.EXE"
 # LOAD STATION INFORMATION
 # ##################################################
 station=loadConf(".stationrc")
+print "*"*50+"\nRUNNING tquakes-eterna\n"+"*"*50
 
 # ##################################################
 # GET UNCALCULATED QUAKES
@@ -26,16 +27,19 @@ else:
 # ##################################################
 # LOOP OVER QUAKES
 # ##################################################
-iq=0
+iq=1
 for quake in qlist:
     search=re.search("\/(\w+)\/\.prepare",quake)
     quakeid=search.group(1)
-    iq+=1
     print "Running Eterna for quake %d '%s'"%(iq,quakeid)
 
     # LOAD QUAKE INFORMATION
     quakedir="data/quakes/%s/"%quakeid
     quake=loadConf(quakedir+"quake.conf")
+
+    if not os.path.lexists(quakedir+".prepare"):
+        print "\tQuake already calculated by other process..."
+        continue
 
     # ONLY PREPARE QUAKES NOT LOCKED
     lockfile=quakedir+".lock"
@@ -95,10 +99,12 @@ for quake in qlist:
     
     # REPORT END OF CALCULATIONS
     print "\tReporting calculations..."
-    out=System("links -dump 'http://localhost/tQuakes/index.php?action=report&station_id=%s&quakeid=%s'"%(station.station_id,quakeid))
+    out=System("links -dump '%s/index.php?action=report&station_id=%s&quakeid=%s'"%(conf.WEBSERVER,station.station_id,quakeid))
 
     # DELETE LOCKFILE
     System("rm "+lockfile)
 
     print "\tQuake done."
-    break
+
+    iq+=1
+    if iq>2*conf.NUMQUAKES:break
