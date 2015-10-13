@@ -41,6 +41,8 @@ create table Quakes (
        stationid varchar(255),
 
        /*ANALYSIS RESULTS*/       
+       qsignal varchar(255),
+       qphases varchar(255),
 
        /*PRIMARY KEY*/       
        primary key (quakeid)

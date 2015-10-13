@@ -1,16 +1,17 @@
 import MySQLdb as mdb
-import csv,datetime,commands,re,os,numpy
+import csv,datetime,commands,re,os,numpy,cmath
 from sys import exit,argv
 from util.jdcal import *
 
-###################################################
-#MACROS
-###################################################
+# ######################################################################
+# MACROS
+# ######################################################################
 system=os.system
+PI=numpy.pi
 
-###################################################
-#GLOBAL
-###################################################
+# ######################################################################
+# GLOBAL
+# ######################################################################
 FIELDS_CSV2DB={'Fecha':'qdate','Hora UTC':'qtime','Latitud':'qlat','Longitud':'qlon','Profundidad':'qdepth',
                'Magnitudl':'Ml','Magnitudw':'Mw','Departamento':'departamento','Municipio':'municipio',
                '# Estaciones':'numstations','Rms':'timerms','Gap':'gap','Error Latitud (Km)':'qlaterr',
@@ -40,9 +41,9 @@ FIELDSUP=FIELDSUP.strip(",")
 
 DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
 
-###################################################
-#CORE ROUTINES
-###################################################
+# ######################################################################
+# CORE ROUTINES
+# ######################################################################
 class dict2obj(object):
     def __init__(self,dic={}):self.__dict__.update(dic)
     def __add__(self,other):
@@ -72,14 +73,14 @@ def loadConf(filename):
     else:print "Configuration file '%s' does not found."%filename
     return conf
 
-###################################################
-#CONFIGURATION
-###################################################
+# ######################################################################
+# CONFIGURATION
+# ######################################################################
 CONF=loadConf("configuration")
 
-###################################################
-#REGULAR ROUTINES
-###################################################
+# ######################################################################
+# REGULAR ROUTINES
+# ######################################################################
 def loadDatabase(server='localhost',
                  user=CONF.DBUSER,
                  password=CONF.DBPASSWORD,
@@ -314,5 +315,37 @@ TIDALPARAM=  3.381379  4.347615   1.16000    0.0000 M4     #tidal param.
     content=content.replace("\n","\r\n")
     return content
 
-def prd2dat(fileprd):
-    pass
+# ######################################################################
+# FOURIER ANALYSIS
+# ######################################################################
+def signal_teo(t,ft,T,N,k):
+    w=2*PI*k/T
+    serie=ft[0]+2*ft[k]*cmath.exp(1j*w*t)
+    serie=serie/N
+    return numpy.real(serie)
+
+def all_signal_teo(t,ft,T,N,ko,dk):
+    serie=ft[0]
+    for k in xrange(ko,ko+dk):
+        w=2*PI*k/T
+        serie+=2*ft[k]*cmath.exp(1j*w*t)
+    serie=serie/N
+    return numpy.real(serie)
+
+def omega2k(wo,T,N):
+    w1=2*PI/T
+    k=round((wo-w1)*N*T/(2*PI*(N-2))+1)
+    return int(k)
+
+def phaseFourier(ft,to,T,N,periodo):
+    wo=2*PI/periodo
+    k=omega2k(wo,T,N)
+    x=numpy.real(ft[k])
+    y=numpy.imag(ft[k])
+    phase=(numpy.arctan2(y,x)*180/PI)
+    phase=numpy.mod(phase,360.0)
+    wk=2*PI*k/T
+    wkt=(wk*to)*180/PI
+    phasek=wkt+phase
+    phasek=numpy.mod(phasek,360.0)
+    return phasek

@@ -80,7 +80,7 @@ for quake in qlist:
         timejd=date2jd(timedate)
         times+=[timejd]
     data=numpy.column_stack((times,data))
-    numpy.savetxt("%s/%s.dat"%(quakedir,quakeid),data)
+    numpy.savetxt("%s/%s.data"%(quakedir,quakeid),data)
 
     # 7ZIP RESULTS
     System("cd %s;tar cf %s-eterna.tar %s*.* %s*.*"%(quakedir,

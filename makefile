@@ -28,6 +28,10 @@ unlock:
 	@echo "Unlocking all quakes..."
 	@find data/quakes -name ".lock" -exec rm {} \;
 
+backup:
+	@echo "Backuping Quakes data..."
+	@mysqldump -u root -p tQuakes Quakes > data/sql/tQuakes.sql
+
 gitconfig:
 	@echo "Configuring git user..."
 	@git config --global user.email "seapudea@gmail.com"

@@ -30,7 +30,6 @@ def signal_teo(t,ft,T,N,K):
     serie=serie/N
     return real(serie)
 
-
 def all_signal_teo(t,ft,T,N,ko,dk):
     serie=ft[0]
     for k in xrange(ko,ko+dk):
