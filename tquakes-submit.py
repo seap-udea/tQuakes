@@ -62,7 +62,7 @@ for quake in qlist:
         System("touch "+lockfile)
 
     # SUBMIT DATA
-    system("scp -r %s/*.7z tquakes@localhost:. 2> scratch/%s.err"%(quakedir,quakeid))
+    system("scp -r %s/*.7z tquakes@%s:. 2> scratch/%s.err"%(quakedir,conf.DATASERVER,quakeid))
     if System("cat scratch/%s.err"%quakeid)!="":
         print "\tConnection failed to data server."
         System("rm "+lockfile)
