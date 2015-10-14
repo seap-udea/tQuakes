@@ -73,9 +73,9 @@ chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/.ssh
 # ##################################################
 echo "Installing database..."
 echo -e "\tWhen prompted please use root mysql password."
-mysql -u root -p -e "use tQuakes"
-if $?;then
-    cd db
+if [ ! -e db/.inidb ];then
     mysql -u root -p < db/user.sql
     mysql -u root -p < db/initialize.sql
     make restore
+    touch db/.inidb
+fi
