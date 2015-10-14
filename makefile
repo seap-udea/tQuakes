@@ -23,6 +23,10 @@ clean:
 	@touch scratch/remove
 	@rm scratch/*
 
+cleandata:
+	@echo "Cleaning calculations..."
+	@rm -r data/quakes/*
+
 unlock:
 	@echo "Unlocking all quakes..."
 	@find data/quakes -name ".lock" -exec rm {} \;
