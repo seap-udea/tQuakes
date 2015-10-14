@@ -66,7 +66,7 @@ mkdir -p $HOMEDIR/$TQUSER/.ssh
 mkdir -p $HOMEDIR/$TQUSER/tQuakes
 touch $HOMEDIR/$TQUSER/.ssh/authorized_keys
 chmod -R og-rwx $HOMEDIR/$TQUSER/.ssh
-chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/.ssh
+chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/
 
 # ##################################################
 # CREATING DATABASE

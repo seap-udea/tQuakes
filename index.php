@@ -158,7 +158,7 @@ else if($action=="register"){
 
   //CREATING PUBLIC KEY
   $fl=fopen("$station_dir/key.pub","w");
-  fwrite($fl,"no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,command=\"scp -r -d -t ~\" $station_key");
+  fwrite($fl,"no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,command=\"scp -r -d -t ~/tQuakes/\" $station_key");
   fclose($fl);
 
   //INSTALLING PUBLIC KEY
