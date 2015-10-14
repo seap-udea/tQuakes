@@ -1,0 +1,9 @@
+- In some old debian versions the six python module is too old.  It is
+  recommended to install the latext version of the module before
+  running the installer.
+
+  The latest version is available here: https://pypi.python.org/pypi/six
+
+  Installation:
+  1) Unpack
+  2) python setup.py install
