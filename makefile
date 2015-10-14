@@ -25,6 +25,7 @@ clean:
 
 cleandata:
 	@echo "Cleaning calculations..."
+	@touch data/quakes/ooooooo
 	@rm -r data/quakes/???????
 
 unlock:
