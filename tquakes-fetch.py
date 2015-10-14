@@ -15,7 +15,7 @@ station=loadConf(".stationrc")
 # FECTH EVENTS
 # ##################################################
 print "Fecthing %d events..."%conf.NUMQUAKES,
-out=System("links -dump 'http://localhost/tQuakes/index.php?action=fetch&station_id=%s&numquakes=%d'"%(station.station_id,conf.NUMQUAKES))
+out=System("links -dump '%s/index.php?action=fetch&station_id=%s&numquakes=%d'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES))
 print "Done."
 print out
 
