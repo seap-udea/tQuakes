@@ -12,5 +12,5 @@ do
     done
     wait
     $((j++))
-    if [ $j -gt 0 ];then exit 0;fi
+    if [ $j -gt $DEAMON_LIMIT ];then exit 0;fi
 done
