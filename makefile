@@ -48,8 +48,16 @@ backupall:
 	@mysqldump -u root -p tQuakes > data/sql/tQuakes.sql
 
 restore:
+	@echo "Restoring table Quakes..."
+	@mysql -u root -p tQuakes < data/sql/Quakes.sql
+
+restoreall:
 	@echo "Restoring database..."
 	@mysql -u root -p tQuakes < data/sql/tQuakes.sql
+
+installkeys:
+	@echo "Installing new station keys..."
+	@bash tquakes-keys.sh
 
 gitconfig:
 	@echo "Configuring git user..."

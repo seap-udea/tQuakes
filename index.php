@@ -162,9 +162,11 @@ else if($action=="register"){
   fclose($fl);
 
   //INSTALLING PUBLIC KEY
-  $out=shell_exec("grep '$station_key' stations/authorized_keys");
+  if(file_exists("stations/authorized_keys")){
+    $out=shell_exec("grep '$station_key' stations/authorized_keys");
+  }else{$out="";}
   if(isBlank($out)){
-    shell_exec("cat $station_dir/key.pub >> stations/authorized_keys");
+    shell_exec("(echo;cat $station_dir/key.pub) >> stations/authorized_keys");
   }
 
   //UPDATING STATION IN DATABASE
