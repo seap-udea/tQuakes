@@ -1,4 +1,4 @@
-#!/bin/bash
+o#!/bin/bash
 cp configuration.in configuration
 . configuration
 
@@ -6,7 +6,7 @@ cp configuration.in configuration
 # CHECKING DEPENDENCIES
 # ##################################################
 echo "Installing required packages..."
-packages="gnuplot-x11 dosemu links p7zip"
+packages=$PACKAGES_STATION
 packinst=""
 for package in $packages
 do
