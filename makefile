@@ -46,3 +46,7 @@ pull:
 	@echo "Pulling from repository..."
 	@git reset --hard HEAD	
 	@git pull origin $(BRANCH)
+
+master:
+	@echo "Changing to master branch..."
+	@git checkout master
