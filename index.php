@@ -274,7 +274,7 @@ $action_error
   <table border=0px>
     <tr>
       <td valign=top>Station ID:</td>
-      <td><input type=text name=station_id maxlength=11 size=8 value=$station_id></td>
+      <td><input type=text name=station_id maxlength=14 size=8 value=$station_id></td>
     </tr>
     <tr>
       <td valign=top>Name:</td>
