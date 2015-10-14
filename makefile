@@ -31,6 +31,8 @@ cleandata:clean
 	@echo "Cleaning data..."
 	@touch data/quakes/ooooooo
 	@rm -r data/quakes/???????
+	@touch ~tquakes/tQuakes/foo
+	@rm ~tquakes/tQuakes/*
 
 watch:
 	@watch -d -n 2 bash tquakes-status.sh
