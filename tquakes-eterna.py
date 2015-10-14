@@ -62,7 +62,7 @@ for quake in qlist:
         System("cd %s;dosemu -t -quiet PREDICT.EXE &> %s%d.log"%(quakedir,
                                                                  quakeid,
                                                                  component))
-        System("cd %s;bash prd2plain.sh %s%d.prd > %s%d.plain"%(quakedir,
+        system("cd %s;bash prd2plain.sh %s%d.prd > %s%d.plain"%(quakedir,
                                                                 lquakeid,component,
                                                                 lquakeid,component))
 
