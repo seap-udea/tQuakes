@@ -45,7 +45,6 @@ commit:
 pull:
 	@echo "Pulling from repository..."
 	@git reset --hard HEAD	
-	@git clean -f -d
 	@git pull origin $(BRANCH)
 
 master:
