@@ -3,58 +3,9 @@
 //START
 //======================================================================
 ////////////////////////////////////////////////////////////////////////
-//CONFIGURATION
+//LOAD UTILITIES
 ////////////////////////////////////////////////////////////////////////
-$USER="tquakes";
-$PASSWORD="quakes2015";
-$DATABASE="tQuakes";
-
-$conf=parse_ini_file("configuration");
-foreach(array_keys($conf) as $key){
-  $GLOBALS["$key"]=$conf["$key"];
-}
-
-////////////////////////////////////////////////////////////////////////
-//ROUTINES
-////////////////////////////////////////////////////////////////////////
-function sqlNoblank($out)
-{
-  $res=mysqli_fetch_array($out);
-  $len=count($res);
-  if($len==0){return 0;}
-  return $res;
-}
-function mysqlCmd($sql,$qout=0)
-{
-  global $DB,$DATE;
-  if(!($out=mysqli_query($DB,$sql))){die("Error:".mysqli_error($DB));}
-  if(!($result=sqlNoblank($out))){return 0;}
-  if($qout){
-    $result=array($result);
-    while($row=mysqli_fetch_array($out)){array_push($result,$row);}
-  }
-  return $result;
-}
-function isBlank($string)
-{
-  if(!preg_match("/\w+/",$string)){return 1;}
-  return 0;
-}
-
-////////////////////////////////////////////////////////////////////////
-//VARIABLES
-////////////////////////////////////////////////////////////////////////
-foreach(array_keys($_GET) as $field){$$field=$_GET[$field];}
-foreach(array_keys($_POST) as $field){$$field=$_POST[$field];}
-$tQuakes="<a href='http://github.com/seap-udea/tQuakes'>tQuakes</a>";
-$GITREPO="http://github.com/seap-udea/tQuakes";
-
-////////////////////////////////////////////////////////////////////////
-//DATABASE INITIALIZATION
-////////////////////////////////////////////////////////////////////////
-$DB=mysqli_connect("localhost",$DBUSER,$DBPASSWORD,$DBNAME);
-$result=mysqlCmd("select now();",$qout=0,$qlog=0);
-$DATE=$result[0];
+require_once("site/util.php");
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ////////////////////////////////////////////////////////////////////////
@@ -223,7 +174,6 @@ ERROR;
 }
 
 // COMMON CONTENT
-$numquakes=mysqlCmd("select count(quakeid) from Quakes");
 echo<<<PORTAL
 <html>
 <head>
@@ -232,14 +182,13 @@ echo<<<PORTAL
 <h1>
 <a href=?>tQuakes</a>
 </h1>
-<a href="?if=register">Register Station</a> | 
-<a href="?if=activity">Stations Activity</a> |
+<a href="?">Home</a> | 
+<a href="?if=download">Download</a> |
+<a href="?if=stats">Statistics</a> |
 <a href="?if=data">Data Products</a> |
+<a href="?if=activity">Stations Activity</a> |
+<a href="?if=register">Register Station</a> | 
 <a href="?if=calculate">Calculate</a> |
-<a href="?if=download">Download</a> 
-<p>
-  Number of Earthquakes in database: $numquakes[0]
-</p>
 <hr/>
 PORTAL;
 
@@ -251,10 +200,57 @@ echo<<<PORTAL
 $tQuakes can be downloaded in different forms:
 <ul>
 <li>
-<a href="site/install-station.sh">Install a calculation station</a>.
+  <b>Calculation station</b>: Install a calculation station and help
+  us to analyse a huge database of Earthquakes.  
+  <ul>
+    <li>
+      Installation script for Linux
+      clienst: <a href="site/install-station.sh">install-station.sh</a>
+    </li>
+  </ul>
 </li>
-<li>Clone from the <a href="$GITREPO">github repositorty</a></li>
+
+<li>
+  <b>Calculation server</b>: create your own calculation server to run
+  custom analysis on your own earthquakes database.
+  <ul>
+    <li><a href="$GITREPO">Github repositorty</a>.</li>
+  </ul>
+</li>
+
 </ul>
+PORTAL;
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//DOWNLOAD
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+else if($if=="stats"){
+
+  $numquakes=mysqlCmd("select count(quakeid) from Quakes");
+  $numfetched=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0;");
+  $perfetched=round($numfetched[0]/(1.0*$numquakes[0])*100,1);
+  $numanalysed=mysqlCmd("select count(quakeid) from Quakes where astatus+0=3;");
+  $numsubmit=mysqlCmd("select count(quakeid) from Quakes where astatus+0=4;");
+  $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,1);
+
+echo<<<PORTAL
+<p>
+  <ul>
+    <li>
+      <b>Number of Earthquakes in database</b>: $numquakes[0]
+    </li>
+    <li>
+      <b>Fetched Earthquakes</b>: $numfetched[0] [ $perfetched% ]
+    </li>
+    <li>
+      <b>Analysed Earthquakes</b>: $numanalysed[0]
+    </li>
+    <li>
+      <b>Submitted Earthquakes</b>: $numsubmit[0] [ $persubmit% ]
+    </li>
+  </ul>
+</p>
 PORTAL;
 }
 
@@ -271,10 +267,19 @@ echo<<<TABLE
 </tr>
 TABLE;
   foreach($stations as $station){
-    $station_id=$station["station_id"];
+    foreach(array_keys($station) as $key){
+      $$key=$station["$key"];
+    }
+    $station_status_txt=$STATION_STATUS[$station_status];
+
 echo<<<TABLE
-<tr><td>$station_id</td></tr>
+  <tr>
+    <td>$station_id</td>
+    <td>$station_status_txt</td>
+  </tr>
 TABLE;
+
+
   }
   echo "</table>";
 }
@@ -323,13 +328,13 @@ PORTAL;
 else{
 echo<<<PORTAL
 <p>
-Welcome to the website of the $tQuakes project. $tQuakes (Earthquakes
-and Tides) is an innitiative of the Solar, Earth and Planetary Physics
+  Welcome to the website of $tQuakes, a project of the Solar, Earth and Planetary Physics
 Group (SEAP) of the University of Antioquia (Medellin, Colombia) in
 collaboration with the National University in Colombia.
 </p>
 <p>
-$tQuakes is a tool intended to explore the relationship between the
+$tQuakes (Earthquakes
+and Tides) is a tool intended to explore the relationship between the
 lunisolar tides and the triggering of earthquakes.
 </p>
 <h2>References</h2>
