@@ -11,6 +11,7 @@ conf=loadConf("configuration")
 # ##################################################
 station=loadConf(".stationrc")
 out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=1'"%(conf.WEBSERVER,station.station_id))
+print out
 
 # ##################################################
 # FECTH EVENTS
