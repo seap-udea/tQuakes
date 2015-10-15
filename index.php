@@ -177,6 +177,7 @@ ERROR;
 echo<<<PORTAL
 <html>
 <head>
+<script src="site/jquery.js"></script>
 </head>
 <body>
 <h1>
@@ -230,7 +231,6 @@ else if($if=="stats"){
   $numquakes=mysqlCmd("select count(quakeid) from Quakes");
   $numfetched=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0;");
   $perfetched=round($numfetched[0]/(1.0*$numquakes[0])*100,1);
-  $numanalysed=mysqlCmd("select count(quakeid) from Quakes where astatus+0=3;");
   $numsubmit=mysqlCmd("select count(quakeid) from Quakes where astatus+0=4;");
   $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,1);
 
@@ -242,9 +242,6 @@ echo<<<PORTAL
     </li>
     <li>
       <b>Fetched Earthquakes</b>: $numfetched[0] [ $perfetched% ]
-    </li>
-    <li>
-      <b>Analysed Earthquakes</b>: $numanalysed[0]
     </li>
     <li>
       <b>Submitted Earthquakes</b>: $numsubmit[0] [ $persubmit% ]
@@ -262,8 +259,10 @@ else if($if=="activity"){
 echo<<<TABLE
 <table border=1px>
 <tr>
+  <td>Name</td>
   <td>Station Id.</td>
   <td>Status</td>
+  <td>Num. quakes</td>
 </tr>
 TABLE;
   foreach($stations as $station){
@@ -271,11 +270,14 @@ TABLE;
       $$key=$station["$key"];
     }
     $station_status_txt=$STATION_STATUS[$station_status];
-
+    $numquakes=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id';");
+    
 echo<<<TABLE
   <tr>
+    <td>$station_name</td>
     <td>$station_id</td>
     <td>$station_status_txt</td>
+    <td>$numquakes[0]</td>
   </tr>
 TABLE;
 
