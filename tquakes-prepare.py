@@ -88,4 +88,4 @@ for quake in qlist.split("\n"):
     System("rm "+lockfile)
 
     iq+=1
-    if iq>2*conf.NUMQUAKES:break
+    # if iq>2*conf.NUMQUAKES:break

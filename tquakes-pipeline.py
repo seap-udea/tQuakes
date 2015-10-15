@@ -21,8 +21,8 @@ sleep(tsleep)
 # ##################################################
 # PIPELINE
 # ##################################################
-system("python tquakes-fetch.py")
-system("python tquakes-prepare.py")
-system("python tquakes-eterna.py")
-system("python tquakes-analysis.py")
 system("python tquakes-submit.py")
+system("python tquakes-analysis.py")
+system("python tquakes-eterna.py")
+system("python tquakes-prepare.py")
+system("python tquakes-fetch.py")

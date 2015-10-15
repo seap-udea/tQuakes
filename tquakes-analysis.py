@@ -137,5 +137,5 @@ for quake in qlist:
     print "\tQuake done."
 
     iq+=1
-    if iq>2*conf.NUMQUAKES:break
+    # if iq>2*conf.NUMQUAKES:break
     
