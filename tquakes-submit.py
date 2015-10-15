@@ -11,7 +11,6 @@ periods=[0.5,1.0,13.8,27.6]
 # LOAD STATION INFORMATION
 # ##################################################
 station=loadConf(".stationrc")
-out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=5'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # CHECK IF STATION CAN SUBMIT
@@ -23,6 +22,7 @@ else:
     print "Server not receiving from this station."
     exit(0)
 
+out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=5'"%(conf.WEBSERVER,station.station_id))
 # ##################################################
 # GET UNSUBMITED QUAKES
 # ##################################################

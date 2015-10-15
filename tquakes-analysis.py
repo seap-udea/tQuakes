@@ -11,7 +11,6 @@ periods=[0.5,1.0,13.8,27.6]
 # LOAD STATION INFORMATION
 # ##################################################
 station=loadConf(".stationrc")
-out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=4'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # GET NOT ANALYSED QUAKES
@@ -26,6 +25,7 @@ else:
     nquakes=len(qlist)
     print "\t%d calculated quakes found..."%nquakes
 
+out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=4'"%(conf.WEBSERVER,station.station_id))
 # ##################################################
 # LOOP OVER QUAKES
 # ##################################################
