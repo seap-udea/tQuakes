@@ -198,8 +198,9 @@ echo<<<PORTAL
 <aa href="?if=search">Search</a> |
 <a href="?if=activity">Stations Activity</a> |
 <a href="?if=register">Register Station</a> | 
-<aa href="?if=calculate">Calculate</a> |
-<a href="update.php">Update</a> |
+<aa href="?if=calculate">Calculate</a> 
+|
+<!--<a href="update.php">Update</a> |-->
 <hr/>
 PORTAL;
 
@@ -288,6 +289,30 @@ echo<<<PORTAL
   </ul>
 </li>
 PORTAL;
+
+//==================================================
+//PLOTS
+//==================================================
+$output=shell_exec("ls -m plots/*.png");
+$listplots=preg_split("/\s*,\s*/",$output);
+foreach($listplots as $plot)
+{
+   $plotbase=rtrim(shell_exec("basename $plot"));
+echo<<<PLOT
+<li><b>Plot</b>:
+  <ul>
+    <li>File: <a href="$plot">$plotbase</a></li>
+    <li>Preview:<br/>
+      <a href="$plot">
+	<img src="$plot" width="400px">
+      </a>
+    </li>
+    <li><a href="update.php?replot&plot=$plotbase">Replot</a></li>
+  </ul>
+
+
+PLOT;
+}
 
 echo "</ul>";
 }
