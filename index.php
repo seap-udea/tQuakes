@@ -134,8 +134,9 @@ else if($action=="submit"){
 //CHANGE STATION STATUS
 ////////////////////////////////////////////////////////////////////////
 else if($action=="status"){
-  $sql="update Status set station_status=$station_status,station_statusdate=now() where stationid='$station_id';";
+  $sql="update Stations set station_status=$station_status,station_statusdate=now() where station_id='$station_id';";
   mysqlCmd($sql);
+  echo "Status for $station_id changed to $station_status<br/>";
   return 0;
 }
 
