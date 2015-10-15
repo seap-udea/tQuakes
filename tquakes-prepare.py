@@ -10,6 +10,7 @@ conf=loadConf("configuration")
 # LOAD STATION INFORMATION
 # ##################################################
 station=loadConf(".stationrc")
+out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=2'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # GET UNCALCULATED QUAKES

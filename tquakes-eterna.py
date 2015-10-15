@@ -10,6 +10,7 @@ predict="util/Eterna/ETERNA34/PREDICT.EXE"
 # ##################################################
 station=loadConf(".stationrc")
 print "*"*50+"\nRUNNING tquakes-eterna\n"+"*"*50
+out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=3'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # GET UNCALCULATED QUAKES
