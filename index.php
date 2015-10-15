@@ -9,6 +9,8 @@ require_once("site/util.php");
 if(!isset($action)){$action="";}
 if(!isset($if)){$if="";}
 
+$action_status="";
+$action_error="";
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ////////////////////////////////////////////////////////////////////////
 //ACTIONS
@@ -116,8 +118,6 @@ station_mac='$station_mac';");
 //REGISTER STATION
 ////////////////////////////////////////////////////////////////////////
 else if($action=="register"){
-  $action_status="";
-  $action_error="";
   //CHECK IF MACHINE IS REGISTERED OR PREREGISTERED
   $station_dir="stations/$station_id";
   $station_predir="stations/.preregister/$station_id";
@@ -190,6 +190,7 @@ echo<<<PORTAL
 <a href="?if=download">Download</a> |
 <a href="?if=stats">Statistics</a> |
 <a href="?if=data">Data Products</a> |
+<aa href="?if=search">Search</a> |
 <a href="?if=activity">Stations Activity</a> |
 <a href="?if=register">Register Station</a> | 
 <aa href="?if=calculate">Calculate</a> |
@@ -209,14 +210,15 @@ $tQuakes can be downloaded in different forms:
   <ul>
     <li>
       Installation script for Linux
-      clienst: <a href="site/install-station.sh">install-station.sh</a>
+      clients: <a href="site/install-station.sh">install-station.sh</a>
     </li>
   </ul>
 </li>
 
 <li>
   <b>Calculation server</b>: create your own calculation server to run
-  custom analysis on your own earthquakes database.
+  custom analysis on custom earthquakes database.  This site is
+  running on the server $WEBSERVER.
   <ul>
     <li><a href="$GITREPO">Github repositorty</a>.</li>
   </ul>
@@ -240,6 +242,7 @@ specifically in Colombia and South America) and the lunisolar tides
 affecting the places where those Earthquakes happened.
 
 Here are some of the available data products from $tQuakes:
+<ul>
 PORTAL;
 
 //==================================================
@@ -247,16 +250,15 @@ PORTAL;
 //==================================================
 $file="data/sql/Quakes.sql.7z";
 $base=rtrim(shell_exec("basename $file"));
-$size=filesize($file);
+$size=round(filesize($file)/1024.0,0);
 $time=date("F d Y H:i:s",filemtime($file));
 echo<<<PORTAL
-<ul>
 <li>
   <b>Earthquakes database:</b> The complete database of Earth quakes
   analysed by $tQuakes.
   <ul>
     <li>File: <a href="$file">$base</a></li>
-    <li>Size: $size</li>
+    <li>Size: $size kB</li>
     <li>Last update: $time</li>
   </ul>
 </li>
@@ -267,16 +269,15 @@ PORTAL;
 //==================================================
 $file="data/sql/tQuakes.sh";
 $base=rtrim(shell_exec("basename $file"));
-$size=filesize($file);
+$size=round(filesize($file)/1024.0,0);
 $time=date("F d Y H:i:s",filemtime($file));
 echo<<<PORTAL
-<ul>
 <li>
-  <b>Earthquakes database:</b> The complete database of Earth quakes
-  analysed by $tQuakes.
+  <b>Earthquakes database installer:</b> Bash script to install
+  database in a Linux (debian-like) server.
   <ul>
     <li>File: <a href="$file">$base</a></li>
-    <li>Size: $size</li>
+    <li>Size: $size kB</li>
     <li>Last update: $time</li>
   </ul>
 </li>
@@ -327,8 +328,8 @@ echo<<<TABLE
 <tr>
   <td>Name</td>
   <td>Station Id.</td>
-  <td>Status</td>
   <td>Num. quakes</td>
+  <td>Status</td>
 </tr>
 TABLE;
   foreach($stations as $station){
@@ -342,8 +343,8 @@ echo<<<TABLE
   <tr>
     <td>$station_name</td>
     <td>$station_id</td>
-    <td>$station_status_txt</td>
     <td>$numquakes[0]</td>
+    <td>$station_status_txt</td>
   </tr>
 TABLE;
 
