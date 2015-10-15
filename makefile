@@ -44,17 +44,21 @@ unlock:
 backup:
 	@echo "Backuping Quakes data..."
 	@mysqldump -u root -p tQuakes Quakes > data/sql/Quakes.sql
+	@p7zip data/sql/Quakes.sql
 
 backupall:
 	@echo "Backuping tQuakes database..."
 	@mysqldump -u root -p tQuakes > data/sql/tQuakes.sql
+	@p7zip data/sql/tQuakes.sql
 
 restore:
 	@echo "Restoring table Quakes..."
+	@p7zip -d data/sql/Quakes.sql.z7
 	@mysql -u root -p tQuakes < data/sql/Quakes.sql
 
 restoreall:
 	@echo "Restoring database..."
+	@p7zip -d data/sql/tQuakes.sql.z7
 	@mysql -u root -p tQuakes < data/sql/tQuakes.sql
 
 installkeys:

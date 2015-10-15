@@ -6,6 +6,8 @@
 //LOAD UTILITIES
 ////////////////////////////////////////////////////////////////////////
 require_once("site/util.php");
+if(!isset($action)){$action="";}
+if(!isset($if)){$if="";}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ////////////////////////////////////////////////////////////////////////
@@ -16,7 +18,7 @@ require_once("site/util.php");
 ////////////////////////////////////////////////////////////////////////
 //FETCHING EVENTS
 ////////////////////////////////////////////////////////////////////////
-if(isset($action)){
+if(!isBlank($action)){
 
 if($action=="fetch"){
   $sql="select * from Quakes where astatus+0=0 limit $numquakes;";
@@ -114,7 +116,8 @@ station_mac='$station_mac';");
 //REGISTER STATION
 ////////////////////////////////////////////////////////////////////////
 else if($action=="register"){
-
+  $action_status="";
+  $action_error="";
   //CHECK IF MACHINE IS REGISTERED OR PREREGISTERED
   $station_dir="stations/$station_id";
   $station_predir="stations/.preregister/$station_id";
@@ -189,7 +192,7 @@ echo<<<PORTAL
 <a href="?if=data">Data Products</a> |
 <a href="?if=activity">Stations Activity</a> |
 <a href="?if=register">Register Station</a> | 
-<a href="?if=calculate">Calculate</a> |
+<aa href="?if=calculate">Calculate</a> |
 <hr/>
 PORTAL;
 
@@ -221,6 +224,65 @@ $tQuakes can be downloaded in different forms:
 
 </ul>
 PORTAL;
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//DATA PRODUCTS
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+if($if=="data"){
+
+echo<<<PORTAL
+
+One of the most important products of $tQuakes is data. A lot of it.
+
+Data containing information about Earthquakes around the globe (more
+specifically in Colombia and South America) and the lunisolar tides
+affecting the places where those Earthquakes happened.
+
+Here are some of the available data products from $tQuakes:
+PORTAL;
+
+//==================================================
+//DATABASE
+//==================================================
+$file="data/sql/Quakes.sql.7z";
+$base=rtrim(shell_exec("basename $file"));
+$size=filesize($file);
+$time=date("F d Y H:i:s",filemtime($file));
+echo<<<PORTAL
+<ul>
+<li>
+  <b>Earthquakes database:</b> The complete database of Earth quakes
+  analysed by $tQuakes.
+  <ul>
+    <li>File: <a href="$file">$base</a></li>
+    <li>Size: $size</li>
+    <li>Last update: $time</li>
+  </ul>
+</li>
+PORTAL;
+
+//==================================================
+//INSTALLATION SCRIPT
+//==================================================
+$file="data/sql/tQuakes.sh";
+$base=rtrim(shell_exec("basename $file"));
+$size=filesize($file);
+$time=date("F d Y H:i:s",filemtime($file));
+echo<<<PORTAL
+<ul>
+<li>
+  <b>Earthquakes database:</b> The complete database of Earth quakes
+  analysed by $tQuakes.
+  <ul>
+    <li>File: <a href="$file">$base</a></li>
+    <li>Size: $size</li>
+    <li>Last update: $time</li>
+  </ul>
+</li>
+PORTAL;
+
+echo "</ul>";
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
