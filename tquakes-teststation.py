@@ -13,6 +13,20 @@ print "*"*50+"\nRUNNING tquakes-test\n"+"*"*50
 qfail=0
 
 # ##################################################
+# TESTING IF ETERNA IS RUNNING
+# ##################################################
+if not qfail:
+    print "Testing Eterna..."
+    System("rm data/quakes/TEST/*.prn data/quakes/TEST/*.prd")
+    System("cd data/quakes/TEST;dosemu -t PREDICT.EXE &> test.log")
+    out=System("cd data/quakes/TEST;cat *.prd |wc -l")
+    if int(out)>0:
+        print "Eterna is running."
+    else:
+        print "Eterna is not running properly."
+        qfail=1
+
+# ##################################################
 # TESTING CONNECTION
 # ##################################################
 if not qfail:
