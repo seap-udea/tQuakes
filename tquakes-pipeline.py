@@ -21,7 +21,19 @@ sleep(tsleep)
 # ##################################################
 # PIPELINE
 # ##################################################
+# CHECK IF THERE IS PENDING QUAKES
+out=System("ls -d data/quakes/??????? 2> /dev/null")
+if out!="":
+    print "Processing pending jobs.".upper()
+    system("python tquakes-prepare.py")
+    system("python tquakes-eterna.py")
+    system("python tquakes-analysis.py")
+    system("python tquakes-submit.py")
+
+# FETCH
 system("python tquakes-fetch.py")
+
+# PROCESS
 system("python tquakes-prepare.py")
 system("python tquakes-eterna.py")
 system("python tquakes-analysis.py")
