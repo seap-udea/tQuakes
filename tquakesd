@@ -18,7 +18,7 @@ do
     
     # WAIT UNTIL PROCESSES END
     wait
-    $((j++))
+    ((j++))
 
     # BREAK AFTER 
     if [ $j -gt $DAEMON_LIMIT ];then exit 0;fi
