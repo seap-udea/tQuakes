@@ -231,6 +231,7 @@ else if($if=="stats"){
   $numquakes=mysqlCmd("select count(quakeid) from Quakes");
   $numfetched=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0;");
   $perfetched=round($numfetched[0]/(1.0*$numquakes[0])*100,1);
+  $numanalysed=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0 and astatus+0<4;");
   $numsubmit=mysqlCmd("select count(quakeid) from Quakes where astatus+0=4;");
   $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,1);
 
@@ -242,6 +243,9 @@ echo<<<PORTAL
     </li>
     <li>
       <b>Fetched Earthquakes</b>: $numfetched[0] [ $perfetched% ]
+    </li>
+    <li>
+      <b>Earthquakes being processed</b>: $numanalysed[0]
     </li>
     <li>
       <b>Submitted Earthquakes</b>: $numsubmit[0] [ $persubmit% ]
