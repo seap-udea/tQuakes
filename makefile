@@ -76,3 +76,7 @@ pull:
 	@echo "Pulling from repository..."
 	@git reset --hard HEAD	
 	@git pull origin $(BRANCH)
+
+station:
+	@echo "Changing to station branch..."
+	@git checkout station
