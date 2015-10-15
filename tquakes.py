@@ -82,6 +82,13 @@ CONF=loadConf("configuration")
 # ######################################################################
 # REGULAR ROUTINES
 # ######################################################################
+def connectDatabase(server='localhost',
+                 user=CONF.DBUSER,
+                 password=CONF.DBPASSWORD,
+                 database=CONF.DBNAME):
+    con=mdb.connect(server,user,password,database)
+    return con
+
 def loadDatabase(server='localhost',
                  user=CONF.DBUSER,
                  password=CONF.DBPASSWORD,
@@ -138,6 +145,22 @@ def updateDatabase(dbdict,con):
                 db.execute(sql);
     con.commit()
 
+def mysqlSimple(sql,db):
+    db.execute(sql)
+    result=db.fetchone()
+    return result[0]
+
+def mysqlArray(sql,db):
+    db.execute(sql)
+    result=db.fetchall()
+    return result
+
+def fileBase(filename):
+    search=re.search("([^\/]+)\.[^\/]+",filename)
+    basename=search.group(1)
+    return basename
+
+    
 def randomStr(N):
     import string,random
     string=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
@@ -350,3 +373,4 @@ def phaseFourier(ft,to,T,N,periodo):
     phasek=wkt+phase
     phasek=numpy.mod(phasek,360.0)
     return phasek
+
