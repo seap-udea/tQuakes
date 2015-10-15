@@ -21,9 +21,9 @@ if not qfail:
     System("cd data/quakes/TEST;dosemu -t PREDICT.EXE &> test.log")
     out=System("cd data/quakes/TEST;cat *.prd |wc -l")
     if int(out)>0:
-        print "Eterna is running."
+        print "\tEterna is running."
     else:
-        print "Eterna is not running properly."
+        print "\tEterna is not running properly."
         qfail=1
 
 # ##################################################
