@@ -6,11 +6,15 @@
 //LOAD UTILITIES
 ////////////////////////////////////////////////////////////////////////
 require_once("site/util.php");
+
+////////////////////////////////////////////////////////////////////////
+//INITIAL CHECKS
+////////////////////////////////////////////////////////////////////////
 if(!isset($action)){$action="";}
 if(!isset($if)){$if="";}
-
 $action_status="";
 $action_error="";
+
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ////////////////////////////////////////////////////////////////////////
 //ACTIONS
@@ -183,9 +187,10 @@ echo<<<PORTAL
 <script src="site/jquery.js"></script>
 </head>
 <body>
-<h1>
-<a href=?>tQuakes</a>
-</h1>
+  <h1>
+    <a href="?">tQuakes</a><br/>
+    <i style="font-size:18px">Earthquakes and Tides</i>
+  </h1>
 <a href="?">Home</a> | 
 <a href="?if=download">Download</a> |
 <a href="?if=stats">Statistics</a> |
@@ -194,6 +199,7 @@ echo<<<PORTAL
 <a href="?if=activity">Stations Activity</a> |
 <a href="?if=register">Register Station</a> | 
 <aa href="?if=calculate">Calculate</a> |
+<a href="update.php">Update</a> |
 <hr/>
 PORTAL;
 
