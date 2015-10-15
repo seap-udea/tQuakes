@@ -58,10 +58,10 @@ if not qfail:
     print "Testing database connection..."
     out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
     if int(out)>0:
-        print "\tServer is receiving from this station.".upper()
+        print "\tServer is receiving from this station."
         qrec=1
     else:
-        print "\tServer is not receiving from this station."
+        print "\tServer is not receiving from this station.".upper()
         qrec=0
 
 # ##################################################
