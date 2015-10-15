@@ -10,12 +10,13 @@ conf=loadConf("configuration")
 # LOAD STATION INFORMATION
 # ##################################################
 station=loadConf(".stationrc")
+out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=1'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # FECTH EVENTS
 # ##################################################
 print "Fecthing %d events..."%conf.NUMQUAKES,
-out=System("links -dump 'http://localhost/tQuakes/index.php?action=fetch&station_id=%s&numquakes=%d'"%(station.station_id,conf.NUMQUAKES))
+out=System("links -dump '%s/index.php?action=fetch&station_id=%s&numquakes=%d'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES))
 print "Done."
 print out
 

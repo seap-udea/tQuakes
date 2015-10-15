@@ -1,4 +1,5 @@
 from tquakes import *
+print "*"*50+"\nRUNNING tquakes-eterna\n"+"*"*50
 # ##################################################
 # CONFIGURATION
 # ##################################################
@@ -9,7 +10,6 @@ predict="util/Eterna/ETERNA34/PREDICT.EXE"
 # LOAD STATION INFORMATION
 # ##################################################
 station=loadConf(".stationrc")
-print "*"*50+"\nRUNNING tquakes-eterna\n"+"*"*50
 
 # ##################################################
 # GET UNCALCULATED QUAKES
@@ -24,6 +24,7 @@ else:
     nquakes=len(qlist)
     print "\t%d prepared quakes found..."%nquakes
 
+out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=3'"%(conf.WEBSERVER,station.station_id))
 # ##################################################
 # LOOP OVER QUAKES
 # ##################################################
@@ -62,7 +63,7 @@ for quake in qlist:
         System("cd %s;dosemu -t -quiet PREDICT.EXE &> %s%d.log"%(quakedir,
                                                                  quakeid,
                                                                  component))
-        System("cd %s;bash prd2plain.sh %s%d.prd > %s%d.plain"%(quakedir,
+        system("cd %s;bash prd2plain.sh %s%d.prd > %s%d.plain"%(quakedir,
                                                                 lquakeid,component,
                                                                 lquakeid,component))
 
@@ -87,7 +88,7 @@ for quake in qlist:
     numpy.savetxt("%s/%s.data"%(quakedir,quakeid),data)
 
     # 7ZIP RESULTS
-    System("cd %s;tar cf %s-eterna.tar %s*.* %s*.*"%(quakedir,
+    System("cd %s;tar cf %s-eterna.tar %s*.* %s*.* .states"%(quakedir,
                                               quakeid,quakeid,lquakeid))  
     System("cd %s;p7zip %s-eterna.tar"%(quakedir,quakeid))
     System("cd %s;rm PREDICT.EXE project* %s*.??? %s*.???"%(quakedir,

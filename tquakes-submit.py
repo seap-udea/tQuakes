@@ -22,6 +22,7 @@ else:
     print "Server not receiving from this station."
     exit(0)
 
+out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=5'"%(conf.WEBSERVER,station.station_id))
 # ##################################################
 # GET UNSUBMITED QUAKES
 # ##################################################
@@ -62,7 +63,7 @@ for quake in qlist:
         System("touch "+lockfile)
 
     # SUBMIT DATA
-    system("scp -r %s/*.7z tquakes@localhost:. 2> scratch/%s.err"%(quakedir,quakeid))
+    system("scp -r %s/*.7z tquakes@%s:. 2> scratch/%s.err"%(quakedir,conf.DATASERVER,quakeid))
     if System("cat scratch/%s.err"%quakeid)!="":
         print "\tConnection failed to data server."
         System("rm "+lockfile)
@@ -89,4 +90,4 @@ for quake in qlist:
     print "\tQuake done."
 
     iq+=1
-    if iq>2*conf.NUMQUAKES:break
+    # if iq>2*conf.NUMQUAKES:break

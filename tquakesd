@@ -2,18 +2,24 @@
 . configuration
 . .stationrc
 
-# UPDATE BRANCH
-make pull
-
 j=0
 while [ 1 ]
 do
+    # UPDATE BRANCH
+    echo "Updating repository..."
+    make pull
+
+    # RUN PROCESS PER EACH PROCESSOR
     for i in $(seq 1 $station_nproc)
     do
 	    python tquakes-pipeline.py >> log/tquakes-proc$i.log &
 	    sleep 1
     done
+    
+    # WAIT UNTIL PROCESSES END
     wait
-    $((j++))
-    if [ $j -gt 0 ];then exit 0;fi
+    ((j++))
+
+    # BREAK AFTER 
+    if [ $j -gt $DAEMON_LIMIT ];then exit 0;fi
 done
