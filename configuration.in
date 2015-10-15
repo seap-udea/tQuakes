@@ -9,7 +9,7 @@ DBNAME="tQuakes";
 WEBSERVER="http://urania.udea.edu.co/tQuakes"
 DATASERVER="urania.udea.edu.co"
 
-NUMQUAKES=3;
+NUMQUAKES=50;
 SAMPLERATE=3600;
 TIMEWIDTH=90.0;
 
