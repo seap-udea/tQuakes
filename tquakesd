@@ -6,6 +6,7 @@ j=0
 while [ 1 ]
 do
     # UPDATE BRANCH
+    echo "Updating repository..."
     make pull
 
     # RUN PROCESS PER EACH PROCESSOR
