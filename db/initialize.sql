@@ -66,6 +66,7 @@ create table Stations
 	/*STATION STATUS*/
 	station_receiving tinyint,
 	station_status tinyint,
+	station_statusdate datetime,
 
 	/*RESULTS INFORMATION*/
 	station_numquakes varchar(6),
