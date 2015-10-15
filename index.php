@@ -297,17 +297,19 @@ $output=shell_exec("ls -m plots/*.png");
 $listplots=preg_split("/\s*,\s*/",$output);
 foreach($listplots as $plot)
 {
-   $plotbase=rtrim(shell_exec("basename $plot"));
+   $plotname=rtrim(shell_exec("basename $plot"));
+   $plotbase=preg_split("/\./",$plotname)[0];
+
 echo<<<PLOT
 <li><b>Plot</b>:
   <ul>
-    <li>File: <a href="$plot">$plotbase</a></li>
+    <li><a name="$plotbase">File</a>: <a href="$plot">$plotname</a></li>
     <li>Preview:<br/>
       <a href="$plot">
 	<img src="$plot" width="400px">
       </a>
     </li>
-    <li><a href="update.php?replot&plot=$plotbase">Replot</a></li>
+    <li><a href="update.php?replot&plot=$plotname&aname=$plotbase">Replot</a></li>
   </ul>
 
 

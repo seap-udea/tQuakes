@@ -20,6 +20,8 @@ if(isset($replot)){
    $out=shell_exec("PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/$name.py &> /tmp/error");
    echo "$out<br/>";
    $content="Replot succesful...";
+   $target_url=$target_url."#".$aname;
+   echo "Target: $target_url<br/>";
    $refresh_time=1;
 }
 
