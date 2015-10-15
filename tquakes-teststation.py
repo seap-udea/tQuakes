@@ -20,6 +20,7 @@ if not qfail:
     System("rm data/quakes/TEST/*.prn data/quakes/TEST/*.prd")
     System("cd data/quakes/TEST;dosemu -t PREDICT.EXE &> test.log")
     out=System("cd data/quakes/TEST;cat *.prd |wc -l")
+    System("rm data/quakes/TEST/*.prn data/quakes/TEST/*.prd")
     if int(out)>0:
         print "\tEterna is running."
     else:
