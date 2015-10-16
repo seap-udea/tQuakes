@@ -1,4 +1,3 @@
-import MySQLdb as mdb
 import csv,datetime,commands,re,os,numpy,cmath
 from sys import exit,argv
 from util.jdcal import *
