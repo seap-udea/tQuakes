@@ -1,4 +1,5 @@
 #!/bin/bash
+
 cp configuration.in configuration
 . configuration
 
