@@ -6,7 +6,7 @@ conf=loadConf("configuration")
 # ##################################################
 print "Station properties:"
 
-if os.path.lexists(".stationrc"):
+if not os.path.lexists(".stationrc"):
     # UNIQUE IDENTIFIER
     station_id=System("hostid").upper()
     suffix1=System("sudo dmidecode -t system |grep UUID |head -n 1")[-3:].upper()
