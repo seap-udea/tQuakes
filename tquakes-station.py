@@ -9,7 +9,7 @@ print "Station properties:"
 # UNIQUE IDENTIFIER
 station_id=System("hostid").upper()
 suffix1=System("sudo dmidecode -t system |grep UUID |head -n 1")[-3:].upper()
-suffix2=System("echo $HOME |md5sum |cut -f 1 -d ' '")[-3:].upper()
+suffix2=System("/sbin/ifconfig |md5sum |cut -f 1 -d ' '")[-3:].upper()
 station_id=station_id+suffix1+suffix2
 print "\tStation ID:",station_id
 
