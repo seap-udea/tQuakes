@@ -15,7 +15,7 @@ if not os.path.lexists(".stationrc"):
     print "\tStation ID:",station_id
 else:
     conf=loadConf(".stationrc")
-    station_id=conf.station_stationid
+    station_id=conf.station_id
 
 # ARCHITECTURE
 station_arch=System("uname -ar")
