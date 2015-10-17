@@ -39,6 +39,9 @@ create table Quakes (
        astatus varchar(255),
        adatetime varchar(255),
        stationid varchar(255),
+       calctime1 varchar(50),
+       calctime2 varchar(50),
+       calctime3 varchar(50),
 
        /*ANALYSIS RESULTS*/       
        qsignal varchar(255),

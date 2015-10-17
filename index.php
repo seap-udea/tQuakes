@@ -358,6 +358,7 @@ echo<<<TABLE
   <td>Station Id.</td>
   <td>Num. quakes</td>
   <td>Status</td>
+  <td>Last update</td>
 </tr>
 TABLE;
   foreach($stations as $station){
@@ -373,6 +374,7 @@ echo<<<TABLE
     <td>$station_id</td>
     <td>$numquakes[0]</td>
     <td>$station_status_txt</td>
+    <td>$station_statusdate</td>
   </tr>
 TABLE;
 
