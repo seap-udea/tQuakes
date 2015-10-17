@@ -46,7 +46,7 @@ if($action=="fetch"){
 //REPORT END OF ETERNA CALCULATIONS
 ////////////////////////////////////////////////////////////////////////
 else if($action=="report"){
-  $sql="update Quakes set astatus='2',stationid='$station_id',adatetime=now() where quakeid='$quakeid';";
+  $sql="update Quakes set astatus='2',stationid='$station_id',calctime1='$deltat',adatetime=now() where quakeid='$quakeid';";
   mysqlCmd($sql);
   return 0;
 }
@@ -55,7 +55,7 @@ else if($action=="report"){
 //REPORTING END OF ANALYSIS
 ////////////////////////////////////////////////////////////////////////
 else if($action=="analysis"){
-  $sql="update Quakes set astatus='3',stationid='$station_id',adatetime=now(),qsignal='$qsignal',qphases='$qphases' where quakeid='$quakeid';";
+  $sql="update Quakes set astatus='3',stationid='$station_id',calctime2='$deltat',adatetime=now(),qsignal='$qsignal',qphases='$qphases' where quakeid='$quakeid';";
   mysqlCmd($sql);
   return 0;
 }
