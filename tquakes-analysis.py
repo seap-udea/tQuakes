@@ -52,6 +52,10 @@ for quake in qlist:
         print "\tLocking quake"
         System("touch "+lockfile)
 
+    # TIME
+    time_start=time.clock()
+    print "\tStarting time: ",time_start
+
     # LOAD DATA
     data=numpy.loadtxt(quakedir+"%s.data"%quakeid)
 
@@ -121,6 +125,12 @@ for quake in qlist:
     System("cd %s;p7zip %s-analysis.tar"%(quakedir,quakeid))
     System("cd %s;rm *ff*"%(quakedir))  
     
+    # TIME
+    time_end=time.clock()
+    print "\tEnd time: ",time_end
+    deltat=time_end-time_start
+    print "\tTime elapsed: ",deltat
+
     # CHANGE STATUS OF QUAKE
     System("date +%%s > %s/.analysis"%quakedir)
     System("mv %s/.eterna %s/.states"%(quakedir,quakedir))

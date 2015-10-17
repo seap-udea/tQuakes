@@ -50,6 +50,10 @@ for quake in qlist:
     else:
         print "\tLocking quake"
         System("touch "+lockfile)
+        
+    # TIME
+    time_start=time.clock()
+    print "\tStarting time: ",time_start
 
     # COPY PREDICT PROGRAM
     System("cp %s %s"%(predict,quakedir))
@@ -97,6 +101,12 @@ for quake in qlist:
     # CHANGE STATUS OF QUAKE
     System("date +%%s > %s/.eterna"%quakedir)
     System("mv %s/.prepare %s/.states"%(quakedir,quakedir))
+
+    # TIME
+    time_end=time.clock()
+    print "\tEnd time: ",time_end
+    deltat=time_end-time_start
+    print "\tTime elapsed: ",deltat
     
     # REPORT END OF CALCULATIONS
     print "\tReporting calculations..."
