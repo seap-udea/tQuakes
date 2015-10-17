@@ -1,4 +1,4 @@
-import csv,datetime,commands,re,os,numpy,cmath,time
+import csv,datetime,commands,re,os,numpy,cmath,time as timing
 from sys import exit,argv
 from util.jdcal import *
 
@@ -7,7 +7,7 @@ from util.jdcal import *
 # ######################################################################
 system=os.system
 PI=numpy.pi
-sleep=time.sleep
+sleep=timing.sleep
 
 # ######################################################################
 # GLOBAL

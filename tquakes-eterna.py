@@ -52,7 +52,7 @@ for quake in qlist:
         System("touch "+lockfile)
         
     # TIME
-    time_start=time.clock()
+    time_start=timing.clock()
     print "\tStarting time: ",time_start
 
     # COPY PREDICT PROGRAM
@@ -103,14 +103,14 @@ for quake in qlist:
     System("mv %s/.prepare %s/.states"%(quakedir,quakedir))
 
     # TIME
-    time_end=time.clock()
+    time_end=timing.clock()
     print "\tEnd time: ",time_end
     deltat=time_end-time_start
     print "\tTime elapsed: ",deltat
     
     # REPORT END OF CALCULATIONS
     print "\tReporting calculations..."
-    out=System("links -dump '%s/index.php?action=report&station_id=%s&quakeid=%s'"%(conf.WEBSERVER,station.station_id,quakeid))
+    out=System("links -dump '%s/index.php?action=report&station_id=%s&quakeid=%s&deltat=%.3e'"%(conf.WEBSERVER,station.station_id,quakeid,deltat))
 
     # DELETE LOCKFILE
     System("rm "+lockfile)

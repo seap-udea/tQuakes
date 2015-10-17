@@ -53,7 +53,7 @@ for quake in qlist:
         System("touch "+lockfile)
 
     # TIME
-    time_start=time.clock()
+    time_start=timing.clock()
     print "\tStarting time: ",time_start
 
     # LOAD DATA
@@ -126,7 +126,7 @@ for quake in qlist:
     System("cd %s;rm *ff*"%(quakedir))  
     
     # TIME
-    time_end=time.clock()
+    time_end=timing.clock()
     print "\tEnd time: ",time_end
     deltat=time_end-time_start
     print "\tTime elapsed: ",deltat
@@ -137,11 +137,12 @@ for quake in qlist:
     
     # REPORT END OF ANALYSIS
     print "\tReporting calculations..."
-    out=System("links -dump '%s/index.php?action=analysis&station_id=%s&quakeid=%s&qsignal=%s&qphases=%s'"%(conf.WEBSERVER,station.station_id,
-                                                                                                                    quakeid,
-                                                                                                                    quake.qsignal,
-                                                                                                                    quake.qphases))
-
+    out=System("links -dump '%s/index.php?action=analysis&station_id=%s&quakeid=%s&qsignal=%s&qphases=%s&deltat=%.3e'"%(conf.WEBSERVER,station.station_id,
+                                                                                                                        quakeid,
+                                                                                                                        quake.qsignal,
+                                                                                                                        quake.qphases,
+                                                                                                                        deltat))
+    
     # DELETE LOCKFILE
     System("rm "+lockfile)
 
