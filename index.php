@@ -353,9 +353,8 @@ else if($if=="station"){
   $result=mysqlCmd("select * from Stations where station_id='$station_id'",$qout=1);
   $station=$result[0];
   echo "<h3>Station $station_id</h3><ul>";
-  print_r($station);
   foreach(array_keys($station) as $key){
-    if(preg_match("/^\d$/",$key)){continue;}
+    if(preg_match("/^\d+$/",$key)){continue;}
     $value=$station["$key"];
     echo "<li><b>$key</b>: $value</li>";
   }
