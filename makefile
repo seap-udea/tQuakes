@@ -56,11 +56,14 @@ restore:
 	@p7zip -d data/sql/Quakes.sql.7z
 	@echo "Enter root mysql password..."
 	@mysql -u root -p tQuakes < data/sql/Quakes.sql
+	@p7zip data/sql/Quakes.sql
 
 restoreall:
 	@echo "Restoring database..."
 	@p7zip -d data/sql/tQuakes.sql.7z
+	@echo "Enter root mysql password..."
 	@mysql -u root -p tQuakes < data/sql/tQuakes.sql
+	@p7zip data/sql/tQuakes.sql
 
 installkeys:
 	@echo "Installing new station keys..."
