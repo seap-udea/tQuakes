@@ -355,6 +355,7 @@ else if($if=="station"){
   echo "<h3>Station $station_id</h3><ul>";
   print_r($station);
   foreach(array_keys($station) as $key){
+    if(preg_match("/^\d$/",$key)){continue;}
     $value=$station["$key"];
     echo "<li><b>$key</b>: $value</li>";
   }
