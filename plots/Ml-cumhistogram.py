@@ -50,6 +50,10 @@ ax.set_ylim((0,nquakes))
 ax.set_title("Cumulative ditribution of %d earthquakes"%nquakes)
 ax.set_xlabel("$M_l$")
 ax.set_ylabel("$N (M > M_l)$")
+ax.text(0.05,0.90,"Roll-off",
+        horizontalalignment="left",
+        transform=ax.transAxes,
+        fontsize=18)
 ax.grid()
 ax.legend(loc="lower left")
 
