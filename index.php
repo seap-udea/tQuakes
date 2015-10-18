@@ -382,6 +382,7 @@ TABLE;
     }
     $station_status_txt=$STATION_STATUS[$station_status];
     $numquakes=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id';");
+    mysqlCmd("update Stations set station_numquakes='$numquakes' where stationid='$station_id';");
     
 echo<<<TABLE
   <tr>
