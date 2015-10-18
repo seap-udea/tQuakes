@@ -347,6 +347,14 @@ PORTAL;
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//STATION
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+else if($if=="station"){
+  $station=mysqlCmd("select * from Stations where station_id='$station_id'",$qout=1);
+  print_r($station);
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //ACTIVITY
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="activity"){
@@ -370,7 +378,7 @@ TABLE;
     
 echo<<<TABLE
   <tr>
-    <td><a href="?action=station&station_id=$station_id">$station_name</a></td>
+    <td><a href="?if=station&station_id=$station_id">$station_name</a></td>
     <td>$station_id</td>
     <td>$numquakes[0]</td>
     <td>$station_status_txt</td>
