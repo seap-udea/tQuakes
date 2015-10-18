@@ -370,7 +370,7 @@ TABLE;
     
 echo<<<TABLE
   <tr>
-    <td>$station_name</td>
+    <td><a href="?action=station&station_id=$station_id">$station_name</a></td>
     <td>$station_id</td>
     <td>$numquakes[0]</td>
     <td>$station_status_txt</td>
