@@ -53,12 +53,13 @@ backupall:
 
 restore:
 	@echo "Restoring table Quakes..."
-	@p7zip -d data/sql/Quakes.sql.z7
+	@p7zip -d data/sql/Quakes.sql.7z
+	@echo "Enter root mysql password..."
 	@mysql -u root -p tQuakes < data/sql/Quakes.sql
 
 restoreall:
 	@echo "Restoring database..."
-	@p7zip -d data/sql/tQuakes.sql.z7
+	@p7zip -d data/sql/tQuakes.sql.7z
 	@mysql -u root -p tQuakes < data/sql/tQuakes.sql
 
 installkeys:
