@@ -352,9 +352,9 @@ PORTAL;
 else if($if=="station"){
   $result=mysqlCmd("select * from Stations where station_id='$station_id'",$qout=1);
   $station=$result[0];
+  echo "<h3>Station $station_id</h3><ul>";
   print_r($station);
   /*
-  echo "<h3>Station $station_id</h3><ul>";
   foreach($key as array_keys($station)){
     $value=$station["$key"];
     echo "<li><b>$key</b>: $value</li>";
