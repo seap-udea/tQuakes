@@ -354,12 +354,10 @@ else if($if=="station"){
   $station=$result[0];
   echo "<h3>Station $station_id</h3><ul>";
   print_r($station);
-  /*
-  foreach($key as array_keys($station)){
+  foreach(array_keys($station) as $key){
     $value=$station["$key"];
     echo "<li><b>$key</b>: $value</li>";
   }
-  */
   echo "</ul>";
 }
 
