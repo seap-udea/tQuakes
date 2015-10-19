@@ -2,6 +2,10 @@
 //======================================================================
 //START
 //======================================================================
+session_start();
+$SESSID=session_id();
+shell_exec("mkdir -p scratch/$SESSID");
+
 ////////////////////////////////////////////////////////////////////////
 //LOAD UTILITIES
 ////////////////////////////////////////////////////////////////////////
@@ -190,7 +194,7 @@ echo<<<PORTAL
 <a href="?if=download">Download</a> |
 <a href="?if=stats">Statistics</a> |
 <a href="?if=data">Data Products</a> |
-<aa href="?if=search">Search</a> |
+<a href="?if=search">Search</a> |
 <a href="?if=activity">Stations Activity</a> |
 <a href="?if=register">Register Station</a> | 
 <aa href="?if=calculate">Calculate</a> 
@@ -288,7 +292,7 @@ PORTAL;
 //==================================================
 //PLOTS
 //==================================================
-$output=shell_exec("ls -m plots/*.png");
+$output=shell_exec("ls -m plots/stats/*.png");
 $listplots=preg_split("/\s*,\s*/",$output);
 foreach($listplots as $plot)
 {
@@ -315,7 +319,7 @@ echo "</ul>";
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//DOWNLOAD
+//STATS
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="stats"){
 
@@ -347,6 +351,140 @@ PORTAL;
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//SEARCH
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+else if($if=="search"){
+
+  // INPUT
+  if(isBlank($offset)){$offset=1;}
+  if(isBlank($limit)){$limit=10;}
+  if(isBlank($search)){$searchdb="quakeid<>''";} 
+  else{$searchdb="quakeid<>'' and $search";}
+  $search_url=urlencode($search);
+
+  // SAVE SEARCH HISTORY
+  $fl=fopen("log/history.log","a");
+  fwrite($fl,"$DATE;;$searchtxt;;$search\n");
+  fclose($fl);
+
+  // SEARCH
+  $result=mysqlCmd("select count(quakeid) from Quakes where $searchdb;");
+  $numquakes=$result[0];
+  if($limit>$numquakes){$limitdb=$numquakes;}
+  else{$limitdb=$limit;}
+  $quakes=mysqlCmd("select * from Quakes where $searchdb limit $offset,$limitdb;",$qout=1);
+
+  // GET NEXT
+  $offset_prev=$offset-$limit;
+  if($offset_prev<0){$offset_prev=1;}
+  $offset_next=$offset+$limit;
+  if($offset_next>$numquakes){$offset_next=$numquakes-$limit_next;}
+
+  $limit_prev=$limit;
+  if(($offset_next+$limit)<=$numquakes){$limit_next=$limit;}
+  else{$limit_next=$numquakes-$offset_next;}
+  
+  $end=$offset+$limit-1;
+  $offset_all=$numquakes-$limit;
+
+  // CONTROL BUTTONS
+  $control=<<<CONTROL
+<div style="font-size:10px;padding:10px;">
+<a href="?if=search&search=$search_url&offset=1&limit=$limit"><<</a> 
+<a href="?if=search&search=$search_url&offset=$offset_prev&limit=$limit_prev">Prev</a> ...
+<a href="?if=search&search=$search_url&offset=$offset_next&limit=$limit_next">Next</a>
+<a href="?if=search&search=$search_url&offset=$offset_all&limit=$limit">>></a> 
+</div>
+CONTROL;
+
+  //EXAMPLES
+  $examples_cont="<div id='examples' style='background:pink;padding:10px;display:none'>Examples:<ul>";
+  $examples_set=searchExamples();
+  $i=$examples_set[0];
+  $examples=$examples_set[1];
+  $examples_txt=$examples_set[2];
+  $examples_url=$examples_set[3];
+  for($j=0;$j<=$i;$j++){
+    $examples_txt_url=urlencode($examples_txt[$j]);
+$examples_cont.=<<<EXAMPLES
+  <li>$examples_txt[$j]:<br/>
+  <a href="index.php?if=search&search=$examples_url[$j]&searchtxt=$examples_txt_url">$examples[$j]</a>
+EXAMPLES;
+  }
+  $examples_cont.="</ul></div>";
+
+  // TABLE HEADER
+echo<<<TABLE
+<form action="index.php" method=get>
+<table>
+  <tr>
+    <td>Description of search:</td>
+    <td><input type="text" name="searchtxt" size="50" value="$searchtxt"></td>
+  </tr>
+  <tr>
+    <td valign="top">Search:<br/>
+      <a style="font-size:10px" href="JavaScript:void(null)" onclick="$('#examples').toggle('fast',null)">
+	Examples
+      </a>,
+      <a style="font-size:10px" href="update.php?history">History</a>
+    </td>
+    <td><input type="text" name="search" size="100" value="$search"></td>
+  </tr>
+  <tr>
+    <td>Number of quakes:</td>
+    <td><input type="text" name="limit" value=$limit></td>
+  </tr>
+  <tr>
+    <td colspan=2><input type="submit" name="if" value="search"></td>
+  </tr>
+</table>
+$examples_cont
+</form>
+
+<center>
+  <h4>Quakes $offset-$end ($limit/$numquakes)</h4>
+$control
+<table border=1px style="font-size:12px">
+<tr>
+  <td>Num.</td>
+  <td>Quake id.</td>
+  <td>Status</td>
+  <td>Lat.,Lon.</td>
+  <td>Depth</td>
+  <td>Date/Time</td>
+  <td>M<sub>l</sub></td>
+  <td>Location</td>
+</tr>
+TABLE;
+
+  $i=$offset;
+  foreach($quakes as $quake){
+    foreach(array_keys($quake) as $key){
+      $$key=$quake["$key"];
+    }
+    $quake_status_txt=$QUAKE_STATUS[$astatus];
+    $departamento=preg_replace("/_/"," ",$departamento);
+    $municipio=preg_replace("/_/"," ",$municipio);
+
+echo<<<TABLE
+  <tr>
+    <td>$i</td>
+    <td><a href="?if=quake&quakeid=$quakeid">$quakeid</a></td>
+    <td>$quake_status_txt</td>
+    <td>$qlat,$qlon</td>
+    <td>$qdepth</td>
+    <td>$qdatetime</td>
+    <td>$Ml</td>
+    <td>$municipio, $departamento</td>
+  </tr>
+TABLE;
+
+    $i++;
+  }
+  echo "</table>$control</center>";
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //STATION
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="station"){
@@ -359,6 +497,95 @@ else if($if=="station"){
     echo "<li><b>$key</b>: $value</li>";
   }
   echo "</ul>";
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//QUAKE
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+else if($if=="quake"){
+  
+  // RECOVER QUAKE INFO
+  $result=mysqlCmd("select * from Quakes where quakeid='$quakeid'",$qout=1);
+  $quake=$result[0];
+  
+  $fullinfo="";
+  $basicinfo="";
+  foreach(array_keys($quake) as $key){
+    if(preg_match("/^\d+$/",$key)){continue;}
+    $value=$$key=$quake["$key"];
+    $fullinfo.="<li><b>$key</b>: $value</li>";
+  }
+
+  
+  // BASIC INFO
+  $departamento=preg_replace("/_/"," ",$departamento);
+  $municipio=preg_replace("/_/"," ",$municipio);
+  $quake_status_txt=$QUAKE_STATUS[$astatus];
+$basicinfo.=<<<BASIC
+  <li><b>Date and time</b>: $qdatetime</li>
+  <li><b>Location</b>: $municipio ($departamento)</li>
+  <li><b>Geographic position</b>: lat. $qlat deg., lon. $qlon deg.</li>
+  <li><b>Depth</b>: $qdepth km</li>
+  <li><b>Status</b>: $quake_status_txt.</li>
+  <li><b>Station</b>: $stationid.</li>
+BASIC;
+  
+  // DOWNLOAD
+  $dirquakes="$HOMEDIR/$TQUSER/tQuakes/";
+  if(file_exists($dirquakes."$quakeid-eterna.tar.7z")){
+
+    //REMOVE PREVIOUS DOWNLOAD QUAKES
+    // shell_exec("rm -r scratch/$SESSID/*"); //ONLY IF YOU WANT TO PRESERVE
+
+    //CREAT QUAKE ID
+    if(!is_dir("scratch/$SESSID/$quakeid")){
+      echo "<i>Creating directory for $quakeid...</i>";
+      shell_exec("mkdir -p scratch/$SESSID/$quakeid/");
+      shell_exec("cp -rf $dirquakes/$quakeid-* scratch/$SESSID/$quakeid/");
+      
+      // ZIP ALL FILES
+      shell_exec("cd scratch/$SESSID/$quakeid;p7zip -d $quakeid-eterna.tar.7z");
+      shell_exec("cd scratch/$SESSID/$quakeid;p7zip -d $quakeid-analysis.tar.7z");
+      shell_exec("cd scratch/$SESSID;tar cf $quakeid.tar $quakeid/$quakeid-*");
+      
+      // UNZIP ALL FILES
+      shell_exec("cd scratch/$SESSID/$quakeid;tar xf $quakeid-eterna.tar");
+      shell_exec("cd scratch/$SESSID/$quakeid;tar xf $quakeid-analysis.tar");
+    }else{
+      $size_eterna=round(filesize("scratch/$SESSID/$quakeid/$quakeid-eterna.tar")/1024.0,0);
+      $size_analysis=round(filesize("scratch/$SESSID/$quakeid/$quakeid-analysis.tar")/1024.0,0);
+      $size_full=round(filesize("scratch/$SESSID/$quakeid.tar")/1024.0,0);
+    }
+
+    // LIST
+$download=<<<DOWN
+  <li><b>Eterna results: </b><a href="scratch/$SESSID/$quakeid/$quakeid-eterna.tar">$quakeid-eterna.tar</a> ($size_eterna kB)</li>
+  <li><b>Fourier transform: </b><a href="scratch/$SESSID/$quakeid/$quakeid-analysis.tar">$quakeid-analysis.tar</a> ($size_analysis kB)</li>
+  <li><b>Full results: </b><a href="scratch/$SESSID/$quakeid.tar">$quakeid.tar</a> ($size_full kB)
+DOWN;
+  }else{
+    $download="(No download available)";
+  }
+
+  // DISPLAY INFO
+echo<<<QUAKE
+<h3>Earthquake $quakeid</h3>
+
+<h4>Basic information</h4>
+<ul>
+  $basicinfo
+</ul>
+
+<h4>Download</h4>
+<ul>
+  $download
+</ul>
+
+<h4>Full information</h4>
+<ul>
+  $fullinfo
+</ul>
+QUAKE;
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

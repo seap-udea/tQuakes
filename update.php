@@ -13,11 +13,15 @@ $content="Refreshing";
 ////////////////////////////////////////////////////////////////////////
 //ACTIONS
 ////////////////////////////////////////////////////////////////////////
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//REPLOT
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 if(isset($replot)){
    $name=preg_split("/\./",$plot)[0];
-   $cmd="PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/$name.py";
+   $cmd="PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/stats/$name.py";
    echo "Plotting: $cmd<br/>";
-   $out=shell_exec("PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/$name.py &> /tmp/error");
+   $out=shell_exec("PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/stats/$name.py &> /tmp/error");
    echo "$out<br/>";
    $content="Replot succesful...";
    $target_url=$target_url."#".$aname;
@@ -25,6 +29,29 @@ if(isset($replot)){
    $refresh_time=1;
 }
 
+if(isset($history)){
+  $histfile="log/history.log";
+  if(file_exists($histfile)){
+    $lines=file($histfile);
+    $content="<h2>Search History</h2><a href=$target_url>Back</a><ul>";
+    foreach($lines as $line){
+      if(isBlank($line)){continue;}
+      $parts=preg_split("/;;/",$line);
+      $date=$parts[0];
+      $explanation=$parts[1];
+      $query=$parts[2];
+      $query_url=urlencode($query);
+      if(!isBlank($explanation)){
+	$content.="<li>$date<br/>$explanation<br/>";
+      }else{$content.="<li>$date<br/>";}
+      $content.="<a href='$query_url'>$query</a></li>";
+    }
+    $content.="</ul>";
+    $refresh_time=-1;
+  }else{
+    echo "No history";
+  }
+}
 ?>
 
 <?php
