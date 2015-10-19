@@ -536,27 +536,48 @@ BASIC;
   if(file_exists($dirquakes."$quakeid-eterna.tar.7z")){
 
     //REMOVE PREVIOUS DOWNLOAD QUAKES
-    // shell_exec("rm -r scratch/$SESSID/*"); //ONLY IF YOU WANT TO PRESERVE
+    //shell_exec("rm -r scratch/$SESSID/*"); //ONLY IF YOU WANT TO PRESERVE
 
-    //CREAT QUAKE ID
-    if(!is_dir("scratch/$SESSID/$quakeid")){
+    //CREATE QUAKE ID
+    $quakedir="scratch/$SESSID/$quakeid";
+    if(!is_dir("$quakedir")){
       echo "<i>Creating directory for $quakeid...</i>";
-      shell_exec("mkdir -p scratch/$SESSID/$quakeid/");
-      shell_exec("cp -rf $dirquakes/$quakeid-* scratch/$SESSID/$quakeid/");
+      shell_exec("mkdir -p $quakedir/");
+      shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
       
       // ZIP ALL FILES
-      shell_exec("cd scratch/$SESSID/$quakeid;p7zip -d $quakeid-eterna.tar.7z");
-      shell_exec("cd scratch/$SESSID/$quakeid;p7zip -d $quakeid-analysis.tar.7z");
+      shell_exec("cd $quakedir;p7zip -d $quakeid-eterna.tar.7z");
+      shell_exec("cd $quakedir;p7zip -d $quakeid-analysis.tar.7z");
       shell_exec("cd scratch/$SESSID;tar cf $quakeid.tar $quakeid/$quakeid-*");
       
       // UNZIP ALL FILES
-      shell_exec("cd scratch/$SESSID/$quakeid;tar xf $quakeid-eterna.tar");
-      shell_exec("cd scratch/$SESSID/$quakeid;tar xf $quakeid-analysis.tar");
+      shell_exec("cd $quakedir;tar xf $quakeid-eterna.tar");
+      shell_exec("cd $quakedir;tar xf $quakeid-analysis.tar");
       sleep(1);
     }else{
-      $size_eterna=round(filesize("scratch/$SESSID/$quakeid/$quakeid-eterna.tar")/1024.0,0);
-      $size_analysis=round(filesize("scratch/$SESSID/$quakeid/$quakeid-analysis.tar")/1024.0,0);
+      $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);
+      $size_analysis=round(filesize("$quakedir/$quakeid-analysis.tar")/1024.0,0);
       $size_full=round(filesize("scratch/$SESSID/$quakeid.tar")/1024.0,0);
+    }
+    
+    // PLOTS
+    $output=shell_exec("ls -m $quakedir/*.png");
+    $listplots=preg_split("/\s*,\s*/",$output);
+    foreach($listplots as $plot){
+      $plotname=rtrim(shell_exec("basename $plot"));
+      $plotbase=preg_split("/\./",$plotname)[0];
+$plots.=<<<PLOT
+<li><b>Plot</b>:
+  <ul>
+    <li><a name="$plotbase">File</a>: <a href="$plot">$plotname</a></li>
+    <li>Preview:<br/>
+      <a href="$plot">
+	<img src="$plot" width="400px">
+      </a>
+    </li>
+    <li><a href="update.php?replot2&plot=$plot">Replot</a></li>
+  </ul>
+PLOT;
     }
 
     // LIST
@@ -581,6 +602,11 @@ echo<<<QUAKE
 <h4>Download</h4>
 <ul>
   $download
+</ul>
+
+<h4>Plots</h4>
+<ul>
+  $plots
 </ul>
 
 <h4>Full information</h4>

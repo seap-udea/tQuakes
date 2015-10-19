@@ -2,7 +2,6 @@ from tquakes import *
 from matplotlib import use
 use('Agg')
 import matplotlib.pyplot as plt
-basename=fileBase(argv[0])
 
 # ############################################################
 # CONNECT TO DATABASE
@@ -43,6 +42,6 @@ ax.grid()
 # ############################################################
 # SAVE FIGURE
 # ############################################################
-figname="plots/stats/%s.png"%basename
+figname="%s/%s.png"%(DIRNAME,BASENAME)
 print "Saving figure ",figname
 fig.savefig(figname)

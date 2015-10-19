@@ -29,6 +29,26 @@ if(isset($replot)){
    $refresh_time=1;
 }
 
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//REPLOT
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+if(isset($replot2)){
+   $name=preg_split("/\./",$plot)[0];
+   $parts=preg_split("/\//",$name);
+   $aname=$parts[count($parts)-1];
+   $cmd="PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/stats/$name.py";
+   echo "Plotting: $cmd<br/>";
+   $out=shell_exec("PYTHONPATH=. MPLCONFIGDIR=/tmp python $name.py &> /tmp/error");
+   echo "$out<br/>";
+   $content="Replot succesful...";
+   $target_url=$target_url."#".$aname;
+   echo "Target: $target_url<br/>";
+   $refresh_time=1;
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//SEARCH HISTORY
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 if(isset($history)){
   $histfile="log/history.log";
   if(file_exists($histfile)){

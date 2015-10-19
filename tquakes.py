@@ -74,10 +74,18 @@ def loadConf(filename):
     else:print "Configuration file '%s' does not found."%filename
     return conf
 
+def fileBase(filename):
+    dirs=filename.split("/")
+    search=re.search("([^\/]+)\.[^\/]+",filename)
+    basename=search.group(1)
+    dirname="/".join(dirs[:-1])
+    return dirname,basename
+
 # ######################################################################
 # CONFIGURATION
 # ######################################################################
 CONF=loadConf("configuration")
+DIRNAME,BASENAME=fileBase(argv[0])
 
 # ######################################################################
 # REGULAR ROUTINES
@@ -155,12 +163,6 @@ def mysqlArray(sql,db):
     result=db.fetchall()
     return result
 
-def fileBase(filename):
-    search=re.search("([^\/]+)\.[^\/]+",filename)
-    basename=search.group(1)
-    return basename
-
-    
 def randomStr(N):
     import string,random
     string=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
@@ -374,3 +376,12 @@ def phaseFourier(ft,to,T,N,periodo):
     phasek=numpy.mod(phasek,360.0)
     return phasek
 
+def quakeProperties(quakeid,db):
+    quake=dict2obj(dict())
+    keys=mysqlArray("describe Quakes;",db)
+    props=mysqlArray("select * from Quakes where quakeid='%s';"%quakeid,db)
+    for i in xrange(len(keys)):
+        key=keys[i][0]
+        value=props[0][i]
+        exec("quake.%s='%s'"%(key,value))
+    return quake
