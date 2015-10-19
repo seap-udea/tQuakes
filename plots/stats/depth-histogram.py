@@ -37,6 +37,6 @@ ax.set_ylabel("Number of earthquakes")
 # ############################################################
 # SAVE FIGURE
 # ############################################################
-figname="plots/%s.png"%basename
+figname="plots/stats/%s.png"%basename
 print "Saving figure ",figname
 fig.savefig(figname)

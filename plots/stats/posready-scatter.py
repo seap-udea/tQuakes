@@ -41,6 +41,6 @@ ax.grid()
 # ############################################################
 # SAVE FIGURE
 # ############################################################
-figname="plots/%s.png"%basename
+figname="plots/stats/%s.png"%basename
 print "Saving figure ",figname
 fig.savefig(figname)
