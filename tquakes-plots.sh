@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for plot in plots/*.py
+for plot in plots/stats/*.py
 do
     python $plot
 done
