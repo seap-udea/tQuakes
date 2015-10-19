@@ -46,6 +46,15 @@ stmax=numpy.abs(st-stmean).max()
 ax.plot(t-dt,(st-stmean)*smax/stmax+smean,'k-',
         label='Semi-diurnal',alpha=0.5,zorder=-10)
 
+P=1.0
+w=2*PI/P
+k=omega2k(w,T,N)
+st=numpy.array([signal_teo(tval,ft,T,N,k) for tval in t])
+stmean=st.mean()
+stmax=numpy.abs(st-stmean).max()
+ax.plot(t-dt,(st-stmean)*smax/stmax+smean,'k-.',
+        label='Diurnal',alpha=0.5,zorder=-10)
+
 P=13.8
 w=2*PI/P
 k=omega2k(w,T,N)
