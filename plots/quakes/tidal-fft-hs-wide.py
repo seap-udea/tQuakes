@@ -20,26 +20,52 @@ ax=plt.gca()
 # ############################################################
 # CREATE FIGURE
 # ############################################################
-qsignal=quake.qsignal.split(";")
-value=float(qsignal[1])
+qphases=quake.qsignal.split(";")
 
+t,ft=loadComplextxt(DIRNAME+"/%s-fft.data"%quakeid)
 signal=numpy.loadtxt(DIRNAME+"/%s.data"%quakeid)
-t=signal[:,0]-float(quake.qjd)
+t=signal[:,0]-signal[0,0]
 s=signal[:,2]
+dt=float(quake.qjd)-signal[0,0]
+T=t[-1]
+N=len(t)
+smean=s.mean()
+smax=numpy.abs(s-smean).max()
 
-ax.plot(t,s)
-ax.plot([0],[value],marker='o',color='r',markersize=10,markeredgecolor="None")
+# SIGNAL
+ax.plot(t-dt,s)
 ax.axvline(0,color='r')
+
+# THEORETICAL SIGNAL
+P=13.8
+w=2*PI/P
+k=omega2k(w,T,N)
+st=numpy.array([signal_teo(tval,ft,T,N,k) for tval in t])
+stmean=st.mean()
+stmax=numpy.abs(st-stmean).max()
+ax.plot(t-dt,(st-stmean)*smax/stmax+smean,'k--',
+        label='Quincenal',alpha=0.7,zorder=-10)
+
+P=27.6
+w=2*PI/P
+k=omega2k(w,T,N)
+st=numpy.array([signal_teo(tval,ft,T,N,k) for tval in t])
+stmean=st.mean()
+stmax=numpy.abs(st-stmean).max()
+ax.plot(t-dt,(st-stmean)*smax/stmax+smean,'k:',
+        label='Monthly',alpha=0.9,zorder=-10)
 
 # ############################################################
 # DECORATION
 # ############################################################
-ax.set_xlim((-5,+5))
+window=30
+ax.set_xlim((-window,+window))
 
 ax.set_title(r"Horizontal strain for quake %s"%quakeid)
 ax.set_xlabel(r"Days to/since earthquake")
 ax.set_ylabel(r"Horizontal strain ($\times10^{-9}$)")
-ax.text(0.02,0.95,r"HS = $%.1f\times 10^{-9}$"%value,transform=ax.transAxes)
+
+ax.legend(loc='lower right')
 
 # ############################################################
 # SAVE FIGURE

@@ -385,3 +385,13 @@ def quakeProperties(quakeid,db):
         value=props[0][i]
         exec("quake.%s='%s'"%(key,value))
     return quake
+
+def loadComplextxt(filename):
+    f=open(filename,"r")
+    ts=[]
+    zs=[]
+    for line in f:
+        t,z=line.strip().split()
+        exec("ts+=[numpy.real(%s)]"%t)
+        exec("zs+=[%s]"%z)
+    return numpy.array(ts),numpy.array(zs)

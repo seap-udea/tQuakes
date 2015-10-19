@@ -34,7 +34,7 @@ ax.axvline(0,color='r')
 # ############################################################
 # DECORATION
 # ############################################################
-ax.set_xlim((-10,10))
+ax.set_xlim((-5,5))
 
 ax.set_title(r"Vertical strain for quake %s"%quakeid)
 ax.set_xlabel(r"Days to/since earthquake")
