@@ -553,12 +553,14 @@ BASIC;
       // UNZIP ALL FILES
       shell_exec("cd $quakedir;tar xf $quakeid-eterna.tar");
       shell_exec("cd $quakedir;tar xf $quakeid-analysis.tar");
-      sleep(1);
-    }else{
-      $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);
-      $size_analysis=round(filesize("$quakedir/$quakeid-analysis.tar")/1024.0,0);
-      $size_full=round(filesize("scratch/$SESSID/$quakeid.tar")/1024.0,0);
+
+      // COPY AND PLOTTING SCRIPTS
+      shell_exec("cp plots/quakes/*.py $quakedir");
+      shell_exec("for plot in $quakedir/*.py;do PYTHONPATH=. MPLCONFIGDIR=/tmp python \$plot;done");
     }
+    $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);
+    $size_analysis=round(filesize("$quakedir/$quakeid-analysis.tar")/1024.0,0);
+    $size_full=round(filesize("scratch/$SESSID/$quakeid.tar")/1024.0,0);
     
     // PLOTS
     $output=shell_exec("ls -m $quakedir/*.png");
