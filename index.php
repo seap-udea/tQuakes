@@ -309,7 +309,7 @@ echo<<<PLOT
 	<img src="$plot" width="400px">
       </a>
     </li>
-    <li><a href="update.php?replot&plot=$plotname&aname=$plotbase">Replot</a></li>
+    <li><a href="update.php?replot&plot=$plot">Replot</a></li>
   </ul>
 
 
@@ -577,7 +577,7 @@ $plots.=<<<PLOT
 	<img src="$plot" width="400px">
       </a>
     </li>
-    <li><a href="update.php?replot2&plot=$plot">Replot</a></li>
+    <li><a href="update.php?replot&plot=$plot">Replot</a></li>
   </ul>
 PLOT;
     }

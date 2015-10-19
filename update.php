@@ -19,21 +19,6 @@ $content="Refreshing";
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 if(isset($replot)){
    $name=preg_split("/\./",$plot)[0];
-   $cmd="PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/stats/$name.py";
-   echo "Plotting: $cmd<br/>";
-   $out=shell_exec("PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/stats/$name.py &> /tmp/error");
-   echo "$out<br/>";
-   $content="Replot succesful...";
-   $target_url=$target_url."#".$aname;
-   echo "Target: $target_url<br/>";
-   $refresh_time=1;
-}
-
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-//REPLOT
-//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-if(isset($replot2)){
-   $name=preg_split("/\./",$plot)[0];
    $parts=preg_split("/\//",$name);
    $aname=$parts[count($parts)-1];
    $cmd="PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/stats/$name.py";
@@ -64,7 +49,7 @@ if(isset($history)){
       if(!isBlank($explanation)){
 	$content.="<li>$date<br/>$explanation<br/>";
       }else{$content.="<li>$date<br/>";}
-      $content.="<a href='$query_url'>$query</a></li>";
+      $content.="<a href='$target_url&$query_url'>$query</a></li>";
     }
     $content.="</ul>";
     $refresh_time=-1;
