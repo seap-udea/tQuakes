@@ -49,7 +49,7 @@ if(isset($history)){
       if(!isBlank($explanation)){
 	$content.="<li>$date<br/>$explanation<br/>";
       }else{$content.="<li>$date<br/>";}
-      $content.="<a href='$target_url&$query_url'>$query</a></li>";
+      $content.="<a href='$target_url&search=$query_url'>$query</a></li>";
     }
     $content.="</ul>";
     $refresh_time=-1;

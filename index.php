@@ -593,7 +593,9 @@ DOWN;
   }
 
   // DISPLAY INFO
+  $referer=$_SERVER["HTTP_REFERER"];
 echo<<<QUAKE
+<a href="$referer">Back</a>
 <h3>Earthquake $quakeid</h3>
 
 <h4>Basic information</h4>
