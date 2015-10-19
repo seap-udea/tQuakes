@@ -552,6 +552,7 @@ BASIC;
       // UNZIP ALL FILES
       shell_exec("cd scratch/$SESSID/$quakeid;tar xf $quakeid-eterna.tar");
       shell_exec("cd scratch/$SESSID/$quakeid;tar xf $quakeid-analysis.tar");
+      sleep(1);
     }else{
       $size_eterna=round(filesize("scratch/$SESSID/$quakeid/$quakeid-eterna.tar")/1024.0,0);
       $size_analysis=round(filesize("scratch/$SESSID/$quakeid/$quakeid-analysis.tar")/1024.0,0);
