@@ -2,6 +2,10 @@
 
 <li>Servicio Geológico Colombiano - Red Sismológica Nacional. Base datos sismicidad desde 1993.</li>
 
+<li>Schuster, A. "On Lunar and Solar Periodicities of Earthquakes" The Royal Society of London. www.jstor.org. 1897.</li>
+
+<li>Tanaka, S., Sato, H., Matsumura, S., Ohtake, M. "Tidal triggering of earthquakes in the subducting Philippine Sea plate beneath the locked zone of the plate interface in the Tokai region, Japan. Tectonophysics 417 pp. 69-80, 2006. available online at www.sciencedirect.com.</li>
+
 <li>Wenzel, H.G. "Earth Tide Data Processing Package ETERNA Version 3.40 Manual ETERNA34.HLP", Black Forest Observatory Universitaet Karlsruhe, 1997.</li>
 <li>Hartmann, T. & Wenzel, H.G. " The HW95 tidal potential catalogue", Geophysical Research Letters, Vol. 22, No. 24, Pages 3553-3556, 1995.</li>
 <li>Hartmann, T. & Wenzel, H.G. "The harmonic develpment of the Earth tide generating potential due to the direct effect of the planets". Geophysical Research Letters, Vol. 21, No. 18, Pages 1991-1993, 1994.</li>
