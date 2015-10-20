@@ -100,7 +100,7 @@ ax.set_xlim((-30,+30))
 ax.set_title(r"Horizontal strain boundaries for quake %s"%quakeid)
 ax.set_xlabel(r"Days to/since earthquake")
 ax.set_ylabel(r"Horizontal strain ($\times10^{-9}$)")
-ax.legend(loc='best',prop=dict(size=8))
+ax.legend(loc='upper right',prop=dict(size=8))
 ax.grid()
 
 # ############################################################
