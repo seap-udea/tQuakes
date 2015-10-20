@@ -395,3 +395,21 @@ def loadComplextxt(filename):
         exec("ts+=[numpy.real(%s)]"%t)
         exec("zs+=[%s]"%z)
     return numpy.array(ts),numpy.array(zs)
+
+def signalBoundary(t,s):
+    ds=numpy.sign((s[1:]-s[:-1]))
+    n=len(ds)
+    
+    tM=[];sM=[]
+    tm=[];sm=[]
+    for i in xrange(1,n):
+        if ds[i]<ds[i-1]:
+            tM+=[t[i]]
+            sM+=[s[i]]
+        if ds[i]>ds[i-1]:
+            tm+=[t[i]]
+            sm+=[s[i]]
+
+    tM=numpy.array(tM);sM=numpy.array(sM)
+    tm=numpy.array(tm);sm=numpy.array(sm)
+    return tm,sm,tM,sM

@@ -357,7 +357,7 @@ PORTAL;
 else if($if=="search"){
 
   // INPUT
-  if(isBlank($offset)){$offset=1;}
+  if(isBlank($offset)){$offset=0;}
   if(isBlank($limit)){$limit=10;}
   if(isBlank($search)){$searchdb="quakeid<>''";} 
   else{$searchdb="quakeid<>'' and $search";}
