@@ -1,4 +1,7 @@
 <ul>
+
+<li>Servicio Geológico Colombiano - Red Sismológica Nacional. Base datos sismicidad desde 1993.</li>
+
 <li>Wenzel, H.G. "Earth Tide Data Processing Package ETERNA Version 3.40 Manual ETERNA34.HLP", Black Forest Observatory Universitaet Karlsruhe, 1997.</li>
 <li>Hartmann, T. & Wenzel, H.G. " The HW95 tidal potential catalogue", Geophysical Research Letters, Vol. 22, No. 24, Pages 3553-3556, 1995.</li>
 <li>Hartmann, T. & Wenzel, H.G. "The harmonic develpment of the Earth tide generating potential due to the direct effect of the planets". Geophysical Research Letters, Vol. 21, No. 18, Pages 1991-1993, 1994.</li>
