@@ -95,7 +95,7 @@ ax.plot(tm,sm,'gv-',label="P = %.1f, phase = %.2f"%(dtmean,dtphase))
 # ############################################################
 # DECORATION
 # ############################################################
-ax.set_xlim((-30,+30))
+ax.set_xlim((-60,+60))
 
 ax.set_title(r"Horizontal strain boundaries for quake %s"%quakeid)
 ax.set_xlabel(r"Days to/since earthquake")
