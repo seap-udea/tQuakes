@@ -373,3 +373,41 @@ def phaseFourier(ft,to,T,N,periodo):
     phasek=wkt+phase
     phasek=numpy.mod(phasek,360.0)
     return phasek
+
+def quakeProperties(quakeid,db):
+    quake=dict2obj(dict())
+    keys=mysqlArray("describe Quakes;",db)
+    props=mysqlArray("select * from Quakes where quakeid='%s';"%quakeid,db)
+    for i in xrange(len(keys)):
+        key=keys[i][0]
+        value=props[0][i]
+        exec("quake.%s='%s'"%(key,value))
+    return quake
+
+def loadComplextxt(filename):
+    f=open(filename,"r")
+    ts=[]
+    zs=[]
+    for line in f:
+        t,z=line.strip().split()
+        exec("ts+=[numpy.real(%s)]"%t)
+        exec("zs+=[%s]"%z)
+    return numpy.array(ts),numpy.array(zs)
+
+def signalBoundary(t,s):
+    ds=numpy.sign((s[1:]-s[:-1]))
+    n=len(ds)
+    
+    tM=[];sM=[]
+    tm=[];sm=[]
+    for i in xrange(1,n):
+        if ds[i]<ds[i-1]:
+            tM+=[t[i]]
+            sM+=[s[i]]
+        if ds[i]>ds[i-1]:
+            tm+=[t[i]]
+            sm+=[s[i]]
+
+    tM=numpy.array(tM);sM=numpy.array(sM)
+    tm=numpy.array(tm);sm=numpy.array(sm)
+    return tm,sm,tM,sM
