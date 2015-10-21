@@ -94,6 +94,15 @@ for component in COMPONENTS:
 
     print "\t\tPhases: ",qphases
     quake.qphases+=qphases
+
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # CALCULATING OBSERVED BOUNDARY PHASES
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    from scipy import signal
+    t=data[:,0]-float(quake.qjd)
+    s=data[:,ic]
+    exit(0)
+
     ic+=1
 
 print "\tAll phases: ",quake.qphases

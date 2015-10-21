@@ -36,7 +36,6 @@ for quake in qlist:
 
     # LOAD QUAKE INFORMATION
     quakedir="data/quakes/%s/"%quakeid
-    quake=loadConf(quakedir+"quake.conf")
 
     if not os.path.lexists(quakedir+".eterna"):
         print "\tQuake already analysed by other process..."
@@ -58,6 +57,7 @@ for quake in qlist:
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # RUN JOB
     out=System("cd %s;python quake-analysis.py %s"%(quakedir,quakeid))
+    quake=loadConf(quakedir+"quake.conf")
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     # COMPRESS

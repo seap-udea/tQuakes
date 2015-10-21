@@ -70,8 +70,10 @@ for quake in qlist:
     System("cd %s;tar cf %s-eterna.tar %s*.* %s*.* quake.conf .states"%(quakedir,
                                                              quakeid,quakeid,lquakeid))  
     System("cd %s;p7zip %s-eterna.tar"%(quakedir,quakeid))
+    """
     System("cd %s;rm PREDICT.EXE project* %s*.??? %s*.???"%(quakedir,
                                                             quakeid,lquakeid))  
+    """
 
     # TIME
     time_end=timeit()
