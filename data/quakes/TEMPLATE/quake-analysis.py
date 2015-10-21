@@ -97,3 +97,4 @@ for component in COMPONENTS:
     ic+=1
 
 print "\tAll phases: ",quake.qphases
+saveObject("quake.conf",quake)

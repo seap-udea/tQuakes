@@ -69,6 +69,12 @@ class dict2obj(object):
             exec("self.%s=other.%s"%(attr,attr))
         return self
 
+def saveObject(filename,obj):
+    fo=open(filename,"w")
+    for key in obj.__dict__.keys():
+        fo.write("%s = '%s'\n"%(key,obj.__dict__[key]))
+    fo.close()
+
 def loadConf(filename):
     """Load configuration file
     Parameters:
