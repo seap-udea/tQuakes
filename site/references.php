@@ -29,7 +29,4 @@
 
 <li>Heaton, T. "Tidal Triggering of Earthquakes" Bulletin of the Seismological Society of America, Vol.72, No. 6, pp.2181-2200, 1982.</li>
 
-
-
-Moncayo, G., Zuluaga, J. I., Monsalve, G. "Earthquakes and Tides in Colombia", Journal of Geosciences, 2016.</li>
 </ul>
