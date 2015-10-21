@@ -5,7 +5,6 @@ print "*"*50+"\nRUNNING tquakes-analysis\n"+"*"*50
 # CONFIGURATION
 # ##################################################
 conf=loadConf("configuration")
-periods=[0.5,1.0,13.8,27.6]
 
 # ##################################################
 # LOAD STATION INFORMATION
@@ -53,80 +52,22 @@ for quake in qlist:
         System("touch "+lockfile)
 
     # TIME
-    time_start=timing.clock()
+    time_start=timeit()
     print "\tStarting time: ",time_start
 
-    # LOAD DATA
-    data=numpy.loadtxt(quakedir+"%s.data"%quakeid)
-
-    # INTERPOLATE SIGNAL
-    ic=1
-    times=data[:,0]
-    time=float(quake.qjd)
-    quake.qsignal=""
-    for component in 2,4,5:
-        signal=data[:,ic]
-        value=numpy.interp(time,times,signal)
-        quake.qsignal+="%.4lf;"%value
-        ic+=1
-
-    print "\tSignal: ",quake.qsignal
-
-    # ALL SIGNAL
-    t=data[:,0]-data[0,0]
-    s=data[:,2]
-    T=t[-1]-t[0]
-    N=len(s)
-    Nh=N/2
-
-    # FAST FOURIER TRANSFORM
-    ft=numpy.fft.fft(s,N)
-    ftc=ft[0:Nh]
-    ftp=numpy.absolute(ftc[1:])
-    ks=numpy.arange(1,Nh)
-    Ts=T/ks
-    numpy.savetxt("%s/%s-fft.data"%(quakedir,quakeid),numpy.column_stack((t,ft)))
-    numpy.savetxt("%s/%s-ffp.data"%(quakedir,quakeid),numpy.column_stack((Ts[::-1],
-                                                                          ftp[::-1])))
-
-    print "\tSaving fast fourier transform and power spectrum..."
-
-    quake.qphases=""
-    for period in periods:
-        print "\tPeriod = ",period
-        timewindow=1.5*period
-        cond=(numpy.abs(data[:,0]-time)<timewindow)
-        t=data[cond,0]
-        timeini=t[0]
-        t=t-timeini
-        s=data[cond,2]
-        N=len(s)
-        if N%2:
-            t=t[:-1]
-            s=s[:-1]
-            N-=1
-        T=t[-1]-t[0]
-        Nh=N/2
-        ft=numpy.fft.fft(s,N)
-
-        # PHASE
-        deltatime=time-timeini
-        phase=phaseFourier(ft,deltatime,T,N,period)
-        print "\t\tDelta = ",deltatime
-        print "\t\tPhase = ",phase
-
-        quake.qphases+="%.4lf;"%phase
-        
-    print "\tPhases: ",quake.qphases
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # RUN JOB
+    out=System("cd %s;python quake-analysis.py %s"%(quakedir,quakeid))
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     # COMPRESS
-    System("cd %s;tar cf %s-analysis.tar %s-ff*.*"%(quakedir,
-                                                    quakeid,quakeid))  
+    System("cd %s;tar cf %s-analysis.tar %s*-ff*.*"%(quakedir,
+                                                     quakeid,quakeid))  
     System("cd %s;p7zip %s-analysis.tar"%(quakedir,quakeid))
     System("cd %s;rm *ff*"%(quakedir))  
     
     # TIME
-    time_end=timing.clock()
+    time_end=timeit()
     print "\tEnd time: ",time_end
     deltat=time_end-time_start
     print "\tTime elapsed: ",deltat

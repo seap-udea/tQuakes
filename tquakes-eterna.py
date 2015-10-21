@@ -60,14 +60,14 @@ for quake in qlist:
     time_start=timeit()
     print "\tStarting time: ",time_start
 
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # RUN JOB
     out=System("cd %s;python quake-eterna.py %s"%(quakedir,quakeid))
     print out
-    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     # 7ZIP RESULTS
-    System("cd %s;tar cf %s-eterna.tar %s*.* %s*.* .states"%(quakedir,
+    System("cd %s;tar cf %s-eterna.tar %s*.* %s*.* quake.conf .states"%(quakedir,
                                                              quakeid,quakeid,lquakeid))  
     System("cd %s;p7zip %s-eterna.tar"%(quakedir,quakeid))
     System("cd %s;rm PREDICT.EXE project* %s*.??? %s*.???"%(quakedir,
