@@ -41,6 +41,23 @@ FIELDSUP=FIELDSUP.strip(",")
 
 DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
 
+"""
+ETERNA COMPONENTS:
+-1: for tidal potential in m**2/s**2.
+0: for tidal gravity in nm/s**2.
+1: for tidal tilt in mas, at azimuth STATAZIMUT.
+2: for tidal vertical displacement in mm.
+3: for tidal horizontal displacement in mm at azimuth STATAZIMUT.
+4: for tidal vertical strain in 10**-9 = nstr.
+5: for tidal horizontal strain in 10**-9 = nstr, at azimuth STATAZIMUT.
+6: for tidal areal  strain in 10**-9 = nstr.
+7: for tidal shear  strain in 10**-9 = nstr.
+8: for tidal volume strain in 10**-9 = nstr.
+9: for ocean tides in mm.
+"""
+COMPONENTS=[0,1,2,4,5,9]
+COMPONENTS_LONGTERM=[0]
+
 # ######################################################################
 # CORE ROUTINES
 # ######################################################################

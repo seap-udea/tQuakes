@@ -62,7 +62,7 @@ for quake in qlist.split("\n"):
     timespan=2*conf.TIMEWIDTH*24
 
     # GENERATE ETERNA.INI FILES PER COMPONENT
-    for component in 2,4,5:
+    for component in COMPONENTS:
         basename="%s%d"%(quakeid,component)
         eterna=open(quakedir+basename+".INI","w")
         content=genEternaIni(basename,
