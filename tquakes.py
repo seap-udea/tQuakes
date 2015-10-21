@@ -8,6 +8,7 @@ from util.jdcal import *
 system=os.system
 PI=numpy.pi
 sleep=timing.sleep
+timeit=timing.time
 
 # ######################################################################
 # GLOBAL

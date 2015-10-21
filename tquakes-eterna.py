@@ -57,7 +57,7 @@ for quake in qlist:
     System("cp %s %s"%(predict,quakedir))
 
     # TIME
-    time_start=timing.clock()
+    time_start=timeit()
     print "\tStarting time: ",time_start
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -67,16 +67,14 @@ for quake in qlist:
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     # 7ZIP RESULTS
-    """
     System("cd %s;tar cf %s-eterna.tar %s*.* %s*.* .states"%(quakedir,
                                                              quakeid,quakeid,lquakeid))  
     System("cd %s;p7zip %s-eterna.tar"%(quakedir,quakeid))
     System("cd %s;rm PREDICT.EXE project* %s*.??? %s*.???"%(quakedir,
                                                             quakeid,lquakeid))  
-    """
 
     # TIME
-    time_end=timing.clock()
+    time_end=timeit()
     print "\tEnd time: ",time_end
     deltat=time_end-time_start
     print "\tTime elapsed: ",deltat

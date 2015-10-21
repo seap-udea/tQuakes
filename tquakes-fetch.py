@@ -35,7 +35,8 @@ for quake in out.split("\n"):
     quake=eval("dict(%s)"%quake.strip(" ,"))
     quakedir="data/quakes/%s"%quake["quakeid"]
     System("mkdir -p %s/.states"%(quakedir))
-    System("cp -r data/quakes/TEMPLATE/* %s"%(quakedir))
+    System("cp -rd data/quakes/TEMPLATE/* %s"%(quakedir))
+    System("cp -rd data/quakes/TEMPLATE/.[a-z]* %s"%(quakedir))
     System("date +%%s > %s/.fetch"%quakedir)
     fq=open(quakedir+"/quake.conf","w")
     for key in quake.keys():
