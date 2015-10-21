@@ -16,9 +16,16 @@ out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status
 # FECTH EVENTS
 # ##################################################
 print "Fecthing %d events..."%conf.NUMQUAKES,
-out=System("links -dump '%s/index.php?action=fetch&station_id=%s&numquakes=%d'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES))
+cmd="links -dump '%s/index.php?action=fetch&station_id=%s&numquakes=%d'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES)
+out=System(cmd)
 print "Done."
 print out
+try:
+    if int(out)==0:
+        print "\tNo quakes."
+        exit(0)
+except:
+    pass
 
 # ##################################################
 # CREATE QUAKES

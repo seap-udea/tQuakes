@@ -32,6 +32,7 @@ iq=1
 for quake in qlist:
     search=re.search("\/(\w+)\/\.prepare",quake)
     quakeid=search.group(1)
+    lquakeid=quakeid.lower()
     print "Running Eterna for quake %d '%s'"%(iq,quakeid)
 
     # LOAD QUAKE INFORMATION
@@ -61,16 +62,19 @@ for quake in qlist:
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # RUN JOB
-    System("cd %s;python quake-eterna.py %s"%(quakedir,quakeid))
+    out=System("cd %s;python quake-eterna.py %s"%(quakedir,quakeid))
+    print out
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     # 7ZIP RESULTS
+    """
     System("cd %s;tar cf %s-eterna.tar %s*.* %s*.* .states"%(quakedir,
                                                              quakeid,quakeid,lquakeid))  
     System("cd %s;p7zip %s-eterna.tar"%(quakedir,quakeid))
     System("cd %s;rm PREDICT.EXE project* %s*.??? %s*.???"%(quakedir,
                                                             quakeid,lquakeid))  
-    
+    """
+
     # TIME
     time_end=timing.clock()
     print "\tEnd time: ",time_end
