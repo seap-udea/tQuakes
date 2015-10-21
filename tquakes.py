@@ -1,14 +1,14 @@
-import MySQLdb as mdb
-import csv,datetime,commands,re,os,numpy,cmath
+import csv,datetime,commands,re,os,numpy,cmath,time as timing
 from sys import exit,argv
 from util.jdcal import *
-from time import sleep
 
 # ######################################################################
 # MACROS
 # ######################################################################
 system=os.system
 PI=numpy.pi
+sleep=timing.sleep
+timeit=timing.time
 
 # ######################################################################
 # GLOBAL
@@ -42,6 +42,23 @@ FIELDSUP=FIELDSUP.strip(",")
 
 DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
 
+"""
+ETERNA COMPONENTS:
+-1: for tidal potential in m**2/s**2.
+0: for tidal gravity in nm/s**2.
+1: for tidal tilt in mas, at azimuth STATAZIMUT.
+2: for tidal vertical displacement in mm.
+3: for tidal horizontal displacement in mm at azimuth STATAZIMUT.
+4: for tidal vertical strain in 10**-9 = nstr.
+5: for tidal horizontal strain in 10**-9 = nstr, at azimuth STATAZIMUT.
+6: for tidal areal  strain in 10**-9 = nstr.
+7: for tidal shear  strain in 10**-9 = nstr.
+8: for tidal volume strain in 10**-9 = nstr.
+9: for ocean tides in mm.
+"""
+COMPONENTS=[0,1,2,4,5,9]
+COMPONENTS_LONGTERM=[0]
+
 # ######################################################################
 # CORE ROUTINES
 # ######################################################################
@@ -51,6 +68,12 @@ class dict2obj(object):
         for attr in other.__dict__.keys():
             exec("self.%s=other.%s"%(attr,attr))
         return self
+
+def saveObject(filename,obj):
+    fo=open(filename,"w")
+    for key in obj.__dict__.keys():
+        fo.write("%s = '%s'\n"%(key,obj.__dict__[key]))
+    fo.close()
 
 def loadConf(filename):
     """Load configuration file
@@ -82,13 +105,6 @@ CONF=loadConf("configuration")
 # ######################################################################
 # REGULAR ROUTINES
 # ######################################################################
-def connectDatabase(server='localhost',
-                 user=CONF.DBUSER,
-                 password=CONF.DBPASSWORD,
-                 database=CONF.DBNAME):
-    con=mdb.connect(server,user,password,database)
-    return con
-
 def loadDatabase(server='localhost',
                  user=CONF.DBUSER,
                  password=CONF.DBPASSWORD,
@@ -145,22 +161,6 @@ def updateDatabase(dbdict,con):
                 db.execute(sql);
     con.commit()
 
-def mysqlSimple(sql,db):
-    db.execute(sql)
-    result=db.fetchone()
-    return result[0]
-
-def mysqlArray(sql,db):
-    db.execute(sql)
-    result=db.fetchall()
-    return result
-
-def fileBase(filename):
-    search=re.search("([^\/]+)\.[^\/]+",filename)
-    basename=search.group(1)
-    return basename
-
-    
 def randomStr(N):
     import string,random
     string=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
@@ -373,4 +373,3 @@ def phaseFourier(ft,to,T,N,periodo):
     phasek=wkt+phase
     phasek=numpy.mod(phasek,360.0)
     return phasek
-
