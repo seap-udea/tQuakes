@@ -22,7 +22,7 @@ $GITREPO="http://github.com/seap-udea/tQuakes";
 ////////////////////////////////////////////////////////////////////////
 //ENUM
 ////////////////////////////////////////////////////////////////////////
-$STATION_STATUS=array("Idle","Fetching","Preparing","Running","Analysing","Submiting");
+$STATION_STATUS=array("Idle","Fetching","Preparing","Running","Analysing","Submiting","Disabled");
 $QUAKE_STATUS=array("Waiting","Fetched","Calculated","Analysed","Submitted");
 
 ////////////////////////////////////////////////////////////////////////

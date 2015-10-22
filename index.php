@@ -45,6 +45,10 @@ if($action=="fetch"){
   //FETCH
   $sql="select * from Quakes where astatus+0=0 limit $numquakes;";
   $quakes=mysqlCmd($sql,$out=1);
+  if($quakes==0){
+    echo "No quakes available for fecthing.";
+    return 0;
+  }
   $disprops=array("quakeid","qjd","qlat","qlon","qdepth","qdate","qtime");
   foreach($quakes as $quake){
     foreach($disprops as $prop){
@@ -82,7 +86,15 @@ else if($action=="analysis"){
 else if($action=="checkstation"){
   $sql="select station_receiving from Stations where station_id='$station_id';";
   $result=mysqlCmd($sql);
-  echo $result[0];
+  $status=$result[0];
+  if($status==0){
+    $sql="update Stations set station_status='6',station_statusdate=now() where station_id='$station_id';";
+    mysqlCmd($sql);
+  }
+  if(isBlank($status)){
+    $status=-2;
+  }
+  echo $status;
   return 0;
 }
 
