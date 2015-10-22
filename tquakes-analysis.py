@@ -24,7 +24,9 @@ else:
     nquakes=len(qlist)
     print "\t%d calculated quakes found..."%nquakes
 
+# SETTING STATION STATUS
 out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=4'"%(conf.WEBSERVER,station.station_id))
+
 # ##################################################
 # LOOP OVER QUAKES
 # ##################################################

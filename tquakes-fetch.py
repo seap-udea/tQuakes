@@ -10,28 +10,37 @@ conf=loadConf("configuration")
 # LOAD STATION INFORMATION
 # ##################################################
 station=loadConf(".stationrc")
-out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=1'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
-# FECTH EVENTS
+# CHECK STATION
 # ##################################################
-qfetch=True
-print "Fecthing %d events..."%conf.NUMQUAKES,
+qdisabled=False
+out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
+
+if int(out)>0:
+    print "Station enabled."
+elif int(out)==0:
+    print "Station disabled."
+    qdisabled=True
+elif int(out)==-1:
+    print "Station not recognized."
+
+# IF STATION IS DISABLED STOP
+if qdisabled:exit(0)
+
+# ##################################################
+# FETCHING EVENTS
+# ##################################################
 cmd="links -dump '%s/index.php?action=fetch&station_id=%s&numquakes=%d'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES)
 out=System(cmd)
+if 'No quakes' in out:
+    print "No quakes available for fetching."
+    exit(0)
 print "Done."
 print out
-try:
-    if int(out)==0:
-        print "\tNo quakes."
-        qfetch=False
-    elif int(out)<0:
-        print "\tThis station has been temporarily disabled."
-        qfetch=False
-except:
-    pass
 
-if not qfetch:exit(0)
+# SETTING STATION STATUS
+out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=1'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # CREATE QUAKES

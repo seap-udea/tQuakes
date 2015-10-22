@@ -21,6 +21,22 @@ sleep(tsleep)
 # ##################################################
 # PIPELINE
 # ##################################################
+
+# CHECK STATION
+qdisabled=False
+out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
+
+if int(out)>0:
+    print "Station enabled."
+elif int(out)==0:
+    print "Station disabled."
+    qdisabled=True
+elif int(out)==-1:
+    print "Station not recognized."
+
+# IF STATION IS DISABLED STOP
+if qdisabled:exit(0)
+
 # CHECK IF THERE IS PENDING QUAKES
 out=System("ls -d data/quakes/??????? 2> /dev/null")
 if out!="":
@@ -30,8 +46,9 @@ if out!="":
     system("python tquakes-analysis.py")
     system("python tquakes-submit.py")
 
-# FETCH
-system("python tquakes-fetch.py")
+# FETCH QUAKES
+out=System("python tquakes-fetch.py")
+print out
 
 # PROCESS
 system("python tquakes-prepare.py")
