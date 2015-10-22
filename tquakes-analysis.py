@@ -56,13 +56,18 @@ for quake in qlist:
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # RUN JOB
-    out=System("cd %s;python quake-analysis.py %s"%(quakedir,quakeid))
+    out=System("cd %s;python quake-analysis.py %s >> quake.log"%(quakedir,quakeid))
     quake=loadConf(quakedir+"quake.conf")
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    # CHANGE STATUS OF QUAKE
+    System("date +%%s > %s/.analysis"%quakedir)
+    System("mv %s/.eterna %s/.states"%(quakedir,quakedir))
+    System("cp %s/.analysis %s/.states"%(quakedir,quakedir))
+    
     # COMPRESS
-    System("cd %s;tar cf %s-analysis.tar %s*-ff*.*"%(quakedir,
-                                                     quakeid,quakeid))  
+    System("cd %s;tar cf %s-analysis.tar %s*-ff*.* quake.conf quake.log .states"%(quakedir,
+                                                                                  quakeid,quakeid))  
     System("cd %s;p7zip %s-analysis.tar"%(quakedir,quakeid))
     System("cd %s;rm *ff*"%(quakedir))  
     
@@ -72,10 +77,6 @@ for quake in qlist:
     deltat=time_end-time_start
     print "\tTime elapsed: ",deltat
 
-    # CHANGE STATUS OF QUAKE
-    System("date +%%s > %s/.analysis"%quakedir)
-    System("mv %s/.eterna %s/.states"%(quakedir,quakedir))
-    
     # REPORT END OF ANALYSIS
     print "\tReporting calculations..."
     out=System("links -dump '%s/index.php?action=analysis&station_id=%s&quakeid=%s&qsignal=%s&qphases=%s&deltat=%.3e'"%(conf.WEBSERVER,station.station_id,

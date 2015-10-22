@@ -99,7 +99,6 @@ for component in COMPONENTS:
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # CALCULATING OBSERVED BOUNDARY PHASES
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    ic=4
     t=data[:,0]-float(quake.qjd)
     s=data[:,ic]
 
@@ -169,7 +168,6 @@ for component in COMPONENTS:
     print "\t\tPhases based on boundaries: ",qphases
     quake.qphases+=qphases
     
-    break
     ic+=1
 
 print "\tAll phases: ",quake.qphases

@@ -18,8 +18,11 @@ station=loadConf(".stationrc")
 out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
 
 try:
-    if int(out):
+    if int(out)>0:
         print "Receiving..."
+    else:
+        print "Server is not accepting requests from this station."
+        exit(0)
 except:
     print "Server not receiving from this station."
     exit(0)
