@@ -32,6 +32,17 @@ $action_error="";
 if(!isBlank($action)){
 
 if($action=="fetch"){
+
+  // CHECK IF STATION IS ENABLED
+  $sql="select station_receiving from Stations where station_id='$station_id';";
+  $result=mysqlCmd($sql);
+  $station_receiving=$result[0];
+  if($station_receiving<0){
+    echo "-1";
+    return 0;
+  }
+
+  //FETCH
   $sql="select * from Quakes where astatus+0=0 limit $numquakes;";
   $quakes=mysqlCmd($sql,$out=1);
   $disprops=array("quakeid","qjd","qlat","qlon","qdepth","qdate","qtime");
@@ -148,7 +159,7 @@ else if($action=="register"){
   shell_exec("(echo;cat $station_dir/key.pub) >> stations/authorized_keys");
 
   //UPDATING STATION IN DATABASE
-  $station_receiving=0;
+  $station_receiving=1;
   $conf=parse_ini_file("$station_dir/${station_id}rc");
   foreach(array_keys($conf) as $key){
     $GLOBALS["$key"]=$conf["$key"];
