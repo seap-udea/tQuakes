@@ -1,5 +1,8 @@
 from tquakes import *
 print "*"*50+"\nRUNNING tquakes-submit\n"+"*"*50
+if os.path.lexists("stop"):
+    print "Stopping."
+    exit(0)
 
 # ##################################################
 # CONFIGURATION
@@ -17,17 +20,18 @@ station=loadConf(".stationrc")
 # ##################################################
 out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
 
-try:
-    if int(out)>0:
-        print "Receiving..."
-    else:
-        print "Server is not accepting requests from this station."
-        exit(0)
-except:
-    print "Server not receiving from this station."
-    exit(0)
+if int(out)>0:
+    print "Station enabled."
+elif int(out)==0:
+    print "Station disabled."
+    qdisabled=True
+elif int(out)==-1:
+    print "Station not recognized."
 
-out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=5'"%(conf.WEBSERVER,station.station_id))
+# IF STATION IS DISABLED STOP
+if qdisabled:exit(0)
+
+System("links -dump '%s/index.php?action=status&station_id=%s&station_status=5'"%(conf.WEBSERVER,station.station_id))
 # ##################################################
 # GET UNSUBMITED QUAKES
 # ##################################################

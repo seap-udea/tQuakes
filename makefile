@@ -5,11 +5,14 @@ show:
 
 start:	
 	@echo "Starting process..."
+	@touch stop
+	@rm stop
 	@nohup ./tquakesd > log/tquakes.out 2>&1 &
 
 stop:
 	@echo "Stopping process..."
 	@skill -9 tquakesd
+	@touch stop
 
 install:
 	@echo "Installing tQuakes..."

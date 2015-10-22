@@ -5,6 +5,9 @@
 j=0
 while [ 1 ]
 do
+    # CHECK IF STOP SIGNAL HAVE BEEN SENT
+    if [ -e stop ];then exit 0;fi
+
     # UPDATE BRANCH
     echo "Updating repository..."
     make pull

@@ -1,5 +1,8 @@
 from tquakes import *
 print "*"*50+"\nRUNNING tquakes-analysis\n"+"*"*50
+if os.path.lexists("stop"):
+    print "Stopping."
+    exit(0)
 
 # ##################################################
 # CONFIGURATION
@@ -25,7 +28,7 @@ else:
     print "\t%d calculated quakes found..."%nquakes
 
 # SETTING STATION STATUS
-out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=4'"%(conf.WEBSERVER,station.station_id))
+System("links -dump '%s/index.php?action=status&station_id=%s&station_status=4'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # LOOP OVER QUAKES

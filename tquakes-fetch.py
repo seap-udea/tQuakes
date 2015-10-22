@@ -1,5 +1,8 @@
 from tquakes import *
 print "*"*50+"\nRUNNING tquakes-fetch\n"+"*"*50
+if os.path.lexists("stop"):
+    print "Stopping."
+    exit(0)
 
 # ##################################################
 # CONFIGURATION

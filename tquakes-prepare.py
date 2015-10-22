@@ -1,5 +1,8 @@
 from tquakes import *
 print "*"*50+"\nRUNNING tquakes-prepare\n"+"*"*50
+if os.path.lexists("stop"):
+    print "Stopping."
+    exit(0)
 
 # ##################################################
 # CONFIGURATION
@@ -23,7 +26,9 @@ else:
     nquakes=len(qlist.split("\n"))
     print "\t%d quakes found..."%nquakes
 
-out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=2'"%(conf.WEBSERVER,station.station_id))
+# SETTING STATUS
+System("links -dump '%s/index.php?action=status&station_id=%s&station_status=2'"%(conf.WEBSERVER,station.station_id))
+
 # ##################################################
 # LOOP OVER QUAKES
 # ##################################################
