@@ -1,4 +1,5 @@
 from tquakes import *
+from scipy import signal
 # ##################################################
 # ARGUMENTS
 # ##################################################
@@ -32,8 +33,8 @@ times=data[:,0]
 time=float(quake.qjd)
 quake.qsignal=""
 for component in COMPONENTS:
-    signal=data[:,ic]
-    value=numpy.interp(time,times,signal)
+    sig=data[:,ic]
+    value=numpy.interp(time,times,sig)
     quake.qsignal+="%.4lf;"%value
     ic+=1
 
@@ -98,11 +99,77 @@ for component in COMPONENTS:
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # CALCULATING OBSERVED BOUNDARY PHASES
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    from scipy import signal
+    ic=4
     t=data[:,0]-float(quake.qjd)
     s=data[:,ic]
-    exit(0)
 
+    print "\tPhases based on boundaries..."
+    qphases=""
+
+    # ==============================
+    # FIND MAXIMA AND MINIMA
+    # ==============================
+    # SEMIDIURNAL LEVEL PEAKS
+    tmb,smb,tMb,sMb=signalBoundary(t,s)
+
+    # SMOOTH MAXIMA & MINIMA
+    b,a=signal.butter(8,0.125)
+    sMs=signal.filtfilt(b,a,sMb,padlen=100)
+    tMs=tMb
+    b,a=signal.butter(8,0.125)
+    sms=signal.filtfilt(b,a,smb,padlen=100)
+    tms=tmb
+
+    # FORTNIGHTLY LEVEL PEAKS (MAXIMA)
+    tmF,smF,tMF,sMF=signalBoundary(tMs,sMs)
+    # FORTNIGHTLY LEVEL PEAKS (MINIMA)
+    tmf,smf,tMf,sMf=signalBoundary(tms,sms)
+
+    # ==============================
+    # SEMI-DIURNAL LEVEL
+    # ==============================
+    dtmean=(tMb[1:]-tMb[:-1]).mean()
+    dt=-tMb[tMb<0][-1]
+    dtphase=dt/dtmean;
+    qphases+="%.5e;"%dtphase
+    print "\t\tSemidiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+
+    # ==============================
+    # FORTNIGHTLY LEVEL
+    # ==============================
+    dtmean=(tMF[1:]-tMF[:-1]).mean()
+    dt=-tMF[tMF<0][-1]
+    dtphase=dt/dtmean;
+    qphases+="%.5e;"%dtphase
+    print "\t\tFortnightly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+
+    # ==============================
+    # MONTHLY LEVEL
+    # ==============================
+    # CALCULATE AVERAGE INTERPEAK DISTANCE
+    npeaks=len(tMF)
+    dtmean=0
+    for i in xrange(npeaks-2):
+        dt=tMF[i+2]-tMF[i]
+        dtmean+=dt
+    dtmean/=(npeaks-2)
+
+    # CHECK WHICH PEAK IS LARGER
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tMF<0][-1]
+    dpeak1=sMF[ipeak]-smf[ipeak]
+    dpeak2=sMF[ipeak+1]-smf[ipeak+1]
+    
+    if dpeak1>dpeak2:dt=-tMF[ipeak]
+    else:dt=-tMF[ipeak-1]
+    dtphase=dt/dtmean
+    qphases+="%.5e;"%dtphase
+    print "\t\tMonthly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+
+    print "\t\tPhases based on boundaries: ",qphases
+    quake.qphases+=qphases
+    
+    break
     ic+=1
 
 print "\tAll phases: ",quake.qphases
