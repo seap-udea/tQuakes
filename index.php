@@ -663,7 +663,7 @@ TABLE;
       $$key=$station["$key"];
     }
     $station_status_txt=$STATION_STATUS[$station_status];
-    $numquakes=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id';");
+    $numquakes=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus='4';");
     mysqlCmd("update Stations set station_numquakes='$numquakes[0]' where station_id='$station_id';");
     
 echo<<<TABLE
