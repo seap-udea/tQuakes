@@ -40,7 +40,7 @@ print "Done."
 print out
 
 # SETTING STATION STATUS
-out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=1'"%(conf.WEBSERVER,station.station_id))
+System("links -dump '%s/index.php?action=status&station_id=%s&station_status=1'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # CREATE QUAKES
