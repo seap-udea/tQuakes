@@ -23,6 +23,9 @@ sleep(tsleep)
 # ##################################################
 
 # CHECK STATION
+System("rm scratch/*.err &> /dev/null")
+
+# CHECK STATION
 qdisabled=False
 out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
 
