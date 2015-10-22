@@ -18,6 +18,7 @@ station=loadConf(".stationrc")
 # ##################################################
 # CHECK IF STATION CAN SUBMIT
 # ##################################################
+qdisabled=False
 out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
 
 if int(out)>0:
