@@ -33,6 +33,7 @@ elif int(out)==0:
     qdisabled=True
 elif int(out)==-1:
     print "Station not recognized."
+    qdisabled=True
 
 # IF STATION IS DISABLED STOP
 if qdisabled:exit(0)
