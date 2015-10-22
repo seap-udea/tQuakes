@@ -91,4 +91,4 @@ station:
 
 resetquakes:
 	@echo "Resetting quakes..."
-	@mysql -u root -p tQuakes -e "update Quakes set astatus='0',stationid='';"
+	@mysql -u root -p tQuakes -e "update Quakes set astatus='0',stationid='',adatetime='',qsignal='',qphases='';"
