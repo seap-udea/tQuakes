@@ -1,3 +1,4 @@
+import MySQLdb as mdb
 import csv,datetime,commands,re,os,numpy,cmath,time as timing
 from sys import exit,argv
 from util.jdcal import *
@@ -97,14 +98,29 @@ def loadConf(filename):
     else:print "Configuration file '%s' does not found."%filename
     return conf
 
+def fileBase(filename):
+    dirs=filename.split("/")
+    search=re.search("([^\/]+)\.[^\/]+",filename)
+    basename=search.group(1)
+    dirname="/".join(dirs[:-1])
+    return dirname,basename
+
 # ######################################################################
 # CONFIGURATION
 # ######################################################################
 CONF=loadConf("configuration")
+DIRNAME,BASENAME=fileBase(argv[0])
 
 # ######################################################################
 # REGULAR ROUTINES
 # ######################################################################
+def connectDatabase(server='localhost',
+                 user=CONF.DBUSER,
+                 password=CONF.DBPASSWORD,
+                 database=CONF.DBNAME):
+    con=mdb.connect(server,user,password,database)
+    return con
+
 def loadDatabase(server='localhost',
                  user=CONF.DBUSER,
                  password=CONF.DBPASSWORD,
@@ -165,6 +181,16 @@ def randomStr(N):
     import string,random
     string=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
     return string
+
+def mysqlSimple(sql,db):
+    db.execute(sql)
+    result=db.fetchone()
+    return result[0]
+
+def mysqlArray(sql,db):
+    db.execute(sql)
+    result=db.fetchall()
+    return result
 
 def customdate2jd(mydate):
     """
