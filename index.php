@@ -743,8 +743,12 @@ require_once("site/references.php");
 //END
 //======================================================================
 ?>
+<?php
+echo<<<FOOTER
 <hr/>
 <i style="font-size:12px">
-  Developed by Gloria Moncayo, Jorge I. Zuluaga & Gaspar Monsalve (2015)
+  Developed by Gloria Moncayo, Jorge I. Zuluaga & Gaspar Monsalve (2015), sessid: $SESSID
 </i>
 </body></html>
+FOOTER;
+?>
