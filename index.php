@@ -564,7 +564,7 @@ BASIC;
     //CREATE QUAKE ID
     $quakedir="scratch/$SESSID/$quakeid";
     if(!is_dir("$quakedir") or 1){
-      echo "<i>Creating directory for $quakeid...</i>";
+      echo "<i>Creating directory for $quakeid...</i><br/>";
       shell_exec("mkdir -p $quakedir/");
       shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
       
@@ -578,7 +578,8 @@ BASIC;
       shell_exec("cd $quakedir;tar xf $quakeid-analysis.tar");
 
       // COPY AND PLOTTING SCRIPTS
-      shell_exec("cp plots/quakes/*.py $quakedir");
+      shell_exec("cd $quakedir;rm -rf *.py");
+      shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.py;do ln -s \$plot;done");
       shell_exec("for plot in $quakedir/*.py;do PYTHONPATH=. MPLCONFIGDIR=/tmp python \$plot;done");
     }
     $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);
