@@ -18,7 +18,8 @@ def plot(quakeid,component):
     # ############################################################
     connection=connectDatabase()
     db=connection.cursor()
-    #quake=quakeProperties(quakeid,db)
+    quake=quakeProperties(quakeid,db)
+    quakestr=quake.quakestr
     quake=loadConf(DIRNAME+"/quake.conf")
 
     # ############################################################
@@ -66,6 +67,11 @@ def plot(quakeid,component):
     # ############################################################
     # SAVE FIGURE
     # ############################################################
+    ax.text(1.02,0.5,quakestr,
+            horizontalalignment='center',verticalalignment='center',
+            rotation=90,fontsize=10,color='k',alpha=0.2,
+            transform=ax.transAxes)
+    
     figname="%s/%s.png"%(DIRNAME,BASENAME)
     print "Saving figure ",figname
     fig.savefig(figname)

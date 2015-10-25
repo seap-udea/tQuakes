@@ -422,6 +422,8 @@ def quakeProperties(quakeid,db):
     for i in xrange(len(keys)):
         key=keys[i][0]
         value=props[0][i]
+        if value is not None:
+            value=value.replace("\n","")
         exec("quake.%s='%s'"%(key,value))
     return quake
 
