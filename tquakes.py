@@ -57,8 +57,23 @@ ETERNA COMPONENTS:
 8: for tidal volume strain in 10**-9 = nstr.
 9: for ocean tides in mm.
 """
-COMPONENTS=[0,1,2,4,5,9]
+
+# NAME    :  g  tilt  vd vs hs ocean
+# IN FILE :  1  2     3  4  5  6
+COMPONENTS=[ 0, 1,    2, 4, 5, 9]
 COMPONENTS_LONGTERM=[0]
+COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
+                     grav=[0,"Tidal gravity",r"nm/s$^2$"],
+                     tilt=[1,"Tidal tilt",r"mas"],
+                     vd=[2,"Vertical displacement","mm"],
+                     hd=[3,"Horizontal displacement","mm"],
+                     vs=[4,"Vertical strain","nstr"],
+                     hs=[5,"Horizontal strain","nstr"],
+                     areal=[6,"Areal strain","nstr"],
+                     shear=[7,"Shear","nstr"],
+                     volume=[8,"Volume strain","nstr"],
+                     ocean=[9,"Ocean tides","mm"]
+                 )
 
 # ######################################################################
 # CORE ROUTINES
@@ -437,3 +452,18 @@ def signalBoundary(t,s):
     tM=numpy.array(tM);sM=numpy.array(sM)
     tm=numpy.array(tm);sm=numpy.array(sm)
     return tm,sm,tM,sM
+
+def numComponent(namecomponent):
+    """
+    Determine position in signal, phases and datafile of <component>
+    """
+    # GET INDEX OF COMPONENT
+    component=COMPONENTS_DICT[namecomponent][0]
+
+    # COLUMN IN DATAFILE AND QSIGNAL
+    numcol=COMPONENTS.index(component)+1
+
+    # PHASES IN QPHASES
+    numphases=7*(numcol-1)
+    
+    return numcol,numphases

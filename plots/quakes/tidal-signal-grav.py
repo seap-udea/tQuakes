@@ -1,3 +1,3 @@
 from tidal_signal import *
 quakeid=DIRNAME.split("/")[-1]
-plot(quakeid,"vs")
+plot(quakeid,"grav")

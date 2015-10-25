@@ -1,3 +1,3 @@
-from tidal_fft import *
+from tidal_boundaries import *
 quakeid=DIRNAME.split("/")[-1]
 plot(quakeid,"hs")
