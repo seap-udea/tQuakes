@@ -563,7 +563,7 @@ BASIC;
 
     //CREATE QUAKE ID
     $quakedir="scratch/$SESSID/$quakeid";
-    if(!is_dir("$quakedir") or 1){
+    if(!is_dir("$quakedir") or 0){
       echo "<i>Creating directory for $quakeid...</i><br/>";
       shell_exec("mkdir -p $quakedir/");
       shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
