@@ -125,6 +125,7 @@ def fileBase(filename):
 # ######################################################################
 CONF=loadConf("configuration")
 DIRNAME,BASENAME=fileBase(argv[0])
+if DIRNAME=="":DIRNAME="."
 
 # ######################################################################
 # REGULAR ROUTINES
