@@ -328,7 +328,7 @@ echo<<<PLOT
   <ul>
     <li><a name="$plotbase">File</a>: <a href="$plot">$plotname</a></li>
     <li>Preview:<br/>
-      <a href="$plot">
+      <a href="$plot" target="_blank">
 	<img src="$plot" width="400px">
       </a>
     </li>
@@ -597,7 +597,7 @@ $plots.=<<<PLOT
   <ul>
     <li><a name="$plotbase">File</a>: <a href="$plot">$plotname</a></li>
     <li>Preview:<br/>
-      <a href="$plot">
+      <a href="$plot" target="_blank">
 	<img src="$plot" width="400px">
       </a>
     </li>

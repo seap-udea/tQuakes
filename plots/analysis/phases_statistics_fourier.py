@@ -66,14 +66,15 @@ def plot(component):
 
         ax.set_xlim((0,360))
         ax.axvline(180.0,color='k')
-        ax.set_xticklabels([])
         ax.set_ylabel("Number of Earthquakes")
 
         ax.text(0.5,0.05,"%s"%phasename[i],
                 horizontalalignment='center',fontsize=20,
                 transform=ax.transAxes)
 
-        ax.set_yticks(ax.get_yticks()[1:])
+        if i>0:
+            ax.set_xticklabels([])
+            ax.set_yticks(ax.get_yticks()[1:])
         i+=1
 
     # ############################################################
