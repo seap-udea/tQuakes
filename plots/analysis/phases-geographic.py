@@ -28,6 +28,9 @@ def plot(component):
         axs+=[fig.add_axes([l,b,w,h])]
         b+=h+dh
 
+    fig2=plt.figure(figsize=(8,6))
+    ax2=fig2.gca()
+
     # ############################################################
     # PHASE TO ANALYSE
     # ############################################################
@@ -48,32 +51,48 @@ def plot(component):
         # PERFORM QUERY
         # ############################################################
         # and quakeid='UTFZQRX'
-        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes where qphases<>'' and Ml+0>0 and Ml+0<2 and qdepth+0<40"%(np+phase)
+        npos=np+phase
+        minphase=0.50
+        maxphase=0.52
+        """
+        minphase=0.98
+        maxphase=1.00
+        """
+
+        """
+        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1),qlat,qlon,qjd from Quakes where SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1)+0>%f and SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1)+0<%f and Ml+0>0 and Ml+0<2 and qdepth+0<20 and qlon+0>-79 and qlon+0<-77 and qlat+0>0.5 and qlat+0<1"%(npos,npos,minphase,npos,maxphase)
+        """
+
+        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1),qlat,qlon,qjd from Quakes where SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1)+0>%f and SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1)+0<%f and Ml+0>0 and Ml+0<5 and qdepth+0<20 and qlon+0>-72.5 and qlon+0<-71 and qlat+0>8.0 and qlat+0<10"%(npos,npos,minphase,npos,maxphase)
+
         results=mysqlArray(sql,db)
         phases=[]
+        qlats=[]
+        qlons=[]
+        qjds=[]
         for phase in results:
             try:value=float(phase[0].replace(" ",""))
             except:continue
             if value>1:continue
             phases+=[value]
+            qlats+=[float(phase[1])]
+            qlons+=[float(phase[2])]
+            qjds+=[float(phase[3])]
+
         phases=numpy.array(phases)
-        nphases=len(phases)
-        nbins=50
-        print "Number of quakes: ",nphases
+        qlats=numpy.array(qlats)
+        qlons=numpy.array(qlons)
+        qjds=numpy.array(qjds)
+        nphases=len(qlats)
 
         # ############################################################
-        # PLOT HISTOGRAM
+        # SCATTER PLOT
         # ############################################################
-        h,bins=numpy.histogram(phases,nbins)
-        xs=(bins[:-1]+bins[1:])/2
-        dh=numpy.sqrt(h)
+        ax.plot(qlons,qlats,'ko',markersize=2)
+        ax.set_xlim((-80,-70))
+        ax.set_ylim((0,10))
 
-        ax.hist(phases,nbins,facecolor='blue',alpha=0.2)
-        ax.errorbar(xs,h,yerr=dh,linestyle='None',color='r')
-
-        ax.set_xlim((0,1))
-        ax.axvline(0.5,color='k')
-        ax.set_ylabel("Number of Earthquakes")
+        ax2.plot(qjds-qjds[0],qlats,'ko')
 
         ax.text(0.5,0.05,"%s"%phasename[i],
                 horizontalalignment='center',fontsize=20,
@@ -87,6 +106,7 @@ def plot(component):
     # ############################################################
     # DECORATION
     # ############################################################
+    ax2.set_xlim((-1,1))
     # ax.set_xlim((0,360))
     axs[0].set_xlabel("Phase")
     axs[-1].set_title("%s: phase distribution of %d quakes"%(name,nphases))
@@ -97,3 +117,6 @@ def plot(component):
     figname="%s/%s.png"%(DIRNAME,BASENAME)
     print "Saving figure ",figname
     fig.savefig(figname)
+    fig2.savefig("times.png")
+
+plot("vd")
