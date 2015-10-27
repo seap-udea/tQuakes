@@ -36,7 +36,7 @@ elif int(out)==0:
     # REMOVE REMAINING QUAKES
     System("rm -r data/quakes/???????")
     # REMOVE SERVER SIGNATURE
-    system("ssh-keygen -f '$HOME/.ssh/known_hosts' -R urania.udea.edu.co")
+    system("ssh-keygen -f '$HOME/.ssh/known_hosts' -R %s"%CONF.DATASERVER)
     # REINSTALL UPDATED SERVER SIGNATURE
     system("cat .known_hosts >> $HOME/.ssh/known_hosts")
 
