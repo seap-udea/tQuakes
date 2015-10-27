@@ -1,0 +1,4 @@
+ssh-keygen -f "/home/jzuluaga/.ssh/known_hosts" -R urania.udea.edu.co
+
+Signature:
+|1|xVNuA+3t5aRfR47EY5SLZjIG2qo=|4QL6Hes+EiXGmCXQi9AOnl8vB3c= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBItKpuBtIIApO0zlra+3KIAISBJED0JqWwCpPcFLSLURr9L5vIjiIKmrLjOUgrHtfNECEwBNVgftMDcG0Un2tmc=
