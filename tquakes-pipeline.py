@@ -32,6 +32,7 @@ out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.
 if int(out)>0:
     print "Station enabled."
 elif int(out)==0:
+    System("rm -r data/quakes/???????")
     print "Station disabled."
     qdisabled=True
 elif int(out)==-1:
