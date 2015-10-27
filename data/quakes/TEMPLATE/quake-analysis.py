@@ -127,42 +127,44 @@ for component in COMPONENTS:
     # ==============================
     # SEMI-DIURNAL LEVEL
     # ==============================
-    dtmean=(tMb[1:]-tMb[:-1]).mean()
+    npeaks=len(tMb)
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tMb<0][-1]
+    dtmean=tMb[ipeak+1]-tMb[ipeak]
     dt=-tMb[tMb<0][-1]
     dtphase=dt/dtmean;
-    qphases+="%.5e;"%dtphase
+    qphases+="%.4f:%.4f;"%(dt,dtphase)
     print "\t\tSemidiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
 
     # ==============================
     # FORTNIGHTLY LEVEL
     # ==============================
-    dtmean=(tMF[1:]-tMF[:-1]).mean()
+    npeaks=len(tMF)
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tMF<0][-1]
+    dtmean=tMF[ipeak+1]-tMF[ipeak]
     dt=-tMF[tMF<0][-1]
     dtphase=dt/dtmean;
-    qphases+="%.5e;"%dtphase
+    qphases+="%.4f:%.4f;"%(dt,dtphase)
     print "\t\tFortnightly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
 
     # ==============================
     # MONTHLY LEVEL
     # ==============================
-    # CALCULATE AVERAGE INTERPEAK DISTANCE
-    npeaks=len(tMF)
-    dtmean=0
-    for i in xrange(npeaks-2):
-        dt=tMF[i+2]-tMF[i]
-        dtmean+=dt
-    dtmean/=(npeaks-2)
-
     # CHECK WHICH PEAK IS LARGER
     ipeaks=numpy.arange(npeaks)
     ipeak=ipeaks[tMF<0][-1]
     dpeak1=sMF[ipeak]-smf[ipeak]
     dpeak2=sMF[ipeak+1]-smf[ipeak+1]
     
-    if dpeak1>dpeak2:dt=-tMF[ipeak]
-    else:dt=-tMF[ipeak-1]
+    if dpeak1>dpeak2:
+        dt=-tMF[ipeak]
+        dtmean=tMF[ipeak+2]-tMF[ipeak]
+    else:
+        dt=-tMF[ipeak-1]
+        dtmean=tMF[ipeak+1]-tMF[ipeak-1]
     dtphase=dt/dtmean
-    qphases+="%.5e;"%dtphase
+    qphases+="%.4f:%.4f;"%(dt,dtphase)
     print "\t\tMonthly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
 
     print "\t\tPhases based on boundaries: ",qphases
