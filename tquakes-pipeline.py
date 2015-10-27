@@ -37,8 +37,6 @@ elif int(out)==0:
     System("rm -r data/quakes/???????")
     # REMOVE SERVER SIGNATURE
     system("ssh-keygen -f \"$HOME/.ssh/known_hosts\" -R %s"%conf.DATASERVER)
-    # REINSTALL UPDATED SERVER SIGNATURE
-    system("cat .known_hosts >> $HOME/.ssh/known_hosts")
 
     print "Station disabled."
     qdisabled=True
