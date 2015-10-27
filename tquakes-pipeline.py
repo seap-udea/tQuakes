@@ -32,7 +32,14 @@ out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.
 if int(out)>0:
     print "Station enabled."
 elif int(out)==0:
+
+    # REMOVE REMAINING QUAKES
     System("rm -r data/quakes/???????")
+    # REMOVE SERVER SIGNATURE
+    system("ssh-keygen -f '$HOME/.ssh/known_hosts' -R urania.udea.edu.co")
+    # REINSTALL UPDATED SERVER SIGNATURE
+    system("cat .known_hosts >> $HOME/.ssh/known_hosts")
+
     print "Station disabled."
     qdisabled=True
 elif int(out)==-1:
