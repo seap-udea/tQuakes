@@ -112,7 +112,7 @@ else if($action=="testdb"){
 //CHECK STATION
 ////////////////////////////////////////////////////////////////////////
 else if($action=="submit"){
-  $sql="update Quakes set astatus='4',stationid='$station_id',adatetime=now() where quakeid='$quakeid';";
+  $sql="update Quakes set astatus='4',stationid='$station_id',adatetime=now(),calctime3='$deltat' where quakeid='$quakeid';";
   mysqlCmd($sql);
   return 0;
 }
