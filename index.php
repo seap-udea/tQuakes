@@ -786,6 +786,10 @@ TABLE;
     $sqlnumquakes="$sqlbase$urlnumquakes";
 
     $station_status_txt=$STATION_STATUS[$station_status];
+    $calctime1=mysqlCmd("select avg(calctime1) from Quakes where stationid='$station_id' and calctime1<>'';");
+    $calctime2=mysqlCmd("select avg(calctime2) from Quakes where stationid='$station_id' and calctime2<>'';");
+    $calctime3=mysqlCmd("select avg(calctime3) from Quakes where stationid='$station_id' and calctime3<>'';");
+
     $numquakes=mysqlCmd("select count(quakeid),avg(calctime3) from Quakes where stationid='$station_id' and astatus='4';");
     $fetched=mysqlCmd("select count(quakeid),avg(calctime1) from Quakes where stationid='$station_id' and astatus+0>0;");
     $analysing=mysqlCmd("select count(quakeid),avg(calctime2) from Quakes where stationid='$station_id' and astatus+0>0 and astatus+0<4;");
@@ -795,9 +799,10 @@ TABLE;
     $totanalysing+=$analysing[0];
     $totfetched+=$fetched[0];
 
-    $timeeterna=round($fetched[1],2);
-    $timeanalysis=round($analysing[1],2);
-    $timesubmission=round($numquakes[1],2);
+    $timeeterna=round($calctime1[0],2);
+    $timeanalysis=round($calctime2[0],2);
+    $timesubmission=round($calctime3[0],2);
+
     $timeavg=round($timeeterna+$timeanalysis+$timesubmission,2);
     $score=round($timetotavg[0]/$timeavg,2);
     $scorecolor="blue";
