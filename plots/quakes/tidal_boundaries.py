@@ -38,9 +38,12 @@ def plot(quakeid,component):
 
     # GET PHASES
     qphases=quake.qphases.split(";")
-    phase_sd=float(qphases[np+3+1])
-    phase_fn=float(qphases[np+3+2])
-    phase_mn=float(qphases[np+3+3])
+    phtime=qphases[np+3+1].split(":")
+    phase_sd=float(phtime[1])
+    phtime=qphases[np+3+2].split(":")
+    phase_fn=float(phtime[1])
+    phtime=qphases[np+3+3].split(":")
+    phase_mn=float(phtime[1])
 
     # READ SIGNAL
     sign=numpy.loadtxt(DIRNAME+"/%s.data"%quakeid)

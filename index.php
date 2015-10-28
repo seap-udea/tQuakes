@@ -43,7 +43,8 @@ if($action=="fetch"){
   }
 
   //FETCH
-  $sql="select * from Quakes where astatus+0=0 limit $numquakes;";
+  $sql="select * from Quakes where astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>5*3600) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
+
   $quakes=mysqlCmd($sql,$out=1);
   if($quakes==0){
     echo "No quakes available for fecthing.";
@@ -353,7 +354,7 @@ else if($if=="stats"){
   $numanalysed=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0 and astatus+0<4;");
   $numsubmit=mysqlCmd("select count(quakeid) from Quakes where astatus+0=4;");
   $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,1);
-
+  
 echo<<<PORTAL
 <p>
   <ul>
@@ -563,7 +564,7 @@ BASIC;
 
     //CREATE QUAKE ID
     $quakedir="scratch/$SESSID/$quakeid";
-    if(!is_dir("$quakedir") or 0){
+    if(!is_dir("$quakedir") or isset($replotall) or 0){
       echo "<i>Creating directory for $quakeid...</i><br/>";
       shell_exec("mkdir -p $quakedir/");
       shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
@@ -619,7 +620,8 @@ DOWN;
   // DISPLAY INFO
   $referer=$_SERVER["HTTP_REFERER"];
 echo<<<QUAKE
-<a href="$referer">Back</a>
+<a href="$referer">Back</a> |
+<a href="index.php?if=quake&quakeid=$quakeid&replotall">Replot all</a>
 <h3>Earthquake $quakeid</h3>
 
 <h4>Basic information</h4>
@@ -669,6 +671,14 @@ TABLE;
     foreach(array_keys($station) as $key){
       $$key=$station["$key"];
     }
+    $sqlbase="index.php?if=search&search=";
+    $urlfetched=urlencode("stationid='$station_id' and astatus+0>=0");
+    $sqlfetched="$sqlbase$urlfetched";
+    $urlanalysing=urlencode("stationid='$station_id' and astatus+0>0 and astatus+0<4");
+    $sqlanalysing="$sqlbase$urlanalysing";
+    $urlnumquakes=urlencode("stationid='$station_id' and astatus+0=4");
+    $sqlnumquakes="$sqlbase$urlnumquakes";
+
     $station_status_txt=$STATION_STATUS[$station_status];
     $numquakes=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus='4';");
     $fetched=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus+0>0;");
@@ -682,9 +692,9 @@ echo<<<TABLE
   <tr>
     <td><a href="?if=station&station_id=$station_id">$station_name</a></td>
     <td>$station_id</td>
-    <td>$fetched[0]</td>
-    <td>$analysing[0]</td>
-    <td>$numquakes[0]</td>
+    <td><a href="$sqlfetched">$fetched[0]</a></td>
+    <td><a href="$sqlanalysing">$analysing[0]</a></td>
+    <td><a href="$sqlnumquakes">$numquakes[0]</a></td>
     <td>$station_status_txt</td>
     <td>$station_statusdate</td>
   </tr>
