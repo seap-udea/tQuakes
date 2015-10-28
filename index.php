@@ -667,7 +667,7 @@ TABLE;
     }
     $station_status_txt=$STATION_STATUS[$station_status];
     $numquakes=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus='4';");
-    $fetched=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus+0=0;");
+    $fetched=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus+0>0;");
     $analysing=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus+0>0 and astatus+0<4;");
     mysqlCmd("update Stations set station_numquakes='$numquakes[0]' where station_id='$station_id';");
     
