@@ -79,8 +79,6 @@ def plot(component):
             qlons+=[float(ph[2])]
             qjds+=[float(ph[3])]
 
-        print phase,len(phases)
-
         phases=numpy.array(phases)
         qlats=numpy.array(qlats)
         qlons=numpy.array(qlons)
@@ -90,9 +88,17 @@ def plot(component):
         # ############################################################
         # SCATTER PLOT
         # ############################################################
-        ax.plot(qlons,qlats,'ko',markersize=2)
-        ax.set_xlim((-80,-70))
-        ax.set_ylim((0,10))
+        merdict=dict(labels=[False,False,False,False])
+        if i==0:
+            merdict["labels"][3]=True
+        elif i==npanels-1:
+            merdict["labels"][2]=True
+
+        m=scatterMap(ax,qlats,qlons,
+                     merdict=merdict,
+                     color='k',marker='o',linestyle='None',
+                     markersize=1,markeredgecolor='None',alpha=1)
+
 
         ax2.plot(qjds-qjds[0],qlats,'ko')
 
@@ -100,9 +106,6 @@ def plot(component):
                 horizontalalignment='center',fontsize=20,
                 transform=ax.transAxes)
 
-        if i>0:
-            ax.set_xticklabels([])
-            ax.set_yticks(ax.get_yticks()[1:])
         i+=1
 
     # ############################################################
@@ -110,8 +113,8 @@ def plot(component):
     # ############################################################
     ax2.set_xlim((-1,1))
     # ax.set_xlim((0,360))
-    axs[0].set_xlabel("Phase")
-    axs[-1].set_title("%s: phase distribution of %d quakes"%(name,nphases))
+    # axs[0].set_xlabel("Phase")
+    # axs[-1].set_title("%s: phase distribution of %d quakes"%(name,nphases))
 
     # ############################################################
     # SAVE FIGURE

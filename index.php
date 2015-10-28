@@ -400,7 +400,20 @@ else if($if=="stats"){
   $numanalysed=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0 and astatus+0<4;");
   $numsubmit=mysqlCmd("select count(quakeid) from Quakes where astatus+0=4;");
   $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,1);
-  
+  $firstquake=mysqlCmd("select min(adatetime) from Quakes where adatetime<>'';");
+  $lastquake=mysqlCmd("select max(adatetime) from Quakes where adatetime<>'';");
+  $elapsed=mysqlCmd("select TIMEDIFF(max(adatetime),min(adatetime)) from Quakes where adatetime<>'';");
+  $elapsedsecs=mysqlCmd("select TIME_TO_SEC(TIMEDIFF(max(adatetime),min(adatetime))) from Quakes where adatetime<>'';");
+  $perquake=round($elapsedsecs[0]/$numsubmit[0],2);
+  $pending=round(($numquakes[0]-$numsubmit[0])*$perquake,0);
+  $projectedend=mysqlCmd("select DATE_ADD(max(adatetime),INTERVAL $pending SECOND) from Quakes where adatetime<>''");
+  $results=mysqlCmd("select avg(calctime1) from Quakes where calctime1<>''");$avgcalc1=round($results[0],2);
+  $results=mysqlCmd("select avg(calctime2) from Quakes where calctime2<>''");$avgcalc2=round($results[0],2);
+  $results=mysqlCmd("select avg(calctime3) from Quakes where calctime3<>''");$avgcalc3=round($results[0],2);
+  $avgtot=$avgcalc1+$avgcalc2+$avgcalc3;
+  $speedup=round($avgtot/$perquake,3);
+  $singlespeedup=round(($avgcalc1+$avgcalc2)/$perquake,3);
+									    
 echo<<<PORTAL
 <p>
   <ul>
@@ -415,6 +428,36 @@ echo<<<PORTAL
     </li>
     <li>
       <b>Submitted Earthquakes</b>: $numsubmit[0] [ $persubmit% ]
+    </li>
+    <li>
+      <b>Time of start</b>: $firstquake[0]
+    </li>
+    <li>
+      <b>Time of last status</b>: $lastquake[0]
+    </li>
+    <li>
+      <b>Elapsed time</b>: $elapsed[0] [ $perquake secs/earthquake ]
+    </li>
+    <li>
+      <b>Average ETERNA time</b>: $avgcalc1
+    </li>
+    <li>
+      <b>Average Analysis time</b>: $avgcalc2
+    </li>
+    <li>
+      <b>Average Submission time</b>: $avgcalc3
+    </li>
+    <li>
+      <b>Average time per quake</b>: $avgtot
+    </li>
+    <li>
+      <b>Speed-up</b>: Distributed: <i style='color:red'>$speedup</i>, Single: <i style='color:red'>$singlespeedup</i>
+    </li>
+    <li>
+      <b>Estimated remaining time</b>: $pending seconds
+    </li>
+    <li>
+      <b>Estimated end date</b>: $projectedend[0]
     </li>
   </ul>
 </p>

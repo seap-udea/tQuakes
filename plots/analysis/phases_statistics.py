@@ -48,18 +48,15 @@ def plot(component):
         # PERFORM QUERY
         # ############################################################
         # and quakeid='UTFZQRX'
-        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes where qphases<>'' and Ml+0>0 and Ml+0<2 and qdepth+0<40"%(np+phase)
+        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes where qphases<>''"%(np+phase)
         results=mysqlArray(sql,db)
         phases=[]
-        for phase in results:
-            try:value=float(phase[0].replace(" ",""))
-            except:continue
-            if value>1:continue
-            phases+=[value]
+        for ph in results:
+            phtime=ph[0].split(":")
+            phases+=[float(phtime[1])]
         phases=numpy.array(phases)
         nphases=len(phases)
         nbins=50
-        print "Number of quakes: ",nphases
 
         # ############################################################
         # PLOT HISTOGRAM

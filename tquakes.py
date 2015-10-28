@@ -477,3 +477,51 @@ def lat2str(lat):
 def lon2str(lon):
     if lon>270:lon-=360
     return "%g"%lon
+
+def scatterMap(ax,qlat,qlon,
+               pardict=dict(),
+               merdict=dict(),
+               **formats):
+    """
+    Create a scatter 
+    """
+
+    from mpl_toolkits.basemap import Basemap as map
+    qlatmin=min(qlat)
+    qlatmax=max(qlat)
+    qlonmin=min(qlon)
+    qlonmax=max(qlon)
+    qlonmean=(qlonmax+qlonmin)/2
+    qlatmean=(qlatmax+qlatmin)/2
+    dlat=abs(qlatmax-qlatmin)*PI/180*6780.0e3
+    dlon=abs(qlonmax-qlonmin)*PI/180*6780.0e3
+
+    # ############################################################
+    # MAP OPTIONS
+    # ############################################################
+    fpardict=dict(labels=[True,True,False,False],
+                  fontsize=10,zorder=10,linewidth=0.5,fmt=lat2str)
+    fmerdict=dict(labels=[False,False,True,True],
+                  fontsize=10,zorder=10,linewidth=0.5,fmt=lon2str)
+
+    fpardict.update(pardict)
+    fmerdict.update(merdict)
+
+    # ############################################################
+    # PREPARE FIGURE
+    # ############################################################
+    m=map(projection="aea",resolution='c',width=dlon,height=dlat,
+          lat_0=qlatmean,lon_0=qlonmean,ax=ax)
+
+    m.drawlsmask(alpha=0.5)
+    m.etopo(zorder=-10)
+    m.drawparallels(numpy.arange(-45,45,1),**fpardict)
+    m.drawmeridians(numpy.arange(-90,90,1),**fmerdict)
+
+    # ############################################################
+    # PLOT
+    # ############################################################
+    x,y=m(qlon,qlat)
+    ax.plot(x,y,**formats)
+
+    return m
