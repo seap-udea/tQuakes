@@ -820,8 +820,8 @@ TABLE;
   $fracfetched=round($totfetched/$totquakes*100,1);
   $fracanalysing=round($totanalysing/$totquakes*100,1);
   $fracnumquakes=round($totnumquakes/$totquakes*100,1);
-  echo "<tr><td colspan=2 style=text-align:right>TOTALS</td><td>$totfetched</td><td>$totanalysing</td><td>$totnumquakes</td><td colspan=2>Num. stations : $numstations</td></tr>";
-  echo "<tr><td colspan=2 style=text-align:right>TOTALS (%)</td><td>$fracfetched%</td><td>$fracanalysing%</td><td>$fracnumquakes%</td><td colspan=2></td></tr>";
+  echo "<tr><td colspan=2 style=text-align:right>TOTALS</td><td>$totfetched</td><td>$totanalysing</td><td>$totnumquakes</td><td colspan=4>Num. stations : $numstations</td></tr>";
+  echo "<tr><td colspan=2 style=text-align:right>TOTALS (%)</td><td>$fracfetched%</td><td>$fracanalysing%</td><td>$fracnumquakes%</td><td colspan=4></td></tr>";
   echo "</table>";
 }
 
