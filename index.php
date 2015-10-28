@@ -224,6 +224,7 @@ echo<<<PORTAL
 <a href="?if=download">Download</a> |
 <a href="?if=stats">Statistics</a> |
 <a href="?if=data">Data Products</a> |
+<a href="?if=analysis">Analysis</a> |
 <a href="?if=search">Search</a> |
 <a href="?if=activity">Stations Activity</a> |
 <a href="?if=register">Register Station</a> | 
@@ -323,6 +324,46 @@ PORTAL;
 //PLOTS
 //==================================================
 $output=shell_exec("ls -m plots/stats/*.png");
+$listplots=preg_split("/\s*,\s*/",$output);
+foreach($listplots as $plot)
+{
+   $plotname=rtrim(shell_exec("basename $plot"));
+   $plotbase=preg_split("/\./",$plotname)[0];
+
+echo<<<PLOT
+<li><b>Plot</b>:
+  <ul>
+    <li><a name="$plotbase">File</a>: <a href="$plot">$plotname</a></li>
+    <li>Preview:<br/>
+      <a href="$plot" target="_blank">
+	<img src="$plot" width="400px">
+      </a>
+    </li>
+    <li><a href="update.php?replot&plot=$plot">Replot</a></li>
+  </ul>
+
+
+PLOT;
+}
+
+echo "</ul>";
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//DATA PRODUCTS
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+if($if=="analysis"){
+
+echo<<<PORTAL
+
+Here are some of the available analysis results from $tQuakes:
+<ul>
+PORTAL;
+
+//==================================================
+//PLOTS
+//==================================================
+$output=shell_exec("ls -m plots/analysis/*.png");
 $listplots=preg_split("/\s*,\s*/",$output);
 foreach($listplots as $plot)
 {
