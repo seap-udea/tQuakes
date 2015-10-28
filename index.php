@@ -770,6 +770,9 @@ TABLE;
  $totfetched=0;
  $numstations=0;
  $timetotavg=mysqlCmd("select avg(calctime1+calctime2+calctime3) from Quakes where calctime3<>'';");
+ $avgcalctime=0;
+ $avgscore=0;
+ $iavg=0;
   foreach($stations as $station){
     foreach(array_keys($station) as $key){
       $$key=$station["$key"];
@@ -798,6 +801,12 @@ TABLE;
     $timeavg=round($timeeterna+$timeanalysis+$timesubmission,2);
     $score=round($timetotavg[0]/$timeavg,2);
     $scorecolor="blue";
+    if($fetched[0]>0){
+      $avgcalctime+=$timeavg;
+      $avgscore+=$score;
+      $iavg++;
+    }
+    
     if($score<1){$scorecolor="red";}
 
 echo<<<TABLE
@@ -817,10 +826,13 @@ TABLE;
 
   }
 
+  $avgcalctime=round($avgcalctime/$iavg,2);
+  $avgscore=round($avgscore/$iavg,2);
   $fracfetched=round($totfetched/$totquakes*100,1);
   $fracanalysing=round($totanalysing/$totquakes*100,1);
   $fracnumquakes=round($totnumquakes/$totquakes*100,1);
-  echo "<tr><td colspan=2 style=text-align:right>TOTALS</td><td>$totfetched</td><td>$totanalysing</td><td>$totnumquakes</td><td colspan=4>Num. stations : $numstations</td></tr>";
+
+  echo "<tr><td>Num. stations : $numstations</td><td style=text-align:right>TOTALS</td><td>$totfetched</td><td>$totanalysing</td><td>$totnumquakes</td><td>$avgcalctime</td><td>$avgscore</td><td colspan=2></td></tr>";
   echo "<tr><td colspan=2 style=text-align:right>TOTALS (%)</td><td>$fracfetched%</td><td>$fracanalysing%</td><td>$fracnumquakes%</td><td colspan=4></td></tr>";
   echo "</table>";
 }
