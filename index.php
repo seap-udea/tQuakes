@@ -664,6 +664,7 @@ TABLE;
  $totanalysing=0;
  $totnumquakes=0;
  $totfetched=0;
+ $numstations=0;
   foreach($stations as $station){
     foreach(array_keys($station) as $key){
       $$key=$station["$key"];
@@ -688,10 +689,10 @@ echo<<<TABLE
     <td>$station_statusdate</td>
   </tr>
 TABLE;
-
+ $numstations+=1;
 
   }
-  echo "<tr><td colspan=2 style=text-align:right>TOTALS</td><td>$totfetched</td><td>$totanalysing</td><td>$totnumquakes</td><td colspan=2></td></tr>";
+  echo "<tr><td colspan=2 style=text-align:right>TOTALS</td><td>$totfetched</td><td>$totanalysing</td><td>$totnumquakes</td><td colspan=2>Num. stations : $numstations</td></tr>";
   echo "</table>";
 }
 
