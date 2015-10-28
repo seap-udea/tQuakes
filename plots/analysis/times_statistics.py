@@ -70,7 +70,6 @@ def plot(component):
         ax.errorbar(xs,h,yerr=dh,linestyle='None',color='r')
 
         ax.set_xlim((0,1))
-        ax.axvline(0.5,color='k')
         ax.set_ylabel("Number of Earthquakes")
 
         ax.text(0.5,0.05,"%s"%phasename[i],
