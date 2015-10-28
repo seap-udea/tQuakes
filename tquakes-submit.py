@@ -8,7 +8,7 @@ if os.path.lexists("stop"):
 # CONFIGURATION
 # ##################################################
 conf=loadConf("configuration")
-periods=[0.5,1.0,13.8,27.6]
+updateConf("common",conf)
 
 # ##################################################
 # LOAD STATION INFORMATION

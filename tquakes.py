@@ -75,6 +75,15 @@ def saveObject(filename,obj):
         fo.write("%s = '%s'\n"%(key,obj.__dict__[key]))
     fo.close()
 
+def updateConf(filename,conf):
+    d=dict()
+    if os.path.lexists(filename):
+        execfile(filename,{},d)
+        for key in d.keys():
+            if d[key]==-1 or d[key]=="":del d[key]
+        conf.__dict__.update(d)
+    else:print "Configuration file '%s' does not found."%filename
+
 def loadConf(filename):
     """Load configuration file
     Parameters:

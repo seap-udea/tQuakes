@@ -8,6 +8,7 @@ if os.path.lexists("stop"):
 # CONFIGURATION
 # ##################################################
 conf=loadConf("configuration")
+updateConf("common",conf)
 
 # ##################################################
 # LOAD STATION INFORMATION

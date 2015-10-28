@@ -8,6 +8,7 @@ if os.path.lexists("stop"):
 # CONFIGURATION
 # ##################################################
 conf=loadConf("configuration")
+updateConf("common",conf)
 
 # ##################################################
 # LOAD STATION INFORMATION
@@ -61,4 +62,4 @@ for quake in out.split("\n"):
     for key in quake.keys():
         fq.write("%s='%s'\n"%(key,quake[key]))
     fq.close()
-print "Done."
+print "Fetched done from %s."%conf.WEBSERVER

@@ -5,6 +5,7 @@ print "*"*50+"\nRUNNING tquakes-pipeline\n"+"*"*50
 # CONFIGURATION
 # ##################################################
 conf=loadConf("configuration")
+updateConf("common",conf)
 
 # ##################################################
 # LOAD STATION INFORMATION
