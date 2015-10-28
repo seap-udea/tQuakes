@@ -745,9 +745,11 @@ echo<<<TABLE
 <tr>
   <td>Name</td>
   <td>Station Id.</td>
-  <td>Fetched</td>
-  <td>Analysing</td>
-  <td>Completed</td>
+  <td>Fetched<br/>(time ETERNA)</td>
+  <td>Analysing<br/>(time analysis)</td>
+  <td>Completed<br/>(time submit)</td>
+  <td>Time avg.</td>
+  <td>Score</td>
   <td>Status</td>
   <td>Last update</td>
 </tr>
@@ -758,6 +760,7 @@ TABLE;
  $totnumquakes=0;
  $totfetched=0;
  $numstations=0;
+ $timetotavg=mysqlCmd("select avg(calctime1+calctime2+calctime3) from Quakes where calctime3<>'';");
   foreach($stations as $station){
     foreach(array_keys($station) as $key){
       $$key=$station["$key"];
@@ -771,21 +774,32 @@ TABLE;
     $sqlnumquakes="$sqlbase$urlnumquakes";
 
     $station_status_txt=$STATION_STATUS[$station_status];
-    $numquakes=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus='4';");
-    $fetched=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus+0>0;");
-    $analysing=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus+0>0 and astatus+0<4;");
+    $numquakes=mysqlCmd("select count(quakeid),avg(calctime3) from Quakes where stationid='$station_id' and astatus='4';");
+    $fetched=mysqlCmd("select count(quakeid),avg(calctime1) from Quakes where stationid='$station_id' and astatus+0>0;");
+    $analysing=mysqlCmd("select count(quakeid),avg(calctime2) from Quakes where stationid='$station_id' and astatus+0>0 and astatus+0<4;");
     mysqlCmd("update Stations set station_numquakes='$numquakes[0]' where station_id='$station_id';");
+
     $totnumquakes+=$numquakes[0];
     $totanalysing+=$analysing[0];
     $totfetched+=$fetched[0];
+
+    $timeeterna=round($fetched[1],2);
+    $timeanalysis=round($analysing[1],2);
+    $timesubmission=round($numquakes[1],2);
+    $timeavg=round($timeeterna+$timeanalysis+$timesubmission,2);
+    $score=round($timetotavg[0]/$timeavg,2);
+    $scorecolor="blue";
+    if($score<1){$scorecolor="red";}
 
 echo<<<TABLE
   <tr>
     <td><a href="?if=station&station_id=$station_id">$station_name</a></td>
     <td>$station_id</td>
-    <td><a href="$sqlfetched">$fetched[0]</a></td>
-    <td><a href="$sqlanalysing">$analysing[0]</a></td>
-    <td><a href="$sqlnumquakes">$numquakes[0]</a></td>
+    <td><a href="$sqlfetched">$fetched[0]</a>  ($timeeterna)</td>
+    <td><a href="$sqlanalysing">$analysing[0]</a> ($timeanalysis)</td>
+    <td><a href="$sqlnumquakes">$numquakes[0]</a> ($timesubmission)</td>
+    <td>$timeavg</td>
+    <td><span style=color:$scorecolor>$score</span></td>
     <td>$station_status_txt</td>
     <td>$station_statusdate</td>
   </tr>
