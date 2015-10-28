@@ -79,7 +79,8 @@ for quake in qlist:
 
     # SUBMIT DATA
     system("scp -o 'StrictHostKeyChecking no' -r %s/*.7z tquakes@%s:. 2> scratch/%s.err"%(quakedir,conf.DATASERVER,quakeid))
-    if System("cat scratch/%s.err"%quakeid)!="":
+    err=System("cat scratch/%s.err"%quakeid)
+    if err!="" and "differs" not in err:
         print "\tConnection failed to data server."
         System("rm "+lockfile)
         continue
