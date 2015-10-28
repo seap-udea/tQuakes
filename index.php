@@ -65,7 +65,6 @@ if($action=="fetch"){
     $sql="update Quakes set astatus='1',stationid='$station_id',adatetime=now() where quakeid='$quakeid';";
     mysqlCmd($sql);
   }
-  echo "MAXTIME: $maxtime<br/>";
   return 0;
 }
 
