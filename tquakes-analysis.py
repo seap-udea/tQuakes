@@ -84,7 +84,7 @@ for quake in qlist:
 
     # REPORT END OF ANALYSIS
     print "\tReporting calculations..."
-    out=System("links -dump '%s/index.php?action=analysis&station_id=%s&quakeid=%s&qsignal=%s&qphases=%s&deltat=%.3e'"%(conf.WEBSERVER,station.station_id,
+    out=System("links -dump '%s/index.php?action=analysis&station_id=%s&quakeid=%s&qsignal=%s&qphases=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,
                                                                                                                         quakeid,
                                                                                                                         quake.qsignal,
                                                                                                                         quake.qphases,
