@@ -661,6 +661,9 @@ echo<<<TABLE
   <td>Last update</td>
 </tr>
 TABLE;
+ $totanalysing=0;
+ $totnumquakes=0;
+ $totfetched=0;
   foreach($stations as $station){
     foreach(array_keys($station) as $key){
       $$key=$station["$key"];
@@ -670,7 +673,10 @@ TABLE;
     $fetched=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus+0>0;");
     $analysing=mysqlCmd("select count(quakeid) from Quakes where stationid='$station_id' and astatus+0>0 and astatus+0<4;");
     mysqlCmd("update Stations set station_numquakes='$numquakes[0]' where station_id='$station_id';");
-    
+    $totnumquakes+=$numquakes[0];
+    $totanalysing+=$analysing[0];
+    $totfetched=$fetched[0];
+
 echo<<<TABLE
   <tr>
     <td><a href="?if=station&station_id=$station_id">$station_name</a></td>
@@ -685,6 +691,7 @@ TABLE;
 
 
   }
+  echo "<tr><td colspan=2 style=text-align:right>TOTALS</td><td>$totfetched</td><td>$totanalysing</td><td>$totnumquakes</td><td colspan=2></td></tr>";
   echo "</table>";
 }
 
