@@ -75,7 +75,8 @@ for quake in qlist:
     System("cd %s;tar cf %s-analysis.tar %s*-ff*.* quake.conf quake.log .states"%(quakedir,
                                                                                   quakeid,quakeid))  
     System("cd %s;p7zip %s-analysis.tar"%(quakedir,quakeid))
-    System("cd %s;rm *ff*"%(quakedir))  
+    System("cd %s;rm *ff*"%(quakedir))
+    System("cd %s;mv quake.conf %s.conf"%(quakedir,quakeid))
     
     # TIME
     time_end=timeit()
