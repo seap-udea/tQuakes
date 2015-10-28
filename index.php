@@ -675,7 +675,7 @@ TABLE;
     mysqlCmd("update Stations set station_numquakes='$numquakes[0]' where station_id='$station_id';");
     $totnumquakes+=$numquakes[0];
     $totanalysing+=$analysing[0];
-    $totfetched=$fetched[0];
+    $totfetched+=$fetched[0];
 
 echo<<<TABLE
   <tr>
