@@ -96,7 +96,7 @@ for quake in qlist:
 
     # REPORT END OF ANALYSIS
     print "\tReporting submission..."
-    out=System("links -dump '%s/index.php?action=submit&station_id=%s&quakeid=%s&deltat=%.3e'"%(conf.WEBSERVER,station.station_id,quakeid,deltat))
+    out=System("links -dump '%s/index.php?action=submit&station_id=%s&quakeid=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,quakeid,deltat))
     if 'Not Found' in out:
         print "\tConnection failed to webserver."
         System("rm "+lockfile)
