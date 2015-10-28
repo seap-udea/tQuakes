@@ -393,7 +393,9 @@ echo "</ul>";
 //STATS
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="stats"){
-
+  
+  $statlog="scratch/$SESSID/stats.log";
+  if(file_exists($statlog)){shell_exec("cp $statlog $statlog.prev");}
   $numquakes=mysqlCmd("select count(quakeid) from Quakes");
   $numfetched=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0;");
   $perfetched=round($numfetched[0]/(1.0*$numquakes[0])*100,1);
@@ -414,7 +416,7 @@ else if($if=="stats"){
   $speedup=round($avgtot/$perquake,3);
   $singlespeedup=round(($avgcalc1+$avgcalc2)/$perquake,3);
 									    
-echo<<<PORTAL
+$stats=<<<STAT
 <p>
   <ul>
     <li>
@@ -461,7 +463,14 @@ echo<<<PORTAL
     </li>
   </ul>
 </p>
-PORTAL;
+STAT;
+
+   $fl=fopen("scratch/$SESSID/stats.log","w");
+   fwrite($fl,$stats);
+   fclose($fl);
+
+   echo $stats;
+   echo "<a href=scratch/$SESSID/stats.log.prev target=_blank>Previous</a> | <a href=scratch/$SESSID/stats.log target=_blank>Present</a>";
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
