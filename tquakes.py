@@ -470,3 +470,10 @@ def numComponent(namecomponent):
     numphases=7*(numcol-1)
     
     return numcol,numphases
+
+def lat2str(lat):
+    return "%g"%lat
+
+def lon2str(lon):
+    if lon>270:lon-=360
+    return "%g"%lon
