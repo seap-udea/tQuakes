@@ -73,6 +73,10 @@ for quake in qlist:
         print "\tLocking quake"
         System("touch "+lockfile)
 
+    # TIME
+    time_start=timeit()
+    print "\tStarting time: ",time_start
+
     # SUBMIT DATA
     system("scp -o 'StrictHostKeyChecking no' -r %s/*.7z tquakes@%s:. 2> scratch/%s.err"%(quakedir,conf.DATASERVER,quakeid))
     if System("cat scratch/%s.err"%quakeid)!="":
@@ -84,9 +88,15 @@ for quake in qlist:
     System("date +%%s > %s/.submit"%quakedir)
     System("mv %s/.analysis %s/.states"%(quakedir,quakedir))
 
+    # TIME
+    time_end=timeit()
+    print "\tEnd time: ",time_end
+    deltat=time_end-time_start
+    print "\tTime elapsed: ",deltat
+
     # REPORT END OF ANALYSIS
     print "\tReporting submission..."
-    out=System("links -dump '%s/index.php?action=submit&station_id=%s&quakeid=%s'"%(conf.WEBSERVER,station.station_id,quakeid))
+    out=System("links -dump '%s/index.php?action=submit&station_id=%s&quakeid=%s&deltat=%.3e'"%(conf.WEBSERVER,station.station_id,quakeid,deltat))
     if 'Not Found' in out:
         print "\tConnection failed to webserver."
         System("rm "+lockfile)
