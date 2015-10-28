@@ -78,7 +78,7 @@ for quake in qlist:
     print "\tStarting time: ",time_start
 
     # SUBMIT DATA
-    system("scp -o 'StrictHostKeyChecking no' -r %s/*.7z tquakes@%s:. 2> scratch/%s.err"%(quakedir,conf.DATASERVER,quakeid))
+    system("scp -o 'StrictHostKeyChecking no' -r %s/%s.conf %s/*.7z tquakes@%s:. 2> scratch/%s.err"%(quakedir,quakeid,quakedir,conf.DATASERVER,quakeid))
     err=System("cat scratch/%s.err"%quakeid)
     if err!="" and "differs" not in err:
         print "\tConnection failed to data server."
