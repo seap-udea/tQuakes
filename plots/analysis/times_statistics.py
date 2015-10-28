@@ -20,7 +20,7 @@ def plot(component):
 
     fig=plt.figure(figsize=(8,6*npanels))
 
-    dh=0.01
+    dh=0.02
     h=(1-2*b-(npanels-1)*dh)/npanels
 
     axs=[]
@@ -41,6 +41,7 @@ def plot(component):
     #   Boundary: 5-Semidiurnal, 6-Fortnightly, 7-Monthly
     i=0
     phasename=["Semidiurnal","Fortnightly","Monthly"]
+    phtimes=[0.5,15.0,30.0]
     for phase in 5,6,7:
         ax=axs[i]
 
@@ -48,48 +49,46 @@ def plot(component):
         # PERFORM QUERY
         # ############################################################
         # and quakeid='UTFZQRX'
-        npos=np+phase
-        minphase=0.0
-        maxphase=1.0
-        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1),':',2),':',-1)+0,qlat,qlon,qjd from Quakes where qphases<>'' and SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1),':',2),':',-1)+0>=%f and SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1),':',2),':',-1)+0<=%f"%(npos,npos,minphase,npos,maxphase)
-
+        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes where qphases<>''"%(np+phase)
         results=mysqlArray(sql,db)
         phases=[]
-        qlats=[]
-        qlons=[]
-        qjds=[]
         for ph in results:
-            phases+=[float(ph[0])]
-            qlats+=[float(ph[1])]
-            qlons+=[float(ph[2])]
-            qjds+=[float(ph[3])]
-
+            phtime=ph[0].split(":")
+            phases+=[float(phtime[0])]
         phases=numpy.array(phases)
-        qlats=numpy.array(qlats)
-        qlons=numpy.array(qlons)
-        qjds=numpy.array(qjds)
-        nphases=len(qlats)
+        nphases=len(phases)
+        nbins=50
 
         # ############################################################
-        # SCATTER PLOT
+        # PLOT HISTOGRAM
         # ############################################################
-        merdict=dict(labels=[False,False,False,False])
-        if i==0:
-            merdict["labels"][3]=True
-        elif i==npanels-1:
-            merdict["labels"][2]=True
+        h,bins=numpy.histogram(phases,nbins)
+        xs=(bins[:-1]+bins[1:])/2
+        dh=numpy.sqrt(h)
 
-        m=scatterMap(ax,qlats,qlons,
-                     merdict=merdict,
-                     color='k',marker='o',linestyle='None',
-                     markersize=1,markeredgecolor='None',alpha=1)
+        ax.hist(phases,nbins,facecolor='blue',alpha=0.2)
+        ax.errorbar(xs,h,yerr=dh,linestyle='None',color='r')
 
+        ax.set_xlim((0,1))
+        ax.axvline(0.5,color='k')
+        ax.set_ylabel("Number of Earthquakes")
 
         ax.text(0.5,0.05,"%s"%phasename[i],
                 horizontalalignment='center',fontsize=20,
                 transform=ax.transAxes)
 
+        ax.set_xlim((0,phtimes[i]))
+
+        if i>0:
+            # ax.set_xticklabels([])
+            ax.set_yticks(ax.get_yticks()[1:])
         i+=1
+
+    # ############################################################
+    # DECORATION
+    # ############################################################
+    axs[0].set_xlabel("Time (days)")
+    axs[-1].set_title("%s: time distribution of %d quakes"%(name,nphases))
 
     # ############################################################
     # SAVE FIGURE
@@ -97,5 +96,3 @@ def plot(component):
     figname="%s/%s.png"%(DIRNAME,BASENAME)
     print "Saving figure ",figname
     fig.savefig(figname)
-
-plot("vd")
