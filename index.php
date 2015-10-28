@@ -25,6 +25,8 @@ $action_error="";
 //ACTIONS
 ////////////////////////////////////////////////////////////////////////
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+$results=mysqlCmd("select max(calctime1+calctime2+calctime3) from Quakes");
+print_r($results);
 
 ////////////////////////////////////////////////////////////////////////
 //FETCHING EVENTS
@@ -42,7 +44,8 @@ if($action=="fetch"){
     return 0;
   }
 
-  //FETCH
+  //FETCH QUAKES NOT FETCHED OR FETCHED TOO MUCH TIME AGO
+  $results=mysqlCmd("select max(calctime1+calctime2+calctime3) from Quakes");
   $sql="select * from Quakes where astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>5*3600) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
 
   $quakes=mysqlCmd($sql,$out=1);
