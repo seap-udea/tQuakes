@@ -10,6 +10,10 @@ $conf=parse_ini_file("configuration");
 foreach(array_keys($conf) as $key){
   $GLOBALS["$key"]=$conf["$key"];
 }
+$conf=parse_ini_file("common");
+foreach(array_keys($conf) as $key){
+  $GLOBALS["$key"]=$conf["$key"];
+}
 
 ////////////////////////////////////////////////////////////////////////
 //VARIABLES

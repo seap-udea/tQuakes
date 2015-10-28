@@ -25,8 +25,6 @@ $action_error="";
 //ACTIONS
 ////////////////////////////////////////////////////////////////////////
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-$results=mysqlCmd("select max(calctime1+calctime2+calctime3) from Quakes");
-print_r($results);
 
 ////////////////////////////////////////////////////////////////////////
 //FETCHING EVENTS
@@ -46,7 +44,11 @@ if($action=="fetch"){
 
   //FETCH QUAKES NOT FETCHED OR FETCHED TOO MUCH TIME AGO
   $results=mysqlCmd("select max(calctime1+calctime2+calctime3) from Quakes");
-  $sql="select * from Quakes where astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>5*3600) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
+  $maxtime=$results[0];
+  if(isBlank($maxtime)){$maxtime=0;}
+  $maxtime=2*$NUMQUAKES*$maxtime;
+
+  $sql="select * from Quakes where astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>$maxtime) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
 
   $quakes=mysqlCmd($sql,$out=1);
   if($quakes==0){
@@ -63,6 +65,7 @@ if($action=="fetch"){
     $sql="update Quakes set astatus='1',stationid='$station_id',adatetime=now() where quakeid='$quakeid';";
     mysqlCmd($sql);
   }
+  echo "MAXTIME: $maxtime<br/>";
   return 0;
 }
 
