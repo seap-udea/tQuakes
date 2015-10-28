@@ -466,7 +466,7 @@ $stats=<<<STAT
 STAT;
 
    $fl=fopen("scratch/$SESSID/stats.log","w");
-   fwrite($fl,$stats);
+   fwrite($fl,"<html><body>$DATE<br/>$stats</body></html>");
    fclose($fl);
 
    echo $stats;
