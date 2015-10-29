@@ -274,6 +274,25 @@ def date2jd(mydatetime):
                     (mydatetime.second+mydatetime.microsecond/1e6)/3600.)/24
     return jd
 
+def d2s(d,fac=1):
+    d*=fac
+    hd=int(d)
+    m=(d-hd)*60
+    md=int(m)
+    s=(m-md)*60
+    sd=int(s)
+    return hd,md,sd
+
+def jd2date(jd):
+    d=jd2gcal(0,jd)
+    h,m,s=d2s(d[3],fac=24)
+    datetq=datetime.datetime.strptime("%02d/%02d/%s %02d:%02d:%02d"%(d[2],
+                                                                     d[1],
+                                                                     str(d[0])[2:],
+                                                                     h,m,s),
+                                      DATETIME_FORMAT)
+    return datetq
+
 def System(cmd,out=True):
     """
     Execute a command
@@ -563,8 +582,11 @@ def getPhases(component,db,
     results=mysqlArray(sql,db)
     nquakes=len(results)
     table=numpy.zeros((nquakes,5))
+    qids=[]
     for i in xrange(nquakes):
-        for j in xrange(5):table[i,j]=float(results[i][j+1])
+        qids+=[results[i][0]]
+        for j in xrange(5):
+            table[i,j]=float(results[i][j+1])
 
     for ip in xrange(1,7+1):
         sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes %s"%(np+ip,criteria)
@@ -579,7 +601,7 @@ def getPhases(component,db,
         phases=numpy.array(phases)
         table=numpy.column_stack((table,phases))
         
-    return table
+    return qids,table
 
 def schusterValue(phases):
     N=len(phases)
