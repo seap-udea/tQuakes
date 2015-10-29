@@ -10,6 +10,8 @@ system=os.system
 PI=numpy.pi
 sleep=timing.sleep
 timeit=timing.time
+DEG=PI/180
+RAD=180/PI
 
 # ######################################################################
 # GLOBAL
@@ -74,6 +76,14 @@ COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      volume=[8,"Volume strain","nstr"],
                      ocean=[9,"Ocean tides","mm"]
                  )
+
+PHASES_DICT=dict(sd_fourier=[1,"Semidiurnal (Fourier)"],
+                 dn_fourier=[2,"Diurnal (Fourier)"],
+                 fn_fourier=[3,"Fornightly (Fourier)"],
+                 mn_fourier=[4,"Monthly (Fourier)"],
+                 sd=[5,"Semidiurnal"],
+                 fn=[6,"Fornightly"],
+                 mn=[7,"Monthly"])
 
 # ######################################################################
 # CORE ROUTINES
@@ -534,3 +544,47 @@ def scatterMap(ax,qlat,qlon,
     ax.plot(x,y,**formats)
 
     return m
+
+def getPhases(component,db,
+              criteria="where qphases<>''"):
+    # ############################################################
+    # COMPONENT INFORMATION
+    # ############################################################
+    info=COMPONENTS_DICT[component]
+    compnum=info[0]
+    name=info[1]
+    nc,np=numComponent(component)
+
+    # ############################################################
+    # GET BASIC INFO EARTHQUAKES
+    # ############################################################
+    i=0
+    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(criteria)
+    results=mysqlArray(sql,db)
+    nquakes=len(results)
+    table=numpy.zeros((nquakes,5))
+    for i in xrange(nquakes):
+        for j in xrange(5):table[i,j]=float(results[i][j+1])
+
+    for ip in xrange(1,7+1):
+        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes %s"%(np+ip,criteria)
+        results=mysqlArray(sql,db)
+        phases=[]
+        for ph in results:
+            try:
+                phtime=ph[0].split(":")
+                phases+=[float(phtime[1])]
+            except:
+                phases+=[float(phtime[0])]
+        phases=numpy.array(phases)
+        table=numpy.column_stack((table,phases))
+        
+    return table
+
+def schusterValue(phases):
+    N=len(phases)
+    D2=numpy.cos(phases).sum()**2+numpy.sin(phases).sum()**2
+    logp=-D2/N
+    return logp
+
+
