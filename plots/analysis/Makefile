@@ -1,13 +1,11 @@
 FC	= gfortran
 FFLAGS	=  -g 
 
-cluster2000x:   cluster2000x.o
-	$(FC) $(FFLAGS)  -o cluster2000x cluster2000x.o
+cluster2000x.out:   cluster2000x.o
+	$(FC) $(FFLAGS) -o $@ $^
 
-zero:   zero.o
-	$(FC) $(FFLAGS) -o zero zero.o
+clean:
+	-rm cluster.* 2> /dev/null
+	-rm *~ *.pyc *.o *.out 2> /dev/null
 
-
-test_tdif2:   test_tdif2.o
-	$(FC) $(FFLAGS) -o test_tdif2 test_tdif2.o
 

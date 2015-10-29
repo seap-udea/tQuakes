@@ -39,7 +39,7 @@ fc=open("catalogue.dat","w")
 for iq in xrange(nquakes):
     dt=jd2date(quakes[iq,0])
     # year, month, day, hour, minute, lat, lon, depth, mag
-    fc.write("%d %d %d %d %d %.3f %.3f %.3f %.2f\n"%(dt.year,dt.month,dt.day,dt.hour,dt.minute,
-                                                     quakes[iq,1],quakes[iq,2],quakes[iq,3],quakes[iq,4]))
+    fc.write("%-5d%-4d%-4d%-4d%-4d%-10.3f%-10.3f%-10.3f%-10.2f\n"%(dt.year,dt.month,dt.day,dt.hour,dt.minute,
+                                                                   quakes[iq,1],abs(quakes[iq,2]),quakes[iq,3],quakes[iq,4]))
 fc.close()
 

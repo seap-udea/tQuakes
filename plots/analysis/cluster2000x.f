@@ -120,24 +120,11 @@ C-- OPEN A DIRECT ACCESS SCRATCH FILE FOR CATALOG
 c     Record length for an unformatted file is specified  in bytes 
 c     Records are 109 bytes long
 
+      open (666,file="cluster2000x.conf",status="old")
+      read (666,*) IY1,IY2,xmagcut,rfact,ierradj
 
 C-- SPECIFY THE SOURCE OF THE DATA
    20 catalog='catalogue.dat'
-
-C-- SPECIFY STARTING AND ENDING DATES TO PROCESS
-      IY1=00
-      IY2=99
-
-C-- SPECIFY MINIMUM MAGNITUDE TO ACCEPT
-      xmagcut=3.0
-
-C-- SPECIFY KEY PARAMETERS
-      rfact=10
-
-C-- SPECIFY HANDLING OF EPICENTRAL ERRORS
-      ierradj=1
-C   53 format (' Indicate method for treating hypocentral',
-C     1  ' location errors: '/' (1=IGNORE ERRORS, 2=ADJUST FOR ERRORS)')
 
 C--  READ DATA FROM THE NAMED CATALOG
         write (6,29) catalog
