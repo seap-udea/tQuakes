@@ -1,3 +1,4 @@
+import MySQLdb as mdb
 import csv,datetime,commands,re,os,numpy,cmath,time as timing
 from sys import exit,argv
 from util.jdcal import *
@@ -56,8 +57,23 @@ ETERNA COMPONENTS:
 8: for tidal volume strain in 10**-9 = nstr.
 9: for ocean tides in mm.
 """
-COMPONENTS=[0,1,2,4,5,9]
+
+# NAME    :  g  tilt  vd vs hs ocean  areal shear volume
+# IN FILE :  1  2     3  4  5  6      7     8     9
+COMPONENTS=[ 0, 1,    2, 4, 5, 9]#,     6,    7,    8]
 COMPONENTS_LONGTERM=[0]
+COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
+                     grav=[0,"Tidal gravity",r"nm/s$^2$"],
+                     tilt=[1,"Tidal tilt",r"mas"],
+                     vd=[2,"Vertical displacement","mm"],
+                     hd=[3,"Horizontal displacement","mm"],
+                     vs=[4,"Vertical strain","nstr"],
+                     hs=[5,"Horizontal strain","nstr"],
+                     areal=[6,"Areal strain","nstr"],
+                     shear=[7,"Shear","nstr"],
+                     volume=[8,"Volume strain","nstr"],
+                     ocean=[9,"Ocean tides","mm"]
+                 )
 
 # ######################################################################
 # CORE ROUTINES
@@ -106,14 +122,30 @@ def loadConf(filename):
     else:print "Configuration file '%s' does not found."%filename
     return conf
 
+def fileBase(filename):
+    dirs=filename.split("/")
+    search=re.search("([^\/]+)\.[^\/]+",filename)
+    basename=search.group(1)
+    dirname="/".join(dirs[:-1])
+    return dirname,basename
+
 # ######################################################################
 # CONFIGURATION
 # ######################################################################
 CONF=loadConf("configuration")
+DIRNAME,BASENAME=fileBase(argv[0])
+if DIRNAME=="":DIRNAME="."
 
 # ######################################################################
 # REGULAR ROUTINES
 # ######################################################################
+def connectDatabase(server='localhost',
+                 user=CONF.DBUSER,
+                 password=CONF.DBPASSWORD,
+                 database=CONF.DBNAME):
+    con=mdb.connect(server,user,password,database)
+    return con
+
 def loadDatabase(server='localhost',
                  user=CONF.DBUSER,
                  password=CONF.DBPASSWORD,
@@ -174,6 +206,16 @@ def randomStr(N):
     import string,random
     string=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
     return string
+
+def mysqlSimple(sql,db):
+    db.execute(sql)
+    result=db.fetchone()
+    return result[0]
+
+def mysqlArray(sql,db):
+    db.execute(sql)
+    result=db.fetchall()
+    return result
 
 def customdate2jd(mydate):
     """
@@ -390,6 +432,8 @@ def quakeProperties(quakeid,db):
     for i in xrange(len(keys)):
         key=keys[i][0]
         value=props[0][i]
+        if value is not None:
+            value=value.replace("\n","")
         exec("quake.%s='%s'"%(key,value))
     return quake
 
@@ -420,3 +464,73 @@ def signalBoundary(t,s):
     tM=numpy.array(tM);sM=numpy.array(sM)
     tm=numpy.array(tm);sm=numpy.array(sm)
     return tm,sm,tM,sM
+
+def numComponent(namecomponent):
+    """
+    Determine position in signal, phases and datafile of <component>
+    """
+    # GET INDEX OF COMPONENT
+    component=COMPONENTS_DICT[namecomponent][0]
+
+    # COLUMN IN DATAFILE AND QSIGNAL
+    numcol=COMPONENTS.index(component)+1
+
+    # PHASES IN QPHASES
+    numphases=7*(numcol-1)
+    
+    return numcol,numphases
+
+def lat2str(lat):
+    return "%g"%lat
+
+def lon2str(lon):
+    if lon>270:lon-=360
+    return "%g"%lon
+
+def scatterMap(ax,qlat,qlon,
+               pardict=dict(),
+               merdict=dict(),
+               **formats):
+    """
+    Create a scatter 
+    """
+
+    from mpl_toolkits.basemap import Basemap as map
+    qlatmin=min(qlat)
+    qlatmax=max(qlat)
+    qlonmin=min(qlon)
+    qlonmax=max(qlon)
+    qlonmean=(qlonmax+qlonmin)/2
+    qlatmean=(qlatmax+qlatmin)/2
+    dlat=abs(qlatmax-qlatmin)*PI/180*6780.0e3
+    dlon=abs(qlonmax-qlonmin)*PI/180*6780.0e3
+
+    # ############################################################
+    # MAP OPTIONS
+    # ############################################################
+    fpardict=dict(labels=[True,True,False,False],
+                  fontsize=10,zorder=10,linewidth=0.5,fmt=lat2str)
+    fmerdict=dict(labels=[False,False,True,True],
+                  fontsize=10,zorder=10,linewidth=0.5,fmt=lon2str)
+
+    fpardict.update(pardict)
+    fmerdict.update(merdict)
+
+    # ############################################################
+    # PREPARE FIGURE
+    # ############################################################
+    m=map(projection="aea",resolution='c',width=dlon,height=dlat,
+          lat_0=qlatmean,lon_0=qlonmean,ax=ax)
+
+    m.drawlsmask(alpha=0.5)
+    m.etopo(zorder=-10)
+    m.drawparallels(numpy.arange(-45,45,1),**fpardict)
+    m.drawmeridians(numpy.arange(-90,90,1),**fmerdict)
+
+    # ############################################################
+    # PLOT
+    # ############################################################
+    x,y=m(qlon,qlat)
+    ax.plot(x,y,**formats)
+
+    return m
