@@ -58,9 +58,9 @@ ETERNA COMPONENTS:
 9: for ocean tides in mm.
 """
 
-# NAME    :  g  tilt  vd vs hs ocean
-# IN FILE :  1  2     3  4  5  6
-COMPONENTS=[ 0, 1,    2, 4, 5, 9]
+# NAME    :  g  tilt  vd vs hs ocean  areal shear volume
+# IN FILE :  1  2     3  4  5  6      7     8     9
+COMPONENTS=[ 0, 1,    2, 4, 5, 9]#,     6,    7,    8]
 COMPONENTS_LONGTERM=[0]
 COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      grav=[0,"Tidal gravity",r"nm/s$^2$"],
@@ -90,6 +90,15 @@ def saveObject(filename,obj):
     for key in obj.__dict__.keys():
         fo.write("%s = '%s'\n"%(key,obj.__dict__[key]))
     fo.close()
+
+def updateConf(filename,conf):
+    d=dict()
+    if os.path.lexists(filename):
+        execfile(filename,{},d)
+        for key in d.keys():
+            if d[key]==-1 or d[key]=="":del d[key]
+        conf.__dict__.update(d)
+    else:print "Configuration file '%s' does not found."%filename
 
 def loadConf(filename):
     """Load configuration file
