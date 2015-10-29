@@ -20,12 +20,13 @@ create table Quakes (
        qlonerr varchar(15),
        qdepth varchar(15),
        qdeptherr varchar(15),
+       country varchar(255),
        departamento varchar(255),
        municipio varchar(255),
 
        /*INTENSITY*/       
-       Mw varchar(5),
        Ml varchar(5),
+       Mw varchar(5),
 
        /*MEASUREMENT PROPERTIES*/       
        numstations varchar(10),
@@ -46,6 +47,18 @@ create table Quakes (
        /*ANALYSIS RESULTS*/       
        qsignal varchar(255),
        qphases varchar(1500),
+
+       /*CLUSTER*/       
+       cluster1 varchar(10),
+       cluster2 varchar(10),
+       cluster3 varchar(10),
+
+       /*EXTRA*/
+       extra1 varchar(255),       
+       extra2 varchar(255),       
+       extra3 varchar(255),       
+       extra4 varchar(255),       
+       extra5 varchar(255),       
 
        /*PRIMARY KEY*/       
        primary key (quakeid)
