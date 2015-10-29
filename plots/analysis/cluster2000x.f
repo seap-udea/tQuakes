@@ -92,7 +92,7 @@ c
       integer*2 list(250000),nc(9000)
       integer*2 jcent, icent
       integer*2 itime(5),jtime(5),ltime(5),ytim1(5),ytim2(5)
-      integer   fore, ibigst(9000), ibigx
+      integer   fore, ibigst(9000), ibigx, inicent
       character*1 q1,q2,ichr,ins,iew,insx,iewx,fflag,aflag,cm1,cm2
       character*2 rmk2
       character*5 dum5
@@ -106,6 +106,7 @@ c
       data zero /0/
       data  nmag, mpref /4, 3,1,2,4/
       data list,cmag1/250000*0,9000*0./
+C      data tau0,taumin,taumax,p1,xk /1., 1., 10., 0.99, .5/
       data tau0,taumin,taumax,p1,xk /2880., 2880., 14400., 0.99, .5/
       data xmeff,rfact,ierradj /1.5, 10.0, 1/
       data q1,q2,ins,iew,fflag,aflag /' ',' ',' ',' ',' ',' '/
@@ -121,7 +122,7 @@ c     Record length for an unformatted file is specified  in bytes
 c     Records are 109 bytes long
 
       open (666,file="cluster2000x.conf",status="old")
-      read (666,*) IY1,IY2,xmagcut,rfact,ierradj
+      read (666,*) icent,inicent,IY1,IY2,xmagcut,rfact,ierradj
 
 C-- SPECIFY THE SOURCE OF THE DATA
    20 catalog='catalogue.dat'
@@ -133,13 +134,12 @@ C--  READ DATA FROM THE NAMED CATALOG
         irec = 1
         iorec = 1
 
-   31   infmt=0
+   31   infmt=5
 
 C--FREE FORMAT - INPUT
   105 read (3, *, err= 900, END=35) jyr, itime(2), itime(3),
      1     itime(4), itime(5), xjlat, xjlon, dep1, xmag1
-      icent = 19
-      itime(1)=jyr-1900
+      itime(1)=jyr-inicent
       lat1=xjlat
       xlat1=(xjlat-lat1)*60.0
       lon1= -xjlon
@@ -250,6 +250,7 @@ c  calculate look-ahead time for events belonging to a cluster
    32 do 33 it=1,5
    33 jtime(it) = ctim1(it,list(i))
       call tdif(jtime,itime,dif)
+
       t=dif
       if (t .le. 0.) goto 30
 
@@ -257,6 +258,7 @@ c  calculate look-ahead time for events belonging to a cluster
       denom = 10.**((deltam-1.)*2./3.)
       top = -alog(1.-p1)*t
       tau = top/denom
+
 c  truncate tau to not exceed taumax, OR DROP BELOW TAUMIN
       if (tau .gt. taumax) tau = taumax
       IF (TAU .LT. TAUMIN) TAU = TAUMIN
@@ -490,15 +492,14 @@ C--------- HYPOINVERSE-2000
      1        t53, i3,i2,i4, i3,i2,i4,  i3,a3,
      1        t86, 2i4, t137,i10,a1, i3)
 C--------- HYPO71
-613   format (3i2.2,1x,2i2.2,6x,i3,a1,f5.2,1x,i3,a1,f5.2,
-     1        2x,f5.2,3x,f4.2,18x,f4.1,1x,f4.1,1x,a1, 
+613   format (3i2.2,1x,2i2.2,2x,i3,a1,f5.2,1x,i3,a1,f10.2,
+     1        2x,f10.2,3x,f4.2,18x,f4.1,1x,f4.1,1x,a1, 
      1        t82,i10,1x,a1)
 C--------- HYPO71-2000
 614   format (4i2.2,1x,2i2.2,6x,i3,a1,f5.2,1x,i3,a1,f5.2,
      1        2x,f5.2,3x,f4.2,18x,f4.1,1x,f4.1,1x,a1, 
      1        t84,i10,1x,a1)
 C--------------------------------------------------------------
-
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C   DECLUSTERED CATALOG - ONLY UNCLUSTERED EVENTS
@@ -540,6 +541,7 @@ C Special free format
        goto 650
 
 
+
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C   WRITE TO CLUSTERED EVENTS LIST 
 630   goto (631, 632, 633, 634, 633) infmt
@@ -550,6 +552,7 @@ c HYPOINVERSE format for output
      1     int(e1az), int(e1dip), int(100*e1+0.5), 
      1     int(e2az),int(e2dip),int(100*e2+0.5),int(10*xmag1+.5),
      1     eid1, int(100*erh1+0.5), int(100*erz1+0.5), LIST(I)
+
       goto 650
 
 C HYPOINVERSE-2000 format for output

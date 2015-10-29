@@ -283,6 +283,10 @@ def d2s(d,fac=1):
     sd=int(s)
     return hd,md,sd
 
+def s2d(h,m,s,fac=1):
+    d=numpy.sign(h)*(abs(h)+abs(m)/60.0+abs(s)/3600.0)
+    return d
+
 def jd2date(jd):
     d=jd2gcal(0,jd)
     h,m,s=d2s(d[3],fac=24)
@@ -517,44 +521,49 @@ def lon2str(lon):
     return "%g"%lon
 
 def scatterMap(ax,qlat,qlon,
+               m=None,
                pardict=dict(),
                merdict=dict(),
+               zoom=1,
                **formats):
     """
     Create a scatter 
     """
-
     from mpl_toolkits.basemap import Basemap as map
-    qlatmin=min(qlat)
-    qlatmax=max(qlat)
-    qlonmin=min(qlon)
-    qlonmax=max(qlon)
-    qlonmean=(qlonmax+qlonmin)/2
-    qlatmean=(qlatmax+qlatmin)/2
-    dlat=abs(qlatmax-qlatmin)*PI/180*6780.0e3
-    dlon=abs(qlonmax-qlonmin)*PI/180*6780.0e3
 
-    # ############################################################
-    # MAP OPTIONS
-    # ############################################################
-    fpardict=dict(labels=[True,True,False,False],
-                  fontsize=10,zorder=10,linewidth=0.5,fmt=lat2str)
-    fmerdict=dict(labels=[False,False,True,True],
-                  fontsize=10,zorder=10,linewidth=0.5,fmt=lon2str)
+    if m is None:
+        qlatmin=min(qlat)
+        qlatmax=max(qlat)
+        qlonmin=min(qlon)
+        qlonmax=max(qlon)
+        qlonmean=(qlonmax+qlonmin)/2
+        qlatmean=(qlatmax+qlatmin)/2
+        dlat=zoom*abs(qlatmax-qlatmin)*PI/180*6780.0e3
+        dlon=zoom*abs(qlonmax-qlonmin)*PI/180*6780.0e3
+        if dlat==0:dlat=1E5
+        if dlon==0:dlon=1E5
 
-    fpardict.update(pardict)
-    fmerdict.update(merdict)
+        # ############################################################
+        # MAP OPTIONS
+        # ############################################################
+        fpardict=dict(labels=[True,True,False,False],
+                      fontsize=10,zorder=10,linewidth=0.5,fmt=lat2str)
+        fmerdict=dict(labels=[False,False,True,True],
+                      fontsize=10,zorder=10,linewidth=0.5,fmt=lon2str)
 
-    # ############################################################
-    # PREPARE FIGURE
-    # ############################################################
-    m=map(projection="aea",resolution='c',width=dlon,height=dlat,
-          lat_0=qlatmean,lon_0=qlonmean,ax=ax)
+        fpardict.update(pardict)
+        fmerdict.update(merdict)
 
-    m.drawlsmask(alpha=0.5)
-    m.etopo(zorder=-10)
-    m.drawparallels(numpy.arange(-45,45,1),**fpardict)
-    m.drawmeridians(numpy.arange(-90,90,1),**fmerdict)
+        # ############################################################
+        # PREPARE FIGURE
+        # ############################################################
+        m=map(projection="aea",resolution='c',width=dlon,height=dlat,
+              lat_0=qlatmean,lon_0=qlonmean,ax=ax)
+
+        m.drawlsmask(alpha=0.5)
+        m.etopo(zorder=-10)
+        m.drawparallels(numpy.arange(-45,45,1),**fpardict)
+        m.drawmeridians(numpy.arange(-90,90,1),**fmerdict)
 
     # ############################################################
     # PLOT

@@ -8,4 +8,7 @@ clean:
 	-rm cluster.* 2> /dev/null
 	-rm *~ *.pyc *.o *.out 2> /dev/null
 
+run:clean cluster2000x.out
+	python declustering.py
+	./cluster2000x.out
 
