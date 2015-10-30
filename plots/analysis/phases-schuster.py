@@ -30,7 +30,7 @@ phasename=info[1]
 # 0:qjd,1:qlat,2:qlon,3:qdepth,4:Ml
 # Fourier: 5:sd, 6:dn, 7:fn, 8:mn
 # Boundaries: 9:sd, 10:fn, 11:mn
-phases=getPhases(component,db,criteria=criteria)
+qids,phases=getPhases(component,db,criteria=criteria)
 nquakes=phases.shape[0]
 print "Criterium: ",criteria
 print "Number of quakes: ",nquakes
@@ -62,6 +62,7 @@ ax.errorbar(xs,h,yerr=dh,linestyle='None',color='r')
 # ############################################################
 logp=schusterValue(phs*DEG)
 p=numpy.exp(logp)
+print "Schuster p-value: log(p) = %.2f, p = %.2f%%"%(logp,p*100)
 
 # ############################################################
 # DECORATION
@@ -69,11 +70,11 @@ p=numpy.exp(logp)
 ax.set_xlabel("Phase (degrees)",fontsize=14)
 ax.set_ylabel("Number of eqrthquakes",fontsize=14)
 ax.set_title("%s, %s, %d earthquakes"%(compname,phasename,nquakes))
-ax.text(0.95,0.95,"p-value = %.1f%%"%(p*100),
+ax.text(0.95,0.95,"p-value = %.3f%% ($\log(p)$ = %.2f)"%(p*100,logp),
         horizontalalignment='right',verticalalignment='top',
         fontsize=14,
         transform=ax.transAxes)
-ax.text(0.95,0.90,"Criteria: %s"%(criteria),
+ax.text(0.95,0.88,"Criteria: %s"%(criteria[0:50]),
         horizontalalignment='right',verticalalignment='top',
         fontsize=12,
         transform=ax.transAxes)
