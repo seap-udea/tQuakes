@@ -88,6 +88,50 @@ create table Stations
 	station_numquakes varchar(6),
 	station_score varchar(100),
 	
+       /*EXTRA*/
+       extra1 varchar(255),       
+       extra2 varchar(255),       
+       extra3 varchar(255),       
+       extra4 varchar(255),       
+       extra5 varchar(255),       
+
        /*PRIMARY KEY*/       
        primary key (station_id)
+);
+
+create table Clusters
+(
+       /*BASIC IDENTIFICATION*/
+       clusterid varchar(7),
+       /*Types: R85, KG72, KG74, CORSSA, UHR86*/
+       cluster_type varchar(20),
+       /*Parameters of cluster Method: separated by ;*/
+       cluster_pars varchar(255),
+
+       /*CHARACTERISTIC QUAKES*/
+       /*First quake*/
+       firstquakeid varchar(7),
+       /*Quake of maximum magnitude*/
+       maxquakeid varchar(7),
+       /*NUmber of quakes*/
+       numquakes varchar(10),
+
+       /*LOCATION AND TIME OF CLUSTER*/
+       /*Equivalent properties*/
+       qlatequiv varchar(15),
+       qlonequiv varchar(15),
+       qdepequiv varchar(15),
+       Mlequiv varchar(15),
+       qjdmean varchar(50),
+       qduration varchar(50),
+
+       /*EXTRA*/
+       extra1 varchar(255),       
+       extra2 varchar(255),       
+       extra3 varchar(255),       
+       extra4 varchar(255),       
+       extra5 varchar(255),       
+
+       /*PRIMARY KEY*/       
+       primary key (clusterid)
 );
