@@ -212,9 +212,13 @@ def updateDatabase(dbdict,con):
                 db.execute(sql);
     con.commit()
 
-def randomStr(N):
+def randomStr(N,justnumbers=False):
     import string,random
-    string=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
+    if justnumbers:
+        characters=string.digits
+    else:
+        characters=string.ascii_uppercase + string.digits
+    string=''.join(random.SystemRandom().choice(characters) for _ in range(N))
     return string
 
 def mysqlSimple(sql,db):
@@ -573,6 +577,22 @@ def scatterMap(ax,qlat,qlon,
 
     return m
 
+def getQuakes(search,db):
+    # ############################################################
+    # GET BASIC INFO EARTHQUAKES
+    # ############################################################
+    i=0
+    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(search)
+    results=mysqlArray(sql,db)
+    nquakes=len(results)
+    table=numpy.zeros((nquakes,5))
+    qids=[]
+    for i in xrange(nquakes):
+        qids+=[results[i][0]]
+        for j in xrange(5):
+            table[i,j]=float(results[i][j+1])
+    return qids,table
+
 def getPhases(component,db,
               criteria="where qphases<>''"):
     # ############################################################
@@ -618,4 +638,23 @@ def schusterValue(phases):
     logp=-D2/N
     return logp
 
+if __name__=="__main__":
+    if len(argv)>1:
+        if argv[1]=="date2jd":
+            helptxt="""
+            Options: yyyy mm dd hh mm ss
+            Return: Julian date
+            """
+            args=tuple([int(d) for d in argv[2:]])
+            if len(args)==0:
+                print helptxt
+                exit(1)
+            try:
+                jd=date2jd(datetime.datetime(*args))
+            except:
+                print helptxt
+                exit(1)
+            print jd
+        else:
+            print "This is tQuakes!"
 
