@@ -43,7 +43,7 @@ unlock:
 
 backup:
 	@echo "Backuping Quakes data..."
-	@mysqldump -u root -p tQuakes Quakes > data/sql/Quakes.sql
+	@mysqldump -u root -p tQuakes Quakes Clusters > data/sql/Quakes.sql
 	@p7zip data/sql/Quakes.sql
 
 backupall:
