@@ -511,9 +511,9 @@ C-- clusters
      5    '   rfact=',f6.3,'   tau0=',f8.3,'   taumin=',f10.2,
      6    '   taumax=',f10.2,'   p1=',f6.3,'   xk=',f5.2,
      6    '   ierradj=',i2,///
-     7    '    N  -1ST EVENT-   DUR(DAYS)   NC  -------EQUIVALENT',
-     8    ' EVENT-------   --LARGEST EVENT--   2ND LARGEST EVENT',
-     9    ' PCT(F)   DT     DM  '/)
+     7    '    N  -1ST EVENT-   DUR(DAYS)   NC  ------------EQUIVALENT',
+     8    ' EVENT-----------  --LARGEST EVENT--   2ND LARGEST EVENT',
+     9    '         PCT(F)         DT    DM  '/,'***###***')
 
 C-- Loop through clusters, k=1,n
       do 700 k=1,n
@@ -558,7 +558,7 @@ C-- Write out cluster summary to "output" file
      1       lon,xlon,cdep(k),xmag,(ctim1(it,k),it=1,5),cmag1(k),
      2       (ctim2(it,k),it=1,5),cmag2(k),fore,DT,DM
   511 format (1x,a1,i4,1x,3i2.2,1x,2i2.2,2x,f8.3,2x,i5,
-     1        2(i4,f6.2),2f6.2,2(3x,5i2.2,1x,f6.2),i5,1x,f7.3,f6.2)
+     1        2(i4,f8.2),2f8.2,2(3x,5i2.2,1x,f6.2),i15,1x,f10.3,f6.2)
 
 C-- Write out (append) the "equivalent events" to declustered catalog
 C-- Use error parameters from largest event in cluster

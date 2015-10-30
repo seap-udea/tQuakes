@@ -212,12 +212,11 @@ def updateDatabase(dbdict,con):
                 db.execute(sql);
     con.commit()
 
-def randomStr(N,justnumbers=False):
+def randomStr(N,numbers=True,letters=True):
     import string,random
-    if justnumbers:
-        characters=string.digits
-    else:
-        characters=string.ascii_uppercase + string.digits
+    characters=""
+    if numbers:characters+=string.digits
+    if letters:characters+=string.ascii_uppercase
     string=''.join(random.SystemRandom().choice(characters) for _ in range(N))
     return string
 

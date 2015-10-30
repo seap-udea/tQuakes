@@ -26,6 +26,8 @@ create table Clusters
        cluster_type varchar(20),
        /*Parameters of cluster Method: separated by ;*/
        cluster_pars varchar(255),
+       /*Parameters of cluster Method: separated by ;*/
+       cluster_results varchar(1500),
 
        /*CHARACTERISTIC QUAKES*/
        /*First quake*/
