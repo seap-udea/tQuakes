@@ -13,7 +13,7 @@ def decluster(inicent):
     # ############################################################
     connection=connectDatabase()
     db=connection.cursor()
-
+    
     # ############################################################
     # READ CLUSTER DATABASE
     # ############################################################
@@ -24,7 +24,7 @@ def decluster(inicent):
     search="where Ml+0>%.1f and qjd+0>%.5f and qjd+0<%.5f order by qjd+0 asc, Ml+0 desc"%(Mc,jd1,jd2)
     qids,quakes=getQuakes(search,db)
     nquakes=len(qids)
-    print "%d earthquakes read..."%nquakes
+    print "Declustering %d earthquakes from century %d..."%(nquakes,inicent)
 
     # ############################################################
     # GENERATE CATALOGUE
@@ -137,7 +137,7 @@ def decluster(inicent):
     # ############################################################
     # UPDATE CLUSTERS
     # ############################################################
-    print "Updating %d clusters (this may take a while)..."%(nclusters),
+    print "Updating %d clusters (this may take a while)..."%(nclusters)
     fc=open("cluster.out","r")
     qstart=False
     i=1

@@ -637,6 +637,91 @@ def schusterValue(phases):
     logp=-D2/N
     return logp
 
+def tdWindow(M,fit="GK74"):
+    """
+    See: http://www.corssa.org/articles/themev/van_stiphout_et_al
+
+    Test:
+    # fit="U86"
+    # fit="G12"
+    fit="GK74"
+    for M in numpy.arange(2.5,8.5,0.5):
+        t,d=tdWindow(M,fit=fit)
+        print "M = %.2f, dt = %.2f days, d = %.2f km"%(M,t,d)
+    exit(0)
+    """
+    if fit=="GK74":
+        """Eq1"""
+        d=10**(0.1238*M+0.983)
+        if M<6.5:t=10**(0.5409*M-0.5407)
+        else:t=10**(0.032*M+2.7389)
+    elif fit=="G12":
+        """Eq2"""
+        d=numpy.exp(1.77+(0.037+1.02*M)**2)
+        if M<6.5:t=10**(2.8+0.024*M)
+        else:t=numpy.exp(-3.95+(0.62+17.32*M)**2)
+    elif fit=="U86":
+        """Eq3"""
+        d=numpy.exp(-1.024+0.804*M)
+        t=numpy.exp(-2.87+1.235*M)
+    
+    return t,d
+
+def distancePoints(latOrigin,lonOrigin,latDestination,lonDestination):
+    """
+    Adapted from:
+    http://www.corssa.org/articles/themev/van_stiphout_et_al
+    """
+    
+    a = 6378.137;
+    b = 6356.7523142;
+    f = (a - b) / a;
+    
+    latOrigin *= DEG
+    lonOrigin *= DEG
+    latDestination *= DEG
+    lonDestination *= DEG
+
+    L = lonOrigin - lonDestination;
+    U_1 = numpy.arctan((1 - f) * numpy.tan(latOrigin));
+    U_2 = numpy.arctan((1 - f) * numpy.tan(latDestination));
+
+    lamb = L;
+    lambPrime = 2 * PI;
+    cosSquaredAlpha = 0;
+    sinSigma = 0;
+    cosSigma = 0;
+    cos2Sigma_m = 0;
+    sigma = 0;
+    epsilon = 1e-7;
+
+    while (numpy.abs(lamb - lambPrime) > epsilon):
+        temp1 = numpy.cos(U_2) * numpy.sin(lamb);
+        temp2 = numpy.cos(U_1) * numpy.sin(U_2) - numpy.sin(U_1) * numpy.cos(U_2) * numpy.cos(lamb);
+        sinSigma = numpy.sqrt(temp1 * temp1 + temp2 * temp2);
+        cosSigma = numpy.sin(U_1) * numpy.sin(U_2) + numpy.cos(U_1) * numpy.cos(U_2) * numpy.cos(lamb);
+        sigma = numpy.arctan2(sinSigma, cosSigma);
+        sinAlpha = numpy.cos(U_1) * numpy.cos(U_2) * numpy.sin(lamb) / (sinSigma + 1e-16);
+        cosSquaredAlpha = 1 - sinAlpha * sinAlpha;
+        cos2Sigma_m = numpy.cos(sigma) - 2 * numpy.sin(U_1) * numpy.sin(U_2) / (cosSquaredAlpha + 1e-16);
+        C = f / 16 * cosSquaredAlpha * (4 + f * (4 - 3 * cosSquaredAlpha));
+        lambPrime = lamb;
+        lamb = L + (1 - C) * f * sinAlpha * (sigma + C * sinSigma * \
+                    (cos2Sigma_m + C * cosSigma * (-1 + 2 * cos2Sigma_m * \
+                                                   cos2Sigma_m)));
+
+    uSquared = cosSquaredAlpha * (a * a - b * b) / (b * b);
+    A = 1 + uSquared / 16384 * (4096 + uSquared * (-768 + uSquared * \
+                                                   (320 - 175 * uSquared)));
+    B = uSquared / 1024 * (256 + uSquared * (74 - 47 * uSquared));
+    deltaSigma = B * sinSigma * (cos2Sigma_m + B / 4 * (cosSigma * \
+                                                    (-1 + 2 * cos2Sigma_m * cos2Sigma_m - B / 6 * cos2Sigma_m * \
+                                                     (-3 + 4 * sinSigma * sinSigma * (-3 + 4 * cos2Sigma_m * \
+                                                                                      cos2Sigma_m)))));
+    
+    distance = (b * A * (sigma - deltaSigma));
+    return distance;
+
 if __name__=="__main__":
     if len(argv)>1:
         if argv[1]=="date2jd":
@@ -654,6 +739,20 @@ if __name__=="__main__":
                 print helptxt
                 exit(1)
             print jd
+        elif argv[1]=="tdWindow":
+            helptxt="""
+            Options: M <method>
+            Where: <method>: GK72, GK74
+            Return: Time and Space Window (days, km)
+            """
+            try:
+                M=float(argv[2])
+                fit=argv[3]
+                t,d=tdWindow(M,fit=fit)
+            except:
+                print helptxt
+                exit(1)
+            print "M = %.2f, dt = %.2f days, d = %.2f km"%(M,t,d)
         else:
             print "This is tQuakes!"
 
