@@ -24,15 +24,19 @@ clean:
 	@find . -name "*~" -exec rm {} \;
 	@find . -name "*.pyc" -exec rm {} \;
 	@find . -name "#*#" -exec rm {} \;
-	@touch scratch/remove
-	@rm scratch/*
 
-cleandata:clean
+cleanscratch:
+	@touch scratch/remove
+	@rm -r scratch/*
+
+cleandata:
 	@echo "Cleaning data..."
 	@touch data/quakes/ooooooo
 	@rm -r data/quakes/???????
 	@touch ~tquakes/tQuakes/foo
 	@rm ~tquakes/tQuakes/*
+
+cleanall:cleandata cleanscratch clean
 
 watch:
 	@watch -d -n 2 bash tquakes-status.sh
