@@ -2,6 +2,7 @@
 . configuration
 
 echo "Installing keys..."
+(for i in stations/*/*.pub;do cat $i;echo;done) > stations/authorized_keys
 cp stations/authorized_keys $HOMEDIR/$TQUSER/.ssh
 chown $TQUSER.$TQUSER $HOMEDIR/$TQUSER/.ssh/authorized_keys
 chmod og-rwx $HOMEDIR/$TQUSER/.ssh/authorized_keys

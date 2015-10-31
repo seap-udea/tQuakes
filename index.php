@@ -153,6 +153,21 @@ station_mac='$station_mac';");
 }
 
 ////////////////////////////////////////////////////////////////////////
+//REMOVE STATION
+////////////////////////////////////////////////////////////////////////
+else if($action=="remove"){
+  if(is_dir("stations/$station_id")){
+      echo "<i>Station $station_id removed.</i>";
+      // REMOVE FROM DATABASE
+      $sql="delete from Stations where station_id='$station_id';";
+      mysqlCmd($sql);
+      // REMOVE STATION INFORMATION
+      shell_exec("mv stations/$station_id stations/.trash");
+  }
+  $if="activity";
+}
+
+////////////////////////////////////////////////////////////////////////
 //REGISTER STATION
 ////////////////////////////////////////////////////////////////////////
 else if($action=="register"){
@@ -173,11 +188,8 @@ else if($action=="register"){
   fwrite($fl,"no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,command=\"scp -r -d -t ~/tQuakes/\" $station_key");
   fclose($fl);
 
-  //INSTALLING PUBLIC KEY
-  shell_exec("(echo;cat $station_dir/key.pub) >> stations/authorized_keys");
-
   //UPDATING STATION IN DATABASE
-  $station_receiving=1;
+  $station_receiving=0;
   $conf=parse_ini_file("$station_dir/${station_id}rc");
   foreach(array_keys($conf) as $key){
     $GLOBALS["$key"]=$conf["$key"];
@@ -748,8 +760,12 @@ QUAKE;
 //ACTIVITY
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="activity"){
+  $stationlog="scratch/$SESSID/stations.log";
+  if(file_exists($stationlog)){shell_exec("cp $stationlog $stationlog.prev");}
   $stations=mysqlCmd("select * from Stations",$qout=1);
-echo<<<TABLE
+  $table="";
+
+$table.=<<<TABLE
 <table border=1px>
 <tr>
   <td>Name</td>
@@ -763,6 +779,7 @@ echo<<<TABLE
   <td>Last update</td>
 </tr>
 TABLE;
+
  $results=mysqlCmd("select count(quakeid) from Quakes");
  $totquakes=$results[0];
  $totanalysing=0;
@@ -814,10 +831,10 @@ TABLE;
     
     if($score<1){$scorecolor="red";}
 
-echo<<<TABLE
+$table.=<<<TABLE
   <tr>
     <td><a href="?if=station&station_id=$station_id">$station_name</a></td>
-    <td>$station_id</td>
+    <td><a href="?if=register&station_id=$station_id&station_name=$station_name&station_email=$station_email">$station_id</td>
     <td><a href="$sqlfetched">$fetched[0]</a>  ($timeeterna)</td>
     <td><a href="$sqlanalysing">$analysing[0]</a> ($timeanalysis)</td>
     <td><a href="$sqlnumquakes">$numquakes[0]</a> ($timesubmission)</td>
@@ -837,22 +854,51 @@ TABLE;
   $fracanalysing=round($totanalysing/$totquakes*100,1);
   $fracnumquakes=round($totnumquakes/$totquakes*100,1);
 
-  echo "<tr><td>Num. stations : $numstations</td><td style=text-align:right>TOTALS</td><td>$totfetched</td><td>$totanalysing</td><td>$totnumquakes</td><td>$avgcalctime</td><td>$avgscore</td><td colspan=2></td></tr>";
-  echo "<tr><td colspan=2 style=text-align:right>TOTALS (%)</td><td>$fracfetched%</td><td>$fracanalysing%</td><td>$fracnumquakes%</td><td colspan=4></td></tr>";
-  echo "</table>";
+$table.=<<<TABLE
+   <tr>
+     <td>Num. stations : $numstations</td>
+     <td style=text-align:right>TOTALS</td>
+     <td>$totfetched</td>
+     <td>$totanalysing</td>
+     <td>$totnumquakes</td>
+     <td>$avgcalctime</td>
+     <td>$avgscore</td>
+     <td colspan=2></td>
+   </tr>
+   <tr>
+     <td colspan=2 style=text-align:right>TOTALS (%)</td>
+     <td>$fracfetched%</td>
+     <td>$fracanalysing%</td>
+     <td>$fracnumquakes%</td>
+     <td colspan=4></td>
+   </tr>
+</table>
+TABLE;
+
+   $fl=fopen($stationlog,"w");
+   fwrite($fl,"<html><body>$DATE<br/>$table</body></html>");
+   fclose($fl);
+
+   echo $table;
+   echo "<a href=$stationlog.prev target=_blank>Previous</a> | <a href=$stationlog target=_blank>Present</a>";
+
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //REGISTER
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="register"){
+  $delete="";
   if(!isset($station_name)){$station_name="SEAP UdeA";}
   if(!isset($station_email)){$station_email="seapudea@gmail.com";}
+  if(isset($station_id)){
+	$station_key=shell_exec("cat stations/$station_id/key.pub");
+	$delete="<input type=submit name=action value=remove>";
+  }
 echo<<<PORTAL
 $action_status
 $action_error
 <form action="index.php" method="post" enctype="multipart/form-data" accept-charset="utf-8">
-  <input type=hidden name=if value=register>
   <input type=hidden name=if value=register>
   <table border=0px>
     <tr>
@@ -873,7 +919,7 @@ $action_error
     </tr>
     <tr>
       <td valign=top colspan=2>
-	<input type=submit name=action value=register>
+	<input type=submit name=action value=register> $delete
       </td>
     </tr>
   </table>

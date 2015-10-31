@@ -79,3 +79,10 @@ if [ ! -e db/.inidb ];then
     make restore
     touch db/.inidb
 fi
+
+# ##################################################
+# GIT CONFIGURATION
+# ##################################################
+git config --global core.editor "emacs -nw"
+git config --global user.email "seapudea@gmail.com"
+git config --global user.name "tQuakes"
