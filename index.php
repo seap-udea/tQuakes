@@ -410,10 +410,10 @@ else if($if=="stats"){
   if(file_exists($statlog)){shell_exec("cp $statlog $statlog.prev");}
   $numquakes=mysqlCmd("select count(quakeid) from Quakes");
   $numfetched=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0;");
-  $perfetched=round($numfetched[0]/(1.0*$numquakes[0])*100,1);
+  $perfetched=round($numfetched[0]/(1.0*$numquakes[0])*100,2);
   $numanalysed=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0 and astatus+0<4;");
   $numsubmit=mysqlCmd("select count(quakeid) from Quakes where astatus+0=4;");
-  $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,1);
+  $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,2);
   $firstquake=mysqlCmd("select min(adatetime) from Quakes where adatetime<>'';");
   $lastquake=mysqlCmd("select max(adatetime) from Quakes where adatetime<>'';");
   $elapsed=mysqlCmd("select TIMEDIFF(max(adatetime),min(adatetime)) from Quakes where adatetime<>'';");
@@ -850,9 +850,9 @@ TABLE;
 
   $avgcalctime=round($avgcalctime/$iavg,2);
   $avgscore=round($avgscore/$iavg,2);
-  $fracfetched=round($totfetched/$totquakes*100,1);
-  $fracanalysing=round($totanalysing/$totquakes*100,1);
-  $fracnumquakes=round($totnumquakes/$totquakes*100,1);
+  $fracfetched=round($totfetched/$totquakes*100,2);
+  $fracanalysing=round($totanalysing/$totquakes*100,2);
+  $fracnumquakes=round($totnumquakes/$totquakes*100,2);
 
 $table.=<<<TABLE
    <tr>
