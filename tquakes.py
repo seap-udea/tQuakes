@@ -576,12 +576,18 @@ def scatterMap(ax,qlat,qlon,
 
     return m
 
-def getQuakes(search,db):
+QJD=0
+QLAT=1
+QLON=2
+QDEP=3
+ML=4
+def getQuakes(search,db,vvv=True):
     # ############################################################
     # GET BASIC INFO EARTHQUAKES
     # ############################################################
     i=0
     sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(search)
+    if vvv:print "Searching quakes with the criterium:\n\t%s"%sql
     results=mysqlArray(sql,db)
     nquakes=len(results)
     table=numpy.zeros((nquakes,5))
@@ -590,6 +596,7 @@ def getQuakes(search,db):
         qids+=[results[i][0]]
         for j in xrange(5):
             table[i,j]=float(results[i][j+1])
+    if vvv:print "%s quakes found."%len(qids)
     return qids,table
 
 def getPhases(component,db,
@@ -756,3 +763,26 @@ if __name__=="__main__":
         else:
             print "This is tQuakes!"
 
+def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None):
+    """
+    Subplots
+    """
+    npanels=len(panels)
+    spanels=sum(panels)
+
+    # GET SIZE OF PANELS
+    b=b/npanels
+    if dh is None:dh=b/2
+
+    # EFFECTIVE PLOTTING REGION
+    hall=(1-2*b-(npanels-1)*dh)
+    hs=(hall*numpy.array(panels))/spanels
+    fach=(1.0*max(panels))/spanels
+
+    # CREATE AXES
+    fig=plt.figure(figsize=(8,6/fach))
+    axs=[]
+    for i in xrange(npanels):
+        axs+=[fig.add_axes([l,b,w,hs[i]])]
+        b+=hs[i]+dh
+    return fig,axs
