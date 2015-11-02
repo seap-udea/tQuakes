@@ -525,6 +525,8 @@ def lon2str(lon):
 
 def scatterMap(ax,qlat,qlon,
                m=None,
+               resolution='c',
+               limits=None,
                pardict=dict(),
                merdict=dict(),
                zoom=1,
@@ -535,16 +537,22 @@ def scatterMap(ax,qlat,qlon,
     from mpl_toolkits.basemap import Basemap as map
 
     if m is None:
-        qlatmin=min(qlat)
-        qlatmax=max(qlat)
-        qlonmin=min(qlon)
-        qlonmax=max(qlon)
-        qlonmean=(qlonmax+qlonmin)/2
-        qlatmean=(qlatmax+qlatmin)/2
-        dlat=zoom*abs(qlatmax-qlatmin)*PI/180*6780.0e3
-        dlon=zoom*abs(qlonmax-qlonmin)*PI/180*6780.0e3
-        if dlat==0:dlat=1E5
-        if dlon==0:dlon=1E5
+        if limits is None:
+            qlatmin=min(qlat)
+            qlatmax=max(qlat)
+            qlonmin=min(qlon)
+            qlonmax=max(qlon)
+            qlonmean=(qlonmax+qlonmin)/2
+            qlatmean=(qlatmax+qlatmin)/2
+            dlat=zoom*abs(qlatmax-qlatmin)*PI/180*6371.0e3
+            dlon=zoom*abs(qlonmax-qlonmin)*PI/180*6371.0e3
+            if dlat==0:dlat=1E5
+            if dlon==0:dlon=1E5
+        else:
+            qlatmean=limits[0]
+            qlonmean=limits[1]
+            dlat=limits[2]*PI/180*6371.0e3
+            dlon=limits[3]*PI/180*6371.0e3
 
         # ############################################################
         # MAP OPTIONS
@@ -560,7 +568,7 @@ def scatterMap(ax,qlat,qlon,
         # ############################################################
         # PREPARE FIGURE
         # ############################################################
-        m=map(projection="aea",resolution='c',width=dlon,height=dlat,
+        m=map(projection="aea",resolution=resolution,width=dlon,height=dlat,
               lat_0=qlatmean,lon_0=qlonmean,ax=ax)
 
         m.drawlsmask(alpha=0.5)
@@ -786,3 +794,7 @@ def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None):
         axs+=[fig.add_axes([l,b,w,hs[i]])]
         b+=hs[i]+dh
     return fig,axs
+
+def md5sumFile(myfile):
+    md5sum=System("md5sum %s |cut -f 1 -d ' '"%myfile)
+    return md5sum
