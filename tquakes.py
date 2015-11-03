@@ -1,6 +1,6 @@
 import MySQLdb as mdb
 import csv,datetime,commands,re,os,numpy,cmath,time as timing
-from sys import exit,argv
+from sys import exit,argv,stderr
 from util.jdcal import *
 
 # ######################################################################
@@ -659,11 +659,27 @@ def getPhases(search,component,db,vvv=True):
     if vvv:print "%s quakes found."%len(qids)
     return qids,table
 
-def schusterValue(phases):
-    N=len(phases)
-    D2=numpy.cos(phases).sum()**2+numpy.sin(phases).sum()**2
-    logp=-D2/N
-    return logp
+def schusterValue(phases,qbootstrap=False,
+                  facbootstrap=0.5,bootcycles=50):
+    if qbootstrap:
+        nbootstrap=facbootstrap*len(phases)
+        logps=[]
+        i=0
+        while i<bootcycles:
+            bphases=numpy.random.choice(phases,nbootstrap)
+            N=len(bphases)
+            D2=numpy.cos(bphases).sum()**2+numpy.sin(bphases).sum()**2
+            ilogp=-D2/N
+            logps+=[ilogp]
+            i+=1
+        logp=numpy.mean(logps)
+        dlogp=numpy.std(logps)
+    else:
+        N=len(phases)
+        D2=numpy.cos(phases).sum()**2+numpy.sin(phases).sum()**2
+        logp=-D2/N
+        dlogp=1E-17
+    return logp,dlogp
 
 def tdWindow(M,fit="GK74"):
     """
