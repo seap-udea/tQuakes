@@ -607,8 +607,19 @@ def getQuakes(search,db,vvv=True):
     if vvv:print "%s quakes found."%len(qids)
     return qids,table
 
-def getPhases(component,db,
-              criteria="where qphases<>''"):
+SDF=5
+DNF=6
+FNF=7
+MNF=8
+SD=9
+FN=10
+MN=11
+PERIODS=[0]*5+[0.5,1.0,14.8,29.6,0.5,14.8,29.6]
+PHASES=[0]*5+["Semidiurnal Fourier","Diurnal Fourier",
+              "Fornightly Fourier","Monthly Fourier",
+              "Semidiurnal","Fornightly","Montly"]
+
+def getPhases(search,component,db,vvv=True):
     # ############################################################
     # COMPONENT INFORMATION
     # ############################################################
@@ -621,7 +632,8 @@ def getPhases(component,db,
     # GET BASIC INFO EARTHQUAKES
     # ############################################################
     i=0
-    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(criteria)
+    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(search)
+    if vvv:print "Searching quakes' phases with the criterium:\n\t%s"%sql
     results=mysqlArray(sql,db)
     nquakes=len(results)
     table=numpy.zeros((nquakes,5))
@@ -632,7 +644,7 @@ def getPhases(component,db,
             table[i,j]=float(results[i][j+1])
 
     for ip in xrange(1,7+1):
-        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes %s"%(np+ip,criteria)
+        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes %s"%(np+ip,search)
         results=mysqlArray(sql,db)
         phases=[]
         for ph in results:
@@ -644,6 +656,7 @@ def getPhases(component,db,
         phases=numpy.array(phases)
         table=numpy.column_stack((table,phases))
         
+    if vvv:print "%s quakes found."%len(qids)
     return qids,table
 
 def schusterValue(phases):
