@@ -53,7 +53,7 @@ nMls=20
 Mls=numpy.linspace(2.0,5.0,nMls)
 deps=numpy.linspace(numpy.log10(20),numpy.log10(200.0),ndeps)
 
-vvv=1
+vvv=0
 logp=numpy.zeros((nMls,ndeps))
 for i in xrange(nMls):
     if vvv:print >>stderr,"Mls = ",Mls[i]

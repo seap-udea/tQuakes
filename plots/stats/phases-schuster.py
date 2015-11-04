@@ -5,6 +5,7 @@ from matplotlib import use
 use('Agg')
 import matplotlib.pyplot as plt
 from tquakes import *
+from scipy.optimize import leastsq
 confile="%s.conf"%BASENAME
 execfile(confile)
 
@@ -53,6 +54,7 @@ nquakes=phases.shape[0]
 print "Search: ",search
 print "Number of quakes: ",nquakes
 
+print 4+phasenum
 phs=phases[:,4+phasenum]
 if 'fourier' not in phase:phs*=360
 
@@ -71,17 +73,30 @@ nbins=int(360/10)
 h,bins=numpy.histogram(phs,nbins)
 xs=(bins[:-1]+bins[1:])/2
 dh=numpy.sqrt(h)
-hmax=h.max()
+
+hmax=(h+dh).max()
+hmin=(h-dh).min()
+hmean=h.mean()
 
 ax.hist(phs,nbins,facecolor='blue',alpha=0.2)
 ax.errorbar(xs,h,yerr=dh,linestyle='None',color='r')
 
 # ############################################################
+# FIT
+# ############################################################
+pars,n=leastsq(chisq,[1.0,1.0,1.0],args=(pOsc,xs*DEG,h,dh))
+print pars
+ht=pOsc(xs*DEG,pars)
+ax.plot(xs,ht,'r-')
+
+
+
+# ############################################################
 # SCHUSTER VALUE
 # ############################################################
-logp=schusterValue(phs*DEG)
+logp,dlogp=schusterValue(phs*DEG,qbootstrap=1)
 p=numpy.exp(logp)
-print "Schuster p-value: log(p) = %.2f, p = %.2f%%"%(logp,p*100)
+print "Schuster p-value: log(p) = %.2f +/- %.2f, p = %.2f%%"%(logp,dlogp,p*100)
 
 # ############################################################
 # DECORATION
@@ -89,7 +104,8 @@ print "Schuster p-value: log(p) = %.2f, p = %.2f%%"%(logp,p*100)
 ax.set_xlabel("Phase (degrees)",fontsize=14)
 ax.set_ylabel("Number of eqrthquakes",fontsize=14)
 ax.set_title("%s, %s, %d earthquakes"%(compname,phasename,nquakes))
-ax.text(0.95,0.95,"p-value = %.3f%%, $\log(p)$ = %.2f"%(p*100,logp),
+ax.text(0.95,0.95,"""p-value = %.3f%%, $\log(p)$ = %.2f $\pm$ %.2f
+Fit parameters: Amplitude = %.1f, Phase = %.1f"""%(p*100,logp,dlogp,pars[1],numpy.mod(pars[2]*RAD,360)),
         horizontalalignment='right',verticalalignment='top',
         fontsize=14,
         transform=ax.transAxes)
@@ -101,7 +117,8 @@ ax.text(0.95,0.88,"Criterium: %s"%(search[0:50]+"..."),
 """
 
 ax.set_xlim((0,360))
-ax.set_ylim((0,1.5*hmax))
+ax.set_ylim((hmean-100,hmean+100))
+# ax.set_ylim((0,1.5*hmax))
 
 # ############################################################
 # HISTOGRAM

@@ -827,3 +827,12 @@ def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None):
 def md5sumFile(myfile):
     md5sum=System("md5sum %s |cut -f 1 -d ' '"%myfile)
     return md5sum
+
+def pOsc(phase,params):
+    P=params[0]+params[1]*numpy.cos(phase-params[2])
+    return P
+
+def chisq(params,function,xdata,ydata,dydata):
+    dymean=dydata.mean()
+    dydata[dydata==0]=dymean
+    return (ydata-function(xdata,params))/dydata
