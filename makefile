@@ -48,13 +48,11 @@ unlock:
 
 backup:
 	@echo "Backuping Quakes data..."
-	@mysqldump -u root -p tQuakes Quakes Clusters > data/sql/Quakes.sql
-	@p7zip data/sql/Quakes.sql
+	@bash tquakes-backup.sh Quakes
 
 backupall:
 	@echo "Backuping tQuakes database..."
-	@mysqldump -u root -p tQuakes > data/sql/tQuakes.sql
-	@p7zip data/sql/tQuakes.sql
+	@bash tquakes-backup.sh tQuakes
 
 restore:
 	@echo "Restoring table Quakes..."
