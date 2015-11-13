@@ -56,7 +56,7 @@ backupall:
 
 restore:
 	@echo "Restoring table Quakes..."
-	@cat data/sql/dump/Quakes.sql.7z- > data/sql/Quakes.sql.7z
+	@cat data/sql/dump/Quakes.sql.7z-* > data/sql/Quakes.sql.7z
 	@p7zip -d data/sql/Quakes.sql.7z
 	@echo "Enter root mysql password..."
 	@mysql -u root -p tQuakes < data/sql/Quakes.sql
@@ -64,7 +64,7 @@ restore:
 
 restoreall:
 	@echo "Restoring database..."
-	@cat data/sql/dump/tQuakes.sql.7z- > data/sql/tQuakes.sql.7z
+	@cat data/sql/dump/tQuakes.sql.7z-* > data/sql/tQuakes.sql.7z
 	@p7zip -d data/sql/tQuakes.sql.7z
 	@echo "Enter root mysql password..."
 	@mysql -u root -p tQuakes < data/sql/tQuakes.sql
