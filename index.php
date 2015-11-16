@@ -327,10 +327,15 @@ PORTAL;
 //==================================================
 //PLOTS
 //==================================================
+$numcols=4;
+$width=100/$numcols;
 $output=shell_exec("ls -m $STATSDIR/*.png");
 $listplots=preg_split("/\s*,\s*/",$output);
+$plotlist="<li><b>Plots:</b><br/><table border=0px><tr><td colspan=$numcols></td>";
+$i=0;
 foreach($listplots as $plot)
 {
+  if(($i%$numcols)==0){$plotlist.="</tr><tr>";}
   if(isBlank($plot)){continue;}
   $plotname=rtrim(shell_exec("basename $plot"));
   $plotbase=preg_split("/\./",$plotname)[0];
@@ -339,20 +344,32 @@ foreach($listplots as $plot)
   $plotmd5=$plotparts[1];
   $replot="";
   if($QADMIN){
-    $replot="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5' target='_blank'>Replot</a>,";
+    $replot="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5' target='_blank'>Replot</a>";
   }
-echo<<<PLOT
-<li><b>Plot</b>: $plotroot<br/>
-    $replot
-    <a href="update.php?plothistory&plot=$plotroot" target="_blank">History</a>
-    <br/>
-    <a href="$plot" target="_blank">
-    <img src="$plot" width="200px">
-    </a>
-</li>
-PLOT;
-}
 
+$plotlist.=<<<PLOT
+  <td width="$width=100%" valign="top">
+  <center>
+  <i>$plotroot</i><br/>
+  $replot
+  <br/>
+  <i style="font-size:10px">$plotmd5</i>
+  <a href="$plot" target="_blank">
+  <img src="$plot" width="100%">
+  </a>
+  </center>
+  </td>
+PLOT;
+
+  $i++;
+}
+if($i==0){$plotlist.="<i>No plot in history</i>";}
+else{
+  $rem=3-$i%3;
+  if($rem){$plotlist.="<td colspan=$rem></td></tr>";}
+}
+$plotlist.="</table>";
+echo "$plotlist</li>";
 echo "</ul>";
 }
 

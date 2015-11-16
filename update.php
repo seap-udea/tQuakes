@@ -19,11 +19,11 @@ $content="";
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 if(isset($plotclear)){
   $outpack=myExec("rm $STATSDIR/${plot}.history/*");
-  if($outpack[0]>0){
-    $content.=$outpack[3];
-    $refresh_time="-1";
-  }
-  $content.="<script type='text/javascript'>windows.close();</script>";
+  if($outpack[0]>0){$content.=$outpack[3];$refresh_time="-1";}
+  $plotmd5=rtrim(shell_exec("md5sum $STATSDIR/$plot.conf | cut -f 1 -d ' '"));
+  $outpack=myExec("cp $STATSDIR/${plot}.conf $STATSDIR/${plot}.history/${plot}__$plotmd5.conf");
+  if($outpack[0]>0){$content.=$outpack[3];$refresh_time="-1";}
+  $content.="<script type='text/javascript'>window.close();</script>";
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -69,7 +69,7 @@ PLOT;
   
 $content=<<<CONTENT
 <a href="JavaScript:void(null)" onclick="window.close()">Close</a> | 
-<a href="update.php?plotclear&plot=$plot" onclick="window.close()">Clear</a>
+<a href="update.php?plotclear&plot=$plot">Clear</a>
 <h2>History of $plot</h2>
 $plotlist
 CONTENT;
