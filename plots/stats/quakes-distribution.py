@@ -7,8 +7,8 @@ use('Agg')
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy import signal
-confile="%s.conf"%BASENAME
-execfile(confile)
+confile=prepareScript()
+conf=execfile(confile)
 
 # ############################################################
 # PREPARE PLOTTING REGION
@@ -133,7 +133,5 @@ axs[0].grid()
 # ############################################################
 # SAVING FIGURE
 # ############################################################
-md5sum=md5sumFile(confile)
-figname="%s/%s__%s.png"%(DIRNAME,BASENAME,md5sum)
-print "Saving figure ",figname
-fig.savefig(figname)
+saveFigure(confile,fig)
+

@@ -12,11 +12,9 @@ require_once("site/util.php");
 ////////////////////////////////////////////////////////////////////////
 if(!isset($action)){$action="";}
 if(!isset($if)){$if="";}
-else{
-  session_start();
-  $SESSID=session_id();
-  shell_exec("mkdir -p scratch/$SESSID");
-}
+session_start();
+$SESSID=session_id();
+if(!is_dir("scratch/$SESSID")){shell_exec("mkdir -p scratch/$SESSID");}
 $action_status="";
 $action_error="";
 
@@ -238,9 +236,7 @@ echo<<<PORTAL
 <a href="?if=data">Data Products</a> |
 <a href="?if=search">Search</a> |
 <a href="?if=activity">Stations Activity</a> |
-<a href="?if=register">Register Station</a> | 
-<aa href="?if=calculate">Calculate</a> 
-|
+<a href="?if=register">Register Station</a> 
 <!--<a href="update.php">Update</a> |-->
 <hr/>
 PORTAL;
@@ -338,22 +334,25 @@ $output=shell_exec("ls -m plots/stats/*.png");
 $listplots=preg_split("/\s*,\s*/",$output);
 foreach($listplots as $plot)
 {
-   $plotname=rtrim(shell_exec("basename $plot"));
-   $plotbase=preg_split("/\./",$plotname)[0];
-
+  if(isBlank($plot)){continue;}
+  $plotname=rtrim(shell_exec("basename $plot"));
+  $plotbase=preg_split("/\./",$plotname)[0];
+  $plotparts=preg_split("/__/",$plotbase);
+  $plotroot=$plotparts[0];
+  $plotmd5=$plotparts[1];
+  $replot="";
+  if($QADMIN){
+    $replot="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5'>Replot</a>,";
+  }
 echo<<<PLOT
-<li><b>Plot</b>:
-  <ul>
-    <li><a name="$plotbase">File</a>: <a href="$plot">$plotname</a></li>
-    <li>Preview:<br/>
-      <a href="$plot" target="_blank">
-	<img src="$plot" width="400px">
-      </a>
-    </li>
-    <li><a href="update.php?replot&plot=$plot">Replot</a></li>
-  </ul>
-
-
+<li><b>Plot</b>: $plotroot<br/>
+    $replot
+    <a href="update.php?plothistory&plot=$plotroot">History</a>
+    <br/>
+    <a href="$plot" target="_blank">
+    <img src="$plot" width="200px">
+    </a>
+</li>
 PLOT;
 }
 

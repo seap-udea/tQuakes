@@ -1,14 +1,38 @@
-"""
-        minphase=0.50
-        maxphase=0.52
+# lons=xe[:-1]
+# lats=ye[:-1]
 
-        minphase=0.98
-        maxphase=1.00
-
-        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1),qlat,qlon,qjd from Quakes where SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1)+0>%f and SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1)+0<%f and Ml+0>0 and Ml+0<2 and qdepth+0<20 and qlon+0>-79 and qlon+0<-77 and qlat+0>0.5 and qlat+0<1"%(npos,npos,minphase,npos,maxphase)
-        
-        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1),qlat,qlon,qjd from Quakes where SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1)+0>%f and SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1)+0<%f and Ml+0>0 and Ml+0<5 and qdepth+0<20 and qlon+0>-72.5 and qlon+0<-71 and qlat+0>8.0 and qlat+0<10"%(npos,npos,minphase,npos,maxphase)
-
-for comp in hs tilt vs vd ocean;do sed -e "s/\"grav\"/\"$comp\"/" times-statistics-grav.py > times-statistics-$comp.py;done
+# H=numpy.rot90(H)
+# H=numpy.flipud(H)
 
 """
+
+lats=numpy.arange(latb,latu+dt,dt);nlats=len(lats)
+lons=numpy.arange(lonl,lonr+dl,dl);nlons=len(lons)
+# CALCULATE FIELD
+field=numpy.zeros((nlons,nlats))
+for i in xrange(nlons):
+    for j in xrange(nlats):
+        field[i,j]=lats[j]*lons[i]
+"""
+
+from scipy.optimize import leastsq
+
+def function(x,params):
+    y=params[0]*x**2+params[1]
+    return y
+
+def chisq(params,xdata,ydata,dydata):
+    return (ydata-function(xdata,params))/dydata
+
+x=numpy.array([0.0,1.0,2.0,3.0,4.0,5.0,6.0])
+y=numpy.array([0.0,1.1,2.2,2.8,4.3,5.1,5.8])
+dy=numpy.array([0.1,0.1,0.1,0.1,0.1,0.1,0.1])
+
+pars0=[0.0,0.0]
+pars,n=leastsq(chisq,pars0,args=(x,y,dy))
+
+fig=plt.figure()
+plt.plot(x,y,'ko')
+plt.plot(x,function(x,pars),'b-')
+fig.savefig("fit.png")
+

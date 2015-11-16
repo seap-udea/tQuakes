@@ -836,3 +836,27 @@ def chisq(params,function,xdata,ydata,dydata):
     dymean=dydata.mean()
     dydata[dydata==0]=dymean
     return (ydata-function(xdata,params))/dydata
+
+def prepareScript():
+    # CONFIGURATION FILE
+    if len(argv)>1 and os.path.lexists(argv[1]):confile=argv[1]
+    else:confile="%s.conf"%BASENAME
+    # HISTORY DIR
+    dirname="%s.history"%BASENAME
+    if not os.path.lexists(dirname):
+        System("mkdir %s"%dirname)
+    # MOVE PREVIOUS COMPUTED FIGURES
+    System("mv %s__*.png %s.history/"%(BASENAME,BASENAME))
+    # SIGNATURE
+    md5sum=md5sumFile(confile)
+    # COPY CONFIGURATION FILE
+    System("cp %s %s/%s__%s.conf"%(confile,dirname,BASENAME,md5sum))
+    return confile
+
+def saveFigure(confile,fig):
+    # MD5SUM FOR THIS REALIZATION
+    md5sum=md5sumFile(confile)
+    # SAVE FIGURE
+    figname="%s/%s__%s.png"%(DIRNAME,BASENAME,md5sum)
+    print "Saving figure ",figname
+    fig.savefig(figname)

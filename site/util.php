@@ -88,4 +88,17 @@ $DB=mysqli_connect("localhost",$DBUSER,$DBPASSWORD,$DBNAME);
 $result=mysqlCmd("select now();",$qout=0,$qlog=0);
 $DATE=$result[0];
 
+////////////////////////////////////////////////////////////////////////
+//lOGIN
+////////////////////////////////////////////////////////////////////////
+if(isset($admin)){include("site/protect.php");}
+$QADMIN=0;
+if(isset($_COOKIE["verify"])){
+  $VERIFY=$_COOKIE["verify"];
+  $QADMIN=1;
+  $WUSER=$PASS_INFORMATION["$VERIFY"];
+}
+if($QADMIN){
+  echo "<div style='width:100%;background:lightgray;text-align:center'>ADMIN</div>";
+}
 ?>

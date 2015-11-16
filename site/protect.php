@@ -70,9 +70,9 @@ function showLoginPasswordProtect($error_msg) {
   </style>
   <div style="width:500px; margin-left:auto; margin-right:auto; text-align:center">
   <form method="post">
-    <h3>Por favor ingrese su nombre de usuario y contraseña</h3>
+    <h3>Please provide credentials</h3>
     <font color="red"><?php echo $error_msg; ?></font><br />
-<?php if (USE_USERNAME) echo 'Nombre: <input type="input" name="access_name" /><br /> Usuario: <input type="input" name="access_login" /><br />Contraseña:'; ?>
+<?php if (USE_USERNAME) echo 'User: <input type="input" name="access_login" /><br />Password:'; ?>
     <input type="password" name="access_password" /><p></p><input type="submit" name="Submit" value="Ingreso" />
   </form>
   <br />
