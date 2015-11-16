@@ -80,6 +80,24 @@ function searchExamples(){
   return array($i,$examples,$examples_txt,$examples_url);
 }
 
+function myExec($cmd,$tmp="/tmp")
+{
+  $code=exec("($cmd) 2> $tmp/exec.error;echo $?",$output);
+  $stdout=implode("\n",array_slice($output,0,-1));
+  $stderr=shell_exec("cat $tmp/exec.error");
+  $color="green";
+  if($code>0){$color="red";}
+$outtxt=<<<OUTPUT
+<b style='color:$color'>Execution output:</b><br/>
+<ul>
+<li><b>Command</b>:<pre>$cmd</pre></li>
+<li><b>Stdout</b>:<pre>$stdout</pre></li>
+<li><b>Stderr</b>:<pre>$stderr</pre></li>
+<li><b>Error code</b>:<pre>$code</pre></li>
+</ul>
+OUTPUT;
+  return array($code,$stdout,$stderr,$outtxt);
+}
 
 ////////////////////////////////////////////////////////////////////////
 //DATABASE INITIALIZATION
@@ -94,6 +112,7 @@ $DATE=$result[0];
 if(isset($admin)){include("site/protect.php");}
 $QADMIN=0;
 if(isset($_COOKIE["verify"])){
+  require_once("site/configuration.php");
   $VERIFY=$_COOKIE["verify"];
   $QADMIN=1;
   $WUSER=$PASS_INFORMATION["$VERIFY"];
@@ -101,4 +120,17 @@ if(isset($_COOKIE["verify"])){
 if($QADMIN){
   echo "<div style='width:100%;background:lightgray;text-align:center'>ADMIN</div>";
 }
+
+////////////////////////////////////////////////////////////////////////
+//SESSION
+////////////////////////////////////////////////////////////////////////
+session_start();
+$SESSID=session_id();
+
+////////////////////////////////////////////////////////////////////////
+//DIRECTORIES
+////////////////////////////////////////////////////////////////////////
+$SCRATCHDIR="scratch/$SESSID/";
+if(!is_dir($SCRATCHDIR)){shell_exec("mkdir -p $SCRATCHDIR");}
+$STATSDIR="plots/stats/";
 ?>

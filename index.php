@@ -12,9 +12,6 @@ require_once("site/util.php");
 ////////////////////////////////////////////////////////////////////////
 if(!isset($action)){$action="";}
 if(!isset($if)){$if="";}
-session_start();
-$SESSID=session_id();
-if(!is_dir("scratch/$SESSID")){shell_exec("mkdir -p scratch/$SESSID");}
 $action_status="";
 $action_error="";
 
@@ -330,7 +327,7 @@ PORTAL;
 //==================================================
 //PLOTS
 //==================================================
-$output=shell_exec("ls -m plots/stats/*.png");
+$output=shell_exec("ls -m $STATSDIR/*.png");
 $listplots=preg_split("/\s*,\s*/",$output);
 foreach($listplots as $plot)
 {
@@ -342,12 +339,12 @@ foreach($listplots as $plot)
   $plotmd5=$plotparts[1];
   $replot="";
   if($QADMIN){
-    $replot="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5'>Replot</a>,";
+    $replot="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5' target='_blank'>Replot</a>,";
   }
 echo<<<PLOT
 <li><b>Plot</b>: $plotroot<br/>
     $replot
-    <a href="update.php?plothistory&plot=$plotroot">History</a>
+    <a href="update.php?plothistory&plot=$plotroot" target="_blank">History</a>
     <br/>
     <a href="$plot" target="_blank">
     <img src="$plot" width="200px">
@@ -364,7 +361,7 @@ echo "</ul>";
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="stats"){
   
-  $statlog="scratch/$SESSID/stats.log";
+  $statlog="$SCRATCHDIR/stats.log";
   if(file_exists($statlog)){shell_exec("cp $statlog $statlog.prev");}
   $numquakes=mysqlCmd("select count(quakeid) from Quakes");
   $numfetched=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0;");
@@ -435,12 +432,12 @@ $stats=<<<STAT
 </p>
 STAT;
 
-   $fl=fopen("scratch/$SESSID/stats.log","w");
+   $fl=fopen("$SCRATCHDIR/stats.log","w");
    fwrite($fl,"<html><body>$DATE<br/>$stats</body></html>");
    fclose($fl);
 
    echo $stats;
-   echo "<a href=scratch/$SESSID/stats.log.prev target=_blank>Previous</a> | <a href=scratch/$SESSID/stats.log target=_blank>Present</a>";
+   echo "<a href=$SCRATCHDIR/stats.log.prev target=_blank>Previous</a> | <a href=$SCRATCHDIR/stats.log target=_blank>Present</a>";
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -628,10 +625,10 @@ BASIC;
   if(file_exists($dirquakes."$quakeid-eterna.tar.7z")){
 
     //REMOVE PREVIOUS DOWNLOAD QUAKES
-    //shell_exec("rm -r scratch/$SESSID/*"); //ONLY IF YOU WANT TO PRESERVE
+    //shell_exec("rm -r $SCRATCHDIR/*"); //ONLY IF YOU WANT TO PRESERVE
 
     //CREATE QUAKE ID
-    $quakedir="scratch/$SESSID/$quakeid";
+    $quakedir="$SCRATCHDIR/$quakeid";
     if(!is_dir("$quakedir") or isset($replotall) or 0){
       echo "<i>Creating directory for $quakeid...</i><br/>";
       shell_exec("mkdir -p $quakedir/");
@@ -653,7 +650,7 @@ BASIC;
     }
     $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);
     $size_analysis=round(filesize("$quakedir/$quakeid-analysis.tar")/1024.0,0);
-    $size_full=round(filesize("scratch/$SESSID/$quakeid.tar")/1024.0,0);
+    $size_full=round(filesize("$SCRATCHDIR/$quakeid.tar")/1024.0,0);
     
     // PLOTS
     $output=shell_exec("ls -m $quakedir/*.png");
@@ -677,9 +674,9 @@ PLOT;
 
     // LIST
 $download=<<<DOWN
-  <li><b>Eterna results: </b><a href="scratch/$SESSID/$quakeid/$quakeid-eterna.tar">$quakeid-eterna.tar</a> ($size_eterna kB)</li>
-  <li><b>Fourier transform: </b><a href="scratch/$SESSID/$quakeid/$quakeid-analysis.tar">$quakeid-analysis.tar</a> ($size_analysis kB)</li>
-  <li><b>Full results: </b><a href="scratch/$SESSID/$quakeid.tar">$quakeid.tar</a> ($size_full kB)
+  <li><b>Eterna results: </b><a href="$SCRATCHDIR/$quakeid/$quakeid-eterna.tar">$quakeid-eterna.tar</a> ($size_eterna kB)</li>
+  <li><b>Fourier transform: </b><a href="$SCRATCHDIR/$quakeid/$quakeid-analysis.tar">$quakeid-analysis.tar</a> ($size_analysis kB)</li>
+  <li><b>Full results: </b><a href="$SCRATCHDIR/$quakeid.tar">$quakeid.tar</a> ($size_full kB)
 DOWN;
   }else{
     $download="(No download available)";
@@ -718,7 +715,7 @@ QUAKE;
 //ACTIVITY
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="activity"){
-  $stationlog="scratch/$SESSID/stations.log";
+  $stationlog="$SCRATCHDIR/stations.log";
   if(file_exists($stationlog)){shell_exec("cp $stationlog $stationlog.prev");}
   $stations=mysqlCmd("select * from Stations",$qout=1);
   $table="";

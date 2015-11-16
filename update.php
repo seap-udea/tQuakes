@@ -8,11 +8,23 @@
 require_once("site/util.php");
 $refresh_time=1;
 $target_url=$_SERVER["HTTP_REFERER"];
-$content="Refreshing";
+$content="";
 
 ////////////////////////////////////////////////////////////////////////
 //ACTIONS
 ////////////////////////////////////////////////////////////////////////
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//CLEAR HISTORY OF PLOT
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+if(isset($plotclear)){
+  $outpack=myExec("rm $STATSDIR/${plot}.history/*");
+  if($outpack[0]>0){
+    $content.=$outpack[3];
+    $refresh_time="-1";
+  }
+  $content.="<script type='text/javascript'>windows.close();</script>";
+}
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //HISTORY OF PLOT
@@ -21,7 +33,7 @@ if(isset($plothistory)){
   $numcols=4;
   $width=100/$numcols;
   $refresh_time=-1;
-  $output=shell_exec("ls -m plots/stats/$plot.history/*.png");
+  $output=shell_exec("ls -m $STATSDIR/$plot.history/*.png");
   $listplots=preg_split("/\s*,\s*/",$output);
   $plotlist="<table border=0px><tr><td colspan=$numcols></td>";
   $i=0;
@@ -33,12 +45,13 @@ if(isset($plothistory)){
     $plotparts=preg_split("/__/",$plotname);
     $plotroot=$plotparts[0];
     $plotmd5=$plotparts[1];
-    if($QADMIN){$replotu="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5'>Replot</a>,";}
+    if($QADMIN){$replotu="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5'target='_blank'>Replot</a>,";}
 $plotlist.=<<<PLOT
   <td width="$width=100%">
   <center>
   $replotu
-  <a href="plots/stats/$plot.history/${plot}__$plotmd5.conf">Conf</a>
+  <a href="$STATSDIR/$plot.history/${plot}__$plotmd5.conf" target="_blank">Conf</a><br>
+  <i style="font-size:10px">$plotmd5</i>
   <a href="$ploth" target="_blank">
   <img src="$ploth" width="100%">
   </a>
@@ -55,6 +68,8 @@ PLOT;
   $plotlist.="</table>";
   
 $content=<<<CONTENT
+<a href="JavaScript:void(null)" onclick="window.close()">Close</a> | 
+<a href="update.php?plotclear&plot=$plot" onclick="window.close()">Clear</a>
 <h2>History of $plot</h2>
 $plotlist
 CONTENT;
@@ -69,13 +84,22 @@ if(isset($replotui)){
     $refresh_time=3;
   }else{
   $refresh_time=-1;
-  $plotimg="plots/stats/${plot}__$md5sum.png";
-  $conf=shell_exec("cat plots/stats/${plot}.history/${plot}__$md5sum.conf");
-  $script=shell_exec("cat plots/stats/${plot}.py");
+
+  $plotimg="$STATSDIR/${plot}__$md5sum.png";
+  if(!file_exists($plotimg)){$plotimg="$STATSDIR/${plot}.history/${plot}__$md5sum.png";}
+
+  $plotconf="$STATSDIR/${plot}.history/${plot}__$md5sum.conf";
+  if(!file_exists($plotconf)){$plotconf="$STATSDIR/${plot}.conf";}
+
+  $conf=shell_exec("cat $plotconf");
+  $script=shell_exec("cat $STATSDIR/${plot}.py");
   if(!isset($backurl)){$backurl=$target_url;}
 $content=<<<CONTENT
 
-<a href="$backurl">Back</a><br/>
+  <a href="$backurl">Back</a> | 
+  <a href="update.php?plothistory&plot=$plot" target="_blank">History</a> |
+  <a href="JavaScript:void(null)" onclick="window.close()">Close</a>
+  <br/>
 
 <h2>Replot of $plot</h2>
 
@@ -94,9 +118,9 @@ $content=<<<CONTENT
 
 	<input type="submit" name="replot" value=replot><br/>
 	Configuration:<br/>
-	<textarea name="conf" cols=80 rows=20>$conf</textarea>
-	Script:<br/>
-	<textarea  name="script" cols=80 rows=20>$script</textarea>
+	<textarea name="conf" cols=80 rows=10>$conf</textarea>
+	<a href="JavaScript:void(null)" onclick="$('#script').toggle('fast',null)">Script</a><br/>
+	<textarea id="script" name="script" cols=80 rows=20 style="display:none">$script</textarea>
       </form>
     </td>
   </tr>
@@ -113,27 +137,30 @@ if(isset($replot)){
    $refresh_time=-1;
 
    //SAVE SCRIPT
-
-   //SAVE CONFIGURATION
-
-   //PLOT
-   $target_url="update.php?replotui&plot=$plot&md5sum=$md5sum&backurl=$backurl";
-   $cmd="PYTHONPATH=. MPLCONFIGDIR=/tmp python plots/stats/$plot.py";
-   echo "Plotting: $cmd<br/>";
-   echo "Returning to $target_url...";
-   $fl=fopen("/tmp/a.py","w");
+   $fl=fopen("$STATSDIR/$plot.py","w");
    fwrite($fl,$script);
    fclose($fl);
-   
-   /*
-   $out=shell_exec("$cmd &> /tmp/error");
-   echo "$out<br/>";
-   $content="Replot succesful...";
-   $target_url=$target_url."#".$aname;
-   echo "Target: $target_url<br/>";
-   $refresh_time=1;
-   */
-   echo "<br/>";
+
+   //SAVE CONFIGURATION
+   $fl=fopen("$STATSDIR/$plot.conf","w");
+   fwrite($fl,$conf);
+   fclose($fl);
+   $md5sum=rtrim(shell_exec("md5sum $STATSDIR/$plot.conf | cut -f 1 -d ' '"));
+
+   //PLOT COMMAND
+   $cmd="cd $STATSDIR;PYTHONPATH=. MPLCONFIGDIR=/tmp python $plot.py";
+   $outpack=myExec($cmd,$SCRATCHDIR);
+   if($outpack[0]>0){
+     $content.="<a href=$target_url>Back</a><br/>".$outpack[3];
+     $refresh_time="-1";
+   }else{
+     $content.="Successful execution. New id $md5sum...";
+     //DEBUGGING
+     //$content.="<a href=$target_url>Back</a><br/>".$outpack[3];
+     $refresh_time="1";
+     $backurl=urlencode($backurl);
+     $target_url="update.php?replotui&plot=$plot&md5sum=$md5sum&backurl=$backurl";
+   }
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -172,6 +199,7 @@ if(isset($history)){
 echo<<<CONTENT
 <html>
   <head>
+    <script src="site/jquery.js"></script>
     <meta http-equiv="refresh" content="$refresh_time;URL=$target_url">
   </head>
   <body>
