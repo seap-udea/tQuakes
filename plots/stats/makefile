@@ -1,6 +1,16 @@
 BRANCH=$(shell bash .getbranch)
 NEWSCRIPT=""
 
+new:
+	@echo "Creating new script '$(NEWSCRIPT)'..."
+	@test $(NEWSCRIPT) != ""
+	@cp template.tpy $(NEWSCRIPT).py
+	@cp template.tconf $(NEWSCRIPT).conf
+	@mkdir $(NEWSCRIPT).history
+	@touch $(NEWSCRIPT).history/.dir
+	@git add $(NEWSCRIPT).*
+	@git add $(NEWSCRIPT).history/.dir
+
 all:
 	@for script in *.py;do python $$script;done
 
@@ -13,12 +23,6 @@ clean:
 	@for dir in *.history;do touch $$dir/delete;done
 	@-rm *.history/*
 
-new:
-	@echo "Creating new script '$(NEWSCRIPT)'..."
-	@test $(NEWSCRIPT) != ""
-	@cp template.tpy $(NEWSCRIPT).py
-	@cp template.tconf $(NEWSCRIPT).conf
-	@mkdir $(NEWSCRIPT).history
-	@touch $(NEWSCRIPT).history/.dir
-	@git add $(NEWSCRIPT).*
-	@git add $(NEWSCRIPT).history/.dir
+permissions:
+	@echo "Setting permissions for web..."
+	@chown -R www-data.www-data .

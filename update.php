@@ -17,6 +17,15 @@ $content="";
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //CLEAR HISTORY OF PLOT
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+if(isset($plotrm)){
+  $outpack=myExec("rm $STATSDIR/${plot}.history/${plot}__${md5sum}.*");
+  if($outpack[0]>0){$content.=$outpack[3];$refresh_time="-1";}
+  $refresh_time=0;
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//CLEAR HISTORY OF PLOT
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 if(isset($plotclear)){
   $outpack=myExec("rm $STATSDIR/${plot}.history/*");
   if($outpack[0]>0){$content.=$outpack[3];$refresh_time="-1";}
@@ -45,12 +54,13 @@ if(isset($plothistory)){
     $plotparts=preg_split("/__/",$plotname);
     $plotroot=$plotparts[0];
     $plotmd5=$plotparts[1];
-    if($QADMIN){$replotu="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5'target='_blank'>Replot</a>,";}
+    if($QADMIN){$replotu="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5'target='_blank'>Replot</a> | <a href='update.php?plotrm&plot=$plotroot&md5sum=$plotmd5'>Delete</a> |";}
 $plotlist.=<<<PLOT
   <td width="$width=100%">
   <center>
   $replotu
-  <a href="$STATSDIR/$plot.history/${plot}__$plotmd5.conf" target="_blank">Conf</a><br>
+  <a href="$STATSDIR/$plot.history/${plot}__$plotmd5.conf" target="_blank">Conf</a>
+  <br/>
   <i style="font-size:10px">$plotmd5</i>
   <a href="$ploth" target="_blank">
   <img src="$ploth" width="100%">
@@ -67,9 +77,14 @@ PLOT;
   }
   $plotlist.="</table>";
   
+  $clear="";
+  if($QADMIN){
+    $clear="<a href='update.php?plotclear&plot=$plot'>Clear</a> | ";
+  }
+  
 $content=<<<CONTENT
-<a href="JavaScript:void(null)" onclick="window.close()">Close</a> | 
-<a href="update.php?plotclear&plot=$plot">Clear</a>
+$clear
+<a href="JavaScript:void(null)" onclick="window.close()">Close</a> 
 <h2>History of $plot</h2>
 $plotlist
 CONTENT;
