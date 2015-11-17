@@ -1,5 +1,6 @@
 BRANCH=$(shell bash .getbranch)
 NEWSCRIPT=""
+SCRIPT=""
 
 new:
 	@echo "Creating new script '$(NEWSCRIPT)'..."
@@ -8,11 +9,17 @@ new:
 	@cp template.tconf $(NEWSCRIPT).conf
 	@mkdir $(NEWSCRIPT).history
 	@touch $(NEWSCRIPT).history/.dir
-	@git add $(NEWSCRIPT).*
-	@git add $(NEWSCRIPT).history/.dir
+	@echo "*" > $(NEWSCRIPT).history/.gitignore
+	@git add -f $(NEWSCRIPT).*
+	@git add -f $(NEWSCRIPT).history/.dir
+	@git add -f $(NEWSCRIPT).history/.gitignore
 
 all:
 	@for script in *.py;do python $$script;done
+
+repeat:
+	@test $(SCRIPT) != ""
+	@for conf in $(shell find . -name "$(SCRIPT)__*.conf");do python $(SCRIPT).py $$conf;done
 
 clean:
 	@echo "Cleaning..."

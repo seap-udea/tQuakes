@@ -661,6 +661,7 @@ def getPhases(search,component,db,vvv=True):
 
 def schusterValue(phases,qbootstrap=False,
                   facbootstrap=0.5,bootcycles=50):
+    if len(phases)<int(1/facbootstrap):return 0,0
     if qbootstrap:
         nbootstrap=facbootstrap*len(phases)
         logps=[]

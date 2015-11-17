@@ -42,10 +42,11 @@ if(isset($plothistory)){
   $numcols=4;
   $width=100/$numcols;
   $refresh_time=-1;
-  $output=shell_exec("ls -m $STATSDIR/$plot.history/*.png");
-  $listplots=preg_split("/\s*,\s*/",$output);
+  $output=shell_exec("find $STATSDIR -name '${plot}__*.png'");
+  $listplots=preg_split("/\n/",$output);
   $plotlist="<table border=0px><tr><td colspan=$numcols></td>";
   $i=0;
+  $md5sums=array("foo");
   foreach($listplots as $ploth){
     if(($i%$numcols)==0){$plotlist.="</tr><tr>";}
     if(isBlank($ploth)){continue;}
@@ -54,6 +55,8 @@ if(isset($plothistory)){
     $plotparts=preg_split("/__/",$plotname);
     $plotroot=$plotparts[0];
     $plotmd5=$plotparts[1];
+    if(array_search($plotmd5,$md5sums)){continue;}
+    else{array_push($md5sums,$plotmd5);}
     if($QADMIN){$replotu="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5'target='_blank'>Replot</a> | <a href='update.php?plotrm&plot=$plotroot&md5sum=$plotmd5'>Delete</a> |";}
 $plotlist.=<<<PLOT
   <td width="$width=100%">

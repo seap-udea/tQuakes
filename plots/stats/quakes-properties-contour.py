@@ -30,11 +30,11 @@ search=search+"and qphases<>'' and (cluster1='0' or cluster1 like '-%%') and qla
                                                                                                                                                       lonl,
                                                                                                                                                       lonr,
                                                                                                                                                       limit)
-qids,quakes=getPhases(search,component,db)
+qids,quakes=getPhases(search,"hs",db)
 nquakes=len(qids)
 
 # PHASES
-phases=360*quakes[:,phase]
+phases=360*quakes[:,SD]
 
 # ############################################################
 # CALCULATE CONTOUR

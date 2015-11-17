@@ -329,10 +329,11 @@ PORTAL;
 //==================================================
 $numcols=4;
 $width=100/$numcols;
-$output=shell_exec("ls -m $STATSDIR/*.png");
-$listplots=preg_split("/\s*,\s*/",$output);
+$output=shell_exec("find $STATSDIR -name '*.png'");
+$listplots=preg_split("/\n/",$output);
 $plotlist="<li><b>Plots:</b><br/><table border=0px><tr><td colspan=$numcols></td>";
 $i=0;
+$md5sums=array("foo");
 foreach($listplots as $plot)
 {
   if(($i%$numcols)==0){$plotlist.="</tr><tr>";}
@@ -342,6 +343,9 @@ foreach($listplots as $plot)
   $plotparts=preg_split("/__/",$plotbase);
   $plotroot=$plotparts[0];
   $plotmd5=$plotparts[1];
+  if(array_search($plotmd5,$md5sums)){continue;}
+  else{array_push($md5sums,$plotmd5);}
+
   $replot="";
   if($QADMIN){
     $replot="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5' target='_blank'>Replot</a> |";
