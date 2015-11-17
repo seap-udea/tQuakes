@@ -59,6 +59,7 @@ $plotlist.=<<<PLOT
   <td width="$width=100%">
   <center>
   $replotu
+  <a href="$STATSDIR/$plot.history/${plot}__$plotmd5.out" target="_blank">Out</a> |
   <a href="$STATSDIR/$plot.history/${plot}__$plotmd5.conf" target="_blank">Conf</a>
   <br/>
   <i style="font-size:10px">$plotmd5</i>
@@ -175,6 +176,11 @@ if(isset($replot)){
      $refresh_time="1";
      $backurl=urlencode($backurl);
      $target_url="update.php?replotui&plot=$plot&md5sum=$md5sum&backurl=$backurl";
+     //SAVE OUTPUT
+     $fl=fopen("$STATSDIR/$plot.history/${plot}__$md5sum.out","w");
+     fwrite($fl,$outpack[1]);
+     fwrite($fl,"\n\n".$outpack[2]);
+     fclose($fl);
    }
 }
 

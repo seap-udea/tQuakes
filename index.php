@@ -352,6 +352,7 @@ $plotlist.=<<<PLOT
   <center>
   <i>$plotroot</i><br/>
   $replot 
+  <a href="$STATSDIR/$plotroot.history/${plotroot}__$plotmd5.conf" target="_blank">Conf</a> |
   <a href="update.php?plothistory&plot=$plotroot" target="_blank">History</a>
   <br/>
   <i style="font-size:10px">$plotmd5</i>
