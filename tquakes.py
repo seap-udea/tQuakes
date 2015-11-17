@@ -617,7 +617,7 @@ MN=11
 PERIODS=[0]*5+[0.5,1.0,14.8,29.6,0.5,14.8,29.6]
 PHASES=[0]*5+["Semidiurnal Fourier","Diurnal Fourier",
               "Fornightly Fourier","Monthly Fourier",
-              "Semidiurnal","Fornightly","Montly"]
+              "Semidiurnal","Fornightly","Monthly"]
 
 def getPhases(search,component,db,vvv=True):
     # ############################################################
