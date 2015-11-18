@@ -16,6 +16,7 @@ new:
 
 all:
 	@for script in *.py;do python $$script;done
+	@make permissions
 
 repeat:
 	@test $(SCRIPT) != ""
