@@ -190,9 +190,9 @@ elif ftype=="number":
 # ############################################################
 # SELECTION
 # ############################################################
-jini=1
-jend=3
-rang="%d:%d"%(jini-1,jend-1);rangb="%d:%d"%(jini-1,2*(jend-1))
+jini=20
+jend=20
+rang="%d:%d"%(jini-1,jend-1+1);rangb="%d:%d"%(2*(jini-1),2*(jend-1+1))
 ts=eval("ts[%s]"%rang)
 logps=eval("logps[%s]"%rang)
 dlogps=eval("dlogps[%s]"%rang)
@@ -227,7 +227,7 @@ for i in xrange(j):
                 horizontalalignment=hal,
                 verticalalignment="center",
                 rotation=90,fontsize=8)
-    ax.text(ts[i],0,"%d"%(i+1),
+    ax.text(ts[i],0,"%d"%(jini-1+i+1),
             horizontalalignment="center",
             verticalalignment="bottom")
 
