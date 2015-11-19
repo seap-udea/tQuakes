@@ -82,7 +82,7 @@ gitconfig:
 commit:
 	@echo "Commiting changes..."
 	@touch .htaccess
-	@git commit -am "Commit"
+	@-git commit -am "Commit"
 	@git push origin $(BRANCH)
 
 pull:
