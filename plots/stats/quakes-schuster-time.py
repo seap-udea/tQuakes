@@ -190,9 +190,9 @@ elif ftype=="number":
 # ############################################################
 # SELECTION
 # ############################################################
-jini=0
-jend=j
-rang="%d:%d"%(jini,jend);rangb="%d:%d"%(jini,2*jend)
+jini=1
+jend=3
+rang="%d:%d"%(jini-1,jend-1);rangb="%d:%d"%(jini-1,2*(jend-1))
 ts=eval("ts[%s]"%rang)
 logps=eval("logps[%s]"%rang)
 dlogps=eval("dlogps[%s]"%rang)
