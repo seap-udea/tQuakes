@@ -620,6 +620,12 @@ PHASES=[0]*5+["Semidiurnal Fourier","Diurnal Fourier",
               "Semidiurnal","Fornightly","Monthly"]
 
 def getPhases(search,component,db,vvv=True):
+    # COLUMNS: 
+    """
+    0:qjd,1:qlat,2:qlon,3:qdepth,4:Mlq
+    Fourier: 5:sd, 6:dn, 7:fn, 8:mn
+    Boundaries: 9:sd, 10:fn, 11:mn
+    """
     # ############################################################
     # COMPONENT INFORMATION
     # ############################################################
