@@ -18,8 +18,8 @@ db=connection.cursor()
 # ############################################################
 # PREPARE PLOTTING REGION
 # ############################################################
-fig,axs=subPlots(plt,[1],l=0.12)
-ax=axs[0]
+fig,axs=subPlots(plt,[1,1],l=0.12,dh=0.01)
+ax=axs[1]
 
 # ############################################################
 # COMPONENT AND PHASE INFORMATION
@@ -99,10 +99,25 @@ p=numpy.exp(logp)
 print "Schuster p-value: log(p) = %.2f +/- %.2f, p = %.2f%%"%(logp,dlogp,p*100)
 
 # ############################################################
+# PHASES SCATTER PLOT
+# ############################################################
+scatter=0.2
+axs[0].plot(phs,
+            numpy.cos(phs*DEG)+scatter*(2*numpy.random.random(len(phs))-1),
+            'ko',markersize=5,
+            markeredgecolor='none',alpha=0.2)
+thetas=numpy.linspace(0.0,360.0,100)
+axs[0].plot(thetas,numpy.cos(thetas*DEG)+scatter,'k-')
+axs[0].plot(thetas,numpy.cos(thetas*DEG)-scatter,'k-')
+
+# ############################################################
 # DECORATION
 # ############################################################
+axs[0].set_xlim((0.0,360.0))
+axs[0].set_ylim((-1.0-scatter,1.0+scatter))
+
 hmean=1.0/360.0
-ax.set_xlabel("Phase (degrees)",fontsize=14)
+axs[0].set_xlabel("Phase (degrees)",fontsize=14)
 ax.set_ylabel("Frequency",fontsize=14)
 ax.set_title("%s, %s"%(compname,phasename))
 if p<0.05:color="b"
@@ -114,7 +129,7 @@ Fit parameters: Amplitude/$h_{\rm mean}$ = %.3f, Phase = %.1f"""%\
         fontsize=14,color=color,
         transform=ax.transAxes)
 
-axs[0].text(0.95,0.08,"N = %d\nlat,lon = %.2f, %.2f\n$\Delta$(lat,lon) = %.2f, %.2f\n$M_l$$\in$ [%.2f,%.2f)\nDepth$\in$[%.2f,%.2f) km\nDate = (%s,%s)"%\
+axs[0].text(0.5,0.95,"N = %d\nlat,lon = %.2f, %.2f\n$\Delta$(lat,lon) = %.2f, %.2f\n$M_l$$\in$ [%.2f,%.2f)\nDepth$\in$[%.2f,%.2f) km\nDate = (%s,%s)"%\
             (nquakes,
              center[0],center[1],
              dlat,dlon,
@@ -122,13 +137,16 @@ axs[0].text(0.95,0.08,"N = %d\nlat,lon = %.2f, %.2f\n$\Delta$(lat,lon) = %.2f, %
              depthmin,depthmax,
              dateini,dateend
          ),
-            horizontalalignment="right",
-            verticalalignment="bottom",
+            horizontalalignment="center",
+            verticalalignment="top",
             zorder=50,bbox=dict(fc='w',pad=20),
+            fontsize=10,
             transform=axs[0].transAxes)
 
 ax.set_xlim((0,360))
 ax.set_ylim((0.5*hmean,1.5*hmean))
+
+ax.set_xticklabels([])
 
 # ############################################################
 # SAVING FIGURE

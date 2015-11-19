@@ -17,7 +17,8 @@ db=connection.cursor()
 # ############################################################
 # PREPARE PLOTTING REGION
 # ############################################################
-fig,axs=subPlots(plt,[1])
+fig,axs=subPlots(plt,[1,2],b=0.15,dh=0.02)
+ax=axs[1]
 
 # ############################################################
 # GET PHASES
@@ -186,10 +187,35 @@ elif ftype=="number":
     print "Done."
     print nphases
 
-axs[0].plot(ts,logps,'ko')
-axs[0].errorbar(ts,logps,yerr=dlogps,linestyle='none',color='k')
+# ############################################################
+# SELECTION
+# ############################################################
+jini=0
+jend=j
+rang="%d:%d"%(jini,jend);rangb="%d:%d"%(jini,2*jend)
+ts=eval("ts[%s]"%rang)
+logps=eval("logps[%s]"%rang)
+dlogps=eval("dlogps[%s]"%rang)
+tbs=eval("tbs[%s]"%rangb)
+j=len(ts)
 
-axs[0].set_xticks(numpy.unique(tbs))
+# ############################################################
+# PLOTS
+# ############################################################
+ax.plot(ts,logps,'ko')
+ax.errorbar(ts,logps,yerr=dlogps,linestyle='none',color='k')
+
+scatter=0.1
+axs[0].plot(quakes[:,QJD]-times.min(),
+            quakes[:,ML]+scatter*(2*numpy.random.random(nquakes)-1),
+            'ko',markersize=1)
+
+# ############################################################
+# DECORATION 1
+# ############################################################
+ax.set_xticks(numpy.unique(tbs))
+axs[0].set_xticks(numpy.unique(tbs)-times.min())
+
 for i in xrange(j):
     if i>=0:
         sgn=+1
@@ -197,32 +223,40 @@ for i in xrange(j):
     if i==j-1:
         sgn=-1
         hal="right"
-    axs[0].text(ts[i]+sgn*deltat/100,logps[i],"%d,%d"%(i+1,nphases[i]),
+    ax.text(ts[i]+sgn*deltat/100,logps[i],"%d,%d"%(i+1,nphases[i]),
                 horizontalalignment=hal,
                 verticalalignment="center",
                 rotation=90,fontsize=8)
+    ax.text(ts[i],0,"%d"%(i+1),
+            horizontalalignment="center",
+            verticalalignment="bottom")
 
-xts=axs[0].get_xticks()
+xts=axs[1].get_xticks()
 xtl=[]
 for xt in xts:
     date=jd2gcal(xt,0)
     xtl+=["%d-%d-%d"%(date[0],date[1],date[2])]
 axs[0].set_xticklabels(xtl,rotation=35,
                        fontsize=10,horizontalalignment='right')
+axs[1].set_xticklabels([])
 
 # ############################################################
-# DECORATION
+# DECORATION 2
 # ############################################################
-ymin,ymax=axs[0].get_ylim()
+axs[0].set_xlim((min(tbs)-times.min(),max(tbs)-times.min()))
+axs[0].set_ylim((Mlmin-scatter,Mlmax+scatter))
+axs[0].set_ylabel("$M_l$",fontsize=16)
 
-axs[0].set_ylim((ymin,0.0))
-axs[0].set_xlim((min(tbs),max(tbs)))
-axs[0].axhspan(ymin,-3.0,color='green',alpha=0.2)
-axs[0].axhspan(-3.0,0.0,color='red',alpha=0.2)
-axs[0].set_ylabel(r'$\log(p)$',fontsize=16)
-axs[0].set_title("p-value time-windows",position=(0.5,1.02))
+ymin,ymax=ax.get_ylim()
+ax.set_ylim((ymin,0.0))
+ax.set_xlim((min(tbs),max(tbs)))
+ax.axhspan(ymin,-3.0,color='green',alpha=0.2)
+ax.axhspan(-3.0,0.0,color='red',alpha=0.2)
+ax.set_ylabel(r'$\log(p)$',fontsize=16)
+ax.set_title("p-value time-windows",position=(0.5,1.05))
 
-axs[0].grid()
+ax.grid()
+axs[0].grid(color='r',linestyle='-',zorder=10)
 
 # ############################################################
 # SAVING FIGURE
