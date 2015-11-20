@@ -24,15 +24,17 @@ fig,axs=subPlots(plt,[1],w=0.9)
 # ############################################################
 latb=center[0]-dlat/2;latu=center[0]+dlat/2
 lonl=center[1]-dlon/2;lonr=center[1]+dlon/2
+jd1=date2jd(datetime.datetime.strptime(dateini,"%Y-%m-%d %H:%M:%S"))
+jd2=date2jd(datetime.datetime.strptime(dateend,"%Y-%m-%d %H:%M:%S"))
 
 search=search+"""and
 (cluster1='0' or cluster1 like '-%%') and 
 qlat+0>=%.2f and qlat+0<%.2f and 
-qlon+0>=%.2f and qlon+0<%.2f 
-limit %d"""%(latb,
-             latu,
-             lonl,
-             lonr,
+qlon+0>=%.2f and qlon+0<%.2f and 
+qjd+0>=%.5f and qjd+0<=%.5f
+limit %d"""%(latb,latu,
+             lonl,lonr,
+             jd1,jd2,
              limit)
 
 qids,quakes=getPhases(search,component,db)
@@ -85,13 +87,15 @@ axs[0].set_title("$\log(p)$, %s, phase %s"%(COMPONENTS_DICT[component][1],PHASES
                  position=(0.5,1.02))
 
 axs[0].grid(zorder=10)
-axs[0].text(0.95,0.05,"N = %d\nlat,lon = %.2f, %.2f\n$\Delta$(lat,lon) = %.2f, %.2f"%\
+axs[0].text(0.05,0.95,"N = %d\nlat,lon = %.2f, %.2f\n$\Delta$(lat,lon) = %.2f, %.2f\nDate = (%s,%s)"%\
             (nquakes,
              center[0],
              center[1],
-             dlat,dlon),
-            horizontalalignment="right",
-            verticalalignment="bottom",
+             dlat,dlon,
+             dateini,dateend),
+            horizontalalignment="left",
+            verticalalignment="top",
+            fontsize=10,
             zorder=50,bbox=dict(fc='w',pad=20),
             transform=axs[0].transAxes)
 

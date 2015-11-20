@@ -666,7 +666,8 @@ def getPhases(search,component,db,vvv=True):
     return qids,table
 
 def schusterValue(phases,qbootstrap=False,
-                  facbootstrap=0.5,bootcycles=50):
+                  facbootstrap=0.5,bootcycles=50,
+                  qsteps=0):
     if len(phases)<int(1/facbootstrap):return 0,0
     if qbootstrap:
         nbootstrap=facbootstrap*len(phases)
@@ -687,6 +688,23 @@ def schusterValue(phases,qbootstrap=False,
         logp=-D2/N
         dlogp=1E-17
     return logp,dlogp
+
+def schusterSteps(phases,
+                  qbootstrap=0,
+                  facbootstrap=1):
+
+    if qbootstrap:
+        nbootstrap=facbootstrap*len(phases)
+        phases=numpy.random.choice(phases,nbootstrap)
+
+    xstep=[0.0];ystep=[0.0]
+    x=0;y=0
+    for phase in phases:
+        x=x+numpy.cos(phase)
+        y=y+numpy.sin(phase)
+        xstep+=[x]
+        ystep+=[y]
+    return xstep,ystep
 
 def tdWindow(M,fit="GK74"):
     """
@@ -817,9 +835,12 @@ def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None):
     # GET SIZE OF PANELS
     b=b/npanels
     if dh is None:dh=b/2
+    elif type(dh) is not list:dh=[dh]*npanels
+    else:
+        dh+=[0]
 
     # EFFECTIVE PLOTTING REGION
-    hall=(1-2*b-(npanels-1)*dh)
+    hall=(1-2*b-sum(dh))
     hs=(hall*numpy.array(panels))/spanels
     fach=(1.0*max(panels))/spanels
 
@@ -828,7 +849,7 @@ def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None):
     axs=[]
     for i in xrange(npanels):
         axs+=[fig.add_axes([l,b,w,hs[i]])]
-        b+=hs[i]+dh
+        b+=hs[i]+dh[i]
     return fig,axs
 
 def md5sumFile(myfile):

@@ -5,6 +5,8 @@ from tquakes import *
 from matplotlib import use
 use('Agg')
 import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap as map,shiftgrid
+import matplotlib.patches as patches
 from scipy.optimize import leastsq
 confile=prepareScript()
 conf=execfile(confile)
@@ -18,8 +20,8 @@ db=connection.cursor()
 # ############################################################
 # PREPARE PLOTTING REGION
 # ############################################################
-fig,axs=subPlots(plt,[1,1],l=0.12,dh=0.01)
-ax=axs[1]
+fig,axs=subPlots(plt,[1,1,1,1],l=0.12,dh=[0.02,0.02,0.005])
+ax=axs[-1]
 
 # ############################################################
 # COMPONENT AND PHASE INFORMATION
@@ -64,7 +66,11 @@ nquakes=phases.shape[0]
 print "Search:",search
 print "Number of quakes found: ",nquakes
 phs=phases[:,4+phasenum]
-if 'fourier' not in phase:phs*=360
+
+if random:
+    phs=360*numpy.random.random(nquakes)
+else:
+    if 'fourier' not in phase:phs*=360
 
 # ############################################################
 # HISTOGRAM
@@ -102,22 +108,72 @@ print "Schuster p-value: log(p) = %.2f +/- %.2f, p = %.2f%%"%(logp,dlogp,p*100)
 # PHASES SCATTER PLOT
 # ############################################################
 scatter=0.2
-axs[0].plot(phs,
+axs[-2].plot(phs,
             numpy.cos(phs*DEG)+scatter*(2*numpy.random.random(len(phs))-1),
             'ko',markersize=5,
             markeredgecolor='none',alpha=0.2)
 thetas=numpy.linspace(0.0,360.0,100)
-axs[0].plot(thetas,numpy.cos(thetas*DEG)+scatter,'k-')
-axs[0].plot(thetas,numpy.cos(thetas*DEG)-scatter,'k-')
+axs[-2].plot(thetas,numpy.cos(thetas*DEG)+scatter,'k-')
+axs[-2].plot(thetas,numpy.cos(thetas*DEG)-scatter,'k-')
+
+# ############################################################
+# MAP
+# ############################################################
+m=scatterMap(axs[-3],phases[:,QLAT],phases[:,QLON],
+             resolution='c',
+             merdict=dict(labels=[False,False,False,True]),
+             limits=[center[0],center[1],dlat,dlon],
+             color='k',marker='o',linestyle='none',
+             markeredgecolor='none',markersize=1,zorder=10)
+
+# ############################################################
+# SCHUSTER PLOT
+# ############################################################
+axs[-4].axis('off')
+
+xs,ys=schusterSteps(phs*DEG,
+                    qbootstrap=qbootstrap,
+                    facbootstrap=facbootstrap)
+ds=numpy.sqrt(xs[-1]**2+ys[-1]**2)
+phtrend=numpy.arctan2(ys[-1],xs[-1])*RAD
+
+axs[-4].plot(xs,ys,'k-')
+axs[-4].plot([xs[0],xs[-1]],[ys[0],ys[-1]],'b-')
+
+ngrid=5
+dd=int(ds/5)
+dini=dd
+dend=int(ds)
+dgrid=numpy.arange(dini,dend+dd,dd)
+for d in dgrid:
+    circle=patches.Circle((0,0),d,
+                          fc='none',ec='k')
+    axs[-4].add_patch(circle)
+
+for d in dgrid:
+    axs[-4].text(d,0.0,r"$%.2f$"%((1.0*d**2)/nquakes),
+                 bbox=dict(fc='w',ec='none'),fontsize=8,
+                 horizontalalignment='center')
+
+axs[-4].text(0.0,-ds/2,r"Trend phase = $%.1f^o$"%phtrend,
+             bbox=dict(fc='w',ec='none'),fontsize=10,
+             horizontalalignment='center')
+
+bbox=ax.get_window_extent()
+w,h=bbox.width,bbox.height
+fac=(1.0*w)/h
+axs[-4].set_xlim((-fac*ds,fac*ds))
+axs[-4].set_ylim((-ds,ds))
+axs[-4].set_title("Schuster Walk",position=(0.5,-0.08))
 
 # ############################################################
 # DECORATION
 # ############################################################
-axs[0].set_xlim((0.0,360.0))
-axs[0].set_ylim((-1.0-scatter,1.0+scatter))
+axs[-2].set_xlim((0.0,360.0))
+axs[-2].set_ylim((-1.0-scatter,1.0+scatter))
 
 hmean=1.0/360.0
-axs[0].set_xlabel("Phase (degrees)",fontsize=14)
+axs[-2].set_xlabel("Phase (degrees)",fontsize=14)
 ax.set_ylabel("Frequency",fontsize=14)
 ax.set_title("%s, %s"%(compname,phasename))
 if p<0.05:color="b"
@@ -129,7 +185,7 @@ Fit parameters: Amplitude/$h_{\rm mean}$ = %.3f, Phase = %.1f"""%\
         fontsize=14,color=color,
         transform=ax.transAxes)
 
-axs[0].text(0.5,0.95,"N = %d\nlat,lon = %.2f, %.2f\n$\Delta$(lat,lon) = %.2f, %.2f\n$M_l$$\in$ [%.2f,%.2f)\nDepth$\in$[%.2f,%.2f) km\nDate = (%s,%s)"%\
+axs[-2].text(0.5,0.95,"N = %d\nlat,lon = %.2f, %.2f\n$\Delta$(lat,lon) = %.2f, %.2f\n$M_l$$\in$ [%.2f,%.2f)\nDepth$\in$[%.2f,%.2f) km\nDate = (%s,%s)"%\
             (nquakes,
              center[0],center[1],
              dlat,dlon,
@@ -141,7 +197,7 @@ axs[0].text(0.5,0.95,"N = %d\nlat,lon = %.2f, %.2f\n$\Delta$(lat,lon) = %.2f, %.
             verticalalignment="top",
             zorder=50,bbox=dict(fc='w',pad=20),
             fontsize=10,
-            transform=axs[0].transAxes)
+            transform=axs[-2].transAxes)
 
 ax.set_xlim((0,360))
 ax.set_ylim((0.5*hmean,1.5*hmean))

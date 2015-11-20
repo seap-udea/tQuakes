@@ -23,22 +23,37 @@ db=connection.cursor()
 fig,axs=subPlots(plt,[1])
 
 # ############################################################
+# COMPONENT AND PHASE INFORMATION
+# ############################################################
+info=COMPONENTS_DICT[component]
+compnum=info[0]
+compname=info[1]
+
+info=PHASES_DICT[phase]
+phasenum=info[0]
+phasename=info[1]
+
+# ############################################################
 # GET QUAKES
 # ############################################################
 dl=dlat/10.0
 dt=dlon/10.0
 latb=center[0]-dlat/2;latu=center[0]+dlat/2
 lonl=center[1]-dlon/2;lonr=center[1]+dlon/2
+jd1=date2jd(datetime.datetime.strptime(dateini,"%Y-%m-%d %H:%M:%S"))
+jd2=date2jd(datetime.datetime.strptime(dateend,"%Y-%m-%d %H:%M:%S"))
 
 search=search+"""and
 Ml+0>=%.1f AND Ml+0<%.1f and 
 qdepth+0>=%.2f and qdepth+0<%.2f and 
 qlat+0>=%.2f and qlat+0<%.2f and 
-qlon+0>=%.2f and qlon+0<%.2f 
+qlon+0>=%.2f and qlon+0<%.2f and
+qjd+0>=%.5f and qjd+0<=%.5f
 limit %d"""%(Mlmin,Mlmax,
              depthmin,depthmax,
              latb,latu,
              lonl,lonr,
+             jd1,jd2,
              limit)
 qids,quakes=getPhases(search,component,db)
 nquakes=len(qids)
@@ -49,7 +64,7 @@ print "Number of quakes: ",nquakes
 # ############################################################
 # GLOBAL SCHUSTER P-VALUE
 # ############################################################
-phases=360*quakes[:,phase]
+phases=360*quakes[:,4+phasenum]
 logpt,dlogpt=schusterValue(phases*DEG,
                            qbootstrap=qbootstrap,
                            facbootstrap=0.8,
@@ -126,10 +141,10 @@ for i in xrange(ngrid):
 # ############################################################
 # DECORATION
 # ############################################################
-axs[0].set_title("Global $\log(p)$ = %.2f $\pm$ %.2f, %s, phase %s"%(logpt,dlogpt,COMPONENTS_DICT[component][1],PHASES[phase]),
+axs[0].set_title("Global $\log(p)$ = %.2f $\pm$ %.2f, %s, phase %s"%(logpt,dlogpt,COMPONENTS_DICT[component][1],phasename),
                  position=(0.5,1.02))
-axs[0].text(0.5,-0.08,r"$M_{l,max}=%.1f$, $d_{max}=%.1f$ km"%\
-            (Mlmax,depthmax),
+axs[0].text(0.5,-0.08,r"$M_{l,max}=%.1f$, $d_{max}=%.1f$ km, Date = (%s,%s)"%\
+            (Mlmax,depthmax,dateini,dateend),
             horizontalalignment='center',
             verticalalignment='center',
             transform=axs[0].transAxes)
