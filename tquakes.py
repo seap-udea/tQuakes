@@ -834,7 +834,7 @@ def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None):
 
     # GET SIZE OF PANELS
     b=b/npanels
-    if dh is None:dh=b/2
+    if dh is None:dh=[b/2]*npanels
     elif type(dh) is not list:dh=[dh]*npanels
     else:
         dh+=[0]
