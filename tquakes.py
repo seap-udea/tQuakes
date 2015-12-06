@@ -74,7 +74,7 @@ COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      areal=[6,"Areal strain","nstr"],
                      shear=[7,"Shear","nstr"],
                      volume=[8,"Volume strain","nstr"],
-                     ocean=[9,"Horizontal strain (Az = 90)","nstr"]
+                     hst=[9,"Horizontal strain (Az = 90)","nstr"]
                  )
 
 PHASES_DICT=dict(sd_fourier=[1,"Semidiurnal (Fourier)"],
@@ -82,8 +82,9 @@ PHASES_DICT=dict(sd_fourier=[1,"Semidiurnal (Fourier)"],
                  fn_fourier=[3,"Fornightly (Fourier)"],
                  mn_fourier=[4,"Monthly (Fourier)"],
                  sd=[5,"Semidiurnal"],
-                 fn=[6,"Fornightly"],
-                 mn=[7,"Monthly"])
+                 dn=[6,"Semidiurnal"],
+                 fn=[7,"Fornightly"],
+                 mn=[8,"Monthly"])
 
 # ######################################################################
 # CORE ROUTINES
