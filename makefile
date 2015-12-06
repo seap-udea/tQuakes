@@ -58,3 +58,20 @@ resetquakes:
 	@echo "Resetting all quakes to original state..."
 	@find data/quakes/??????? -type f -name ".[a-zA-Z]*" -exec rm {} \;
 	@find data/quakes -maxdepth 1 -type d -not -name TEMPLATE -not -name quakes -exec touch {}/.fetch \;
+
+fetch:
+	python tquakes-fetch.py
+
+prepare:
+	python tquakes-prepare.py
+
+eterna:
+	python tquakes-eterna.py
+
+analysis:
+	python tquakes-analysis.py
+
+submit:
+	python tquakes-submit.py
+
+pipeline:fetch prepare eterna analysis submit
