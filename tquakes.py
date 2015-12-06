@@ -10,6 +10,8 @@ system=os.system
 PI=numpy.pi
 sleep=timing.sleep
 timeit=timing.time
+DEG=PI/180
+RAD=180/PI
 
 # ######################################################################
 # GLOBAL
@@ -55,7 +57,7 @@ ETERNA COMPONENTS:
 6: for tidal areal  strain in 10**-9 = nstr.
 7: for tidal shear  strain in 10**-9 = nstr.
 8: for tidal volume strain in 10**-9 = nstr.
-9: for tidal horizontal displacement in mm at azimuth 90 deg.
+9: for tidal horizontal strain at azimuth 90 deg.
 """
 
 # NAME    :  g  tilt  vd vs hs0 hs90   areal shear volume
@@ -72,7 +74,7 @@ COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      areal=[6,"Areal strain","nstr"],
                      shear=[7,"Shear","nstr"],
                      volume=[8,"Volume strain","nstr"],
-                     ocean=[9,"Horizontal strain (Az = 90)","nstr"]
+                     hsn=[9,"Horizontal strain (Az = 90)","nstr"]
                  )
 
 # ######################################################################
@@ -453,13 +455,17 @@ def signalBoundary(t,s):
     
     tM=[];sM=[]
     tm=[];sm=[]
+    imax=100
     for i in xrange(1,n):
+        #if i<imax:print i,t[i],s[i],ds[i],ds[i-1]
         if ds[i]<ds[i-1]:
             tM+=[t[i]]
             sM+=[s[i]]
+            #if i<imax:print "Maximum:",t[i],s[i]
         if ds[i]>ds[i-1]:
             tm+=[t[i]]
             sm+=[s[i]]
+            #if i<imax:print "Minimum:",t[i],s[i]
 
     tM=numpy.array(tM);sM=numpy.array(sM)
     tm=numpy.array(tm);sm=numpy.array(sm)

@@ -125,7 +125,7 @@ for component in COMPONENTS:
     tmf,smf,tMf,sMf=signalBoundary(tms,sms)
 
     # ==============================
-    # SEMI-DIURNAL LEVEL
+    # SEMI-DIURNAL FREQUENCY
     # ==============================
     npeaks=len(tMb)
     ipeaks=numpy.arange(npeaks)
@@ -137,7 +137,27 @@ for component in COMPONENTS:
     print "\t\tSemidiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
 
     # ==============================
-    # FORTNIGHTLY LEVEL
+    # DIURNAL FREQUENCY
+    # ==============================
+    # CHECK WHICH PEAK IS LARGER
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tMb<0][-1]
+    dpeak1=sMb[ipeak]-smb[ipeak]
+    dpeak2=sMb[ipeak+1]-smb[ipeak+1]
+
+    if dpeak1>dpeak2:
+        dt=-tMb[ipeak]
+        dtmean=tMb[ipeak+2]-tMb[ipeak]
+    else:
+        dt=-tMb[ipeak-1]
+        dtmean=tMb[ipeak+1]-tMb[ipeak-1]
+    dtphase=dt/dtmean
+    qphases+="%.4f:%.4f;"%(dt,dtphase)
+
+    print "\t\tDiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+
+    # ==============================
+    # FORTNIGHTLY FREQUENCY
     # ==============================
     npeaks=len(tMF)
     ipeaks=numpy.arange(npeaks)
@@ -149,7 +169,7 @@ for component in COMPONENTS:
     print "\t\tFortnightly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
 
     # ==============================
-    # MONTHLY LEVEL
+    # MONTHLY FREQUENCY
     # ==============================
     # CHECK WHICH PEAK IS LARGER
     ipeaks=numpy.arange(npeaks)
@@ -169,8 +189,9 @@ for component in COMPONENTS:
 
     print "\t\tPhases based on boundaries: ",qphases
     quake.qphases+=qphases
-    
+    print
+
     ic+=1
 
-print "\tAll phases: ",quake.qphases
+print "\n\tAll phases: ",quake.qphases
 saveObject("quake.conf",quake)

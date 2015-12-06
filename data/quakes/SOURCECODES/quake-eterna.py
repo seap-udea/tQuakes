@@ -39,6 +39,14 @@ for component in COMPONENTS:
     else:data=datacomp[:,2]
     ic+=1
 
+# CREATE ADDITIONAL COLUMNS
+
+# MAGNITUDE OF THE HORIZONTAL STRAIN
+hsm=numpy.sqrt(data[:,4]**2+data[:,5]**2)
+# ANGLE OF THE HORIZONTAL STRAIN (0 IS EAST, 90 NORTH, 180 WEST)
+hst=numpy.arctan2(data[:,4],data[:,5])*RAD
+data=numpy.column_stack((data,hsm,hst))
+
 # CALCULATE DATE
 times=[]
 for i in xrange(len(datacomp[:,0])):
