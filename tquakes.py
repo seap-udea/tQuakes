@@ -85,6 +85,7 @@ PHASES_DICT=dict(sd_fourier=[1,"Semidiurnal (Fourier)"],
                  dn=[6,"Semidiurnal"],
                  fn=[7,"Fornightly"],
                  mn=[8,"Monthly"])
+NUM_PHASES=len(PHASES_DICT)
 
 # ######################################################################
 # CORE ROUTINES
@@ -513,7 +514,7 @@ def numComponent(namecomponent):
     numcol=COMPONENTS.index(component)+1
 
     # PHASES IN QPHASES
-    numphases=7*(numcol-1)
+    numphases=NUM_PHASES*(numcol-1)
     
     return numcol,numphases
 

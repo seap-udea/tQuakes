@@ -38,11 +38,14 @@ def plot(quakeid,component):
 
     # GET PHASES
     qphases=quake.qphases.split(";")
+
     phtime=qphases[np+3+1].split(":")
     phase_sd=float(phtime[1])
     phtime=qphases[np+3+2].split(":")
-    phase_fn=float(phtime[1])
+    phase_dn=float(phtime[1])
     phtime=qphases[np+3+3].split(":")
+    phase_fn=float(phtime[1])
+    phtime=qphases[np+3+4].split(":")
     phase_mn=float(phtime[1])
 
     # READ SIGNAL
@@ -76,6 +79,18 @@ def plot(quakeid,component):
     ipeak=ipeaks[tMb<0][-1]
     tminb=tMb[ipeak];tmaxb=tMb[ipeak+1]
 
+    # PEAKS DIURNAL
+    dpeak1=sMb[ipeak]-smb[ipeak]
+    dpeak2=sMb[ipeak+1]-smb[ipeak+1]
+    if dpeak1<dpeak2:ipeak=ipeak-1
+    tmind=tMb[ipeak];tmaxd=tMb[ipeak+2]
+
+    tMd=numpy.concatenate((tMb[ipeak::-2],tMb[ipeak::+2]))
+    sMd=numpy.concatenate((sMb[ipeak::-2],sMb[ipeak::+2]))
+
+    tmd=numpy.concatenate((tmb[ipeak::-2],tmb[ipeak::+2]))
+    smd=numpy.concatenate((smb[ipeak::-2],smb[ipeak::+2]))
+
     # PEAKS FORTNIGHTLY
     npeaks=len(tMF)
     ipeaks=numpy.arange(npeaks)
@@ -88,7 +103,7 @@ def plot(quakeid,component):
     ipeak=ipeaks[tMF<0][-1]
     dpeak1=sMF[ipeak]-smf[ipeak]
     dpeak2=sMF[ipeak+1]-smf[ipeak+1]
-    if dpeak1<dpeak2:ipeak=ipeak+1
+    if dpeak1<dpeak2:ipeak=ipeak-1
     tminm=tMF[ipeak];tmaxm=tMF[ipeak+2]
 
     # ############################################################
@@ -118,6 +133,11 @@ def plot(quakeid,component):
         # MAXIMA AND MINIMA
         axp.plot(tMb,sMb,'ro',markersize=3,markeredgecolor='none',label='Semidiurnal:%.4f'%float(phase_sd))
         axp.plot(tmb,smb,'ro',markersize=3,markeredgecolor='none')
+        
+        axp.plot(tMd,sMd,marker='s',markersize=5,markerfacecolor='none',markeredgecolor='b',linewidth=0,
+                 label='Diurnal:%.4f'%float(phase_dn))
+        axp.plot(tmd,smd,marker='s',markersize=5,markerfacecolor='none',markeredgecolor='b',linewidth=0)
+
         # SOFTED SIGNAL
         axp.plot(tMs,sMs,'b-',)
         axp.plot(tms,sms,'b-',)
@@ -132,6 +152,7 @@ def plot(quakeid,component):
 
 
     axi.axvspan(tminb,tmaxb,color='r',alpha=0.2)
+    axi.axvspan(tmind,tmaxd,color='k',alpha=0.2)
     ax.axvspan(tminf,tmaxf,color='g',alpha=0.2)
     ax.axvspan(tminm,tmaxm,color='c',fill=False,hatch="/")
 
