@@ -31,6 +31,9 @@ cleandata:
 	@touch data/quakes/ooooooo
 	@rm -r data/quakes/???????
 
+cleanall:clean cleandata
+	@rm log/*
+
 unlock:
 	@echo "Unlocking all quakes..."
 	@find data/quakes -name ".lock" -exec rm {} \;
