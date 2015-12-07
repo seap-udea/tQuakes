@@ -14,6 +14,10 @@ stop:
 	@skill -9 tquakesd
 	@touch stop
 
+status:
+	@echo "Checking status..."
+	@bash tquakes-status.sh
+
 install:
 	@echo "Installing tQuakes..."
 	@bash install.sh

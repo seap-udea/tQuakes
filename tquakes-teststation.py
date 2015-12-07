@@ -63,6 +63,7 @@ if not qfail:
         qrec=1
     else:
         print "\tServer is not receiving from this station.".upper()
+        qfail=1
         qrec=0
 
 # ##################################################
@@ -79,3 +80,5 @@ if not qfail and qrec:
 
 if not qfail:
     print "ALL TEST PASSED."
+
+exit(qfail)
