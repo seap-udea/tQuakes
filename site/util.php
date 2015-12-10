@@ -131,6 +131,6 @@ $SESSID=session_id();
 //DIRECTORIES
 ////////////////////////////////////////////////////////////////////////
 $SCRATCHDIR="scratch/$SESSID/";
-if(!is_dir($SCRATCHDIR)){shell_exec("mkdir -p $SCRATCHDIR");}
+if(!is_dir($SCRATCHDIR) and !isset($action)){shell_exec("mkdir -p $SCRATCHDIR");}
 $STATSDIR="plots/stats/";
 ?>
