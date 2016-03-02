@@ -334,6 +334,7 @@ $listplots=preg_split("/\n/",$output);
 $plotlist="<li><b>Plots:</b><br/><table border=0px><tr><td colspan=$numcols></td>";
 $i=0;
 $md5sums=array("foo");
+$plotscripts=array();
 foreach($listplots as $plot)
 {
   if(($i%$numcols)==0){$plotlist.="</tr><tr>";}
@@ -342,6 +343,15 @@ foreach($listplots as $plot)
   $plotbase=preg_split("/\./",$plotname)[0];
   $plotparts=preg_split("/__/",$plotbase);
   $plotroot=$plotparts[0];
+  //print_r($plotscripts);
+  //echo array_search($plotroot,$plotscript);
+  if(!isBlank(array_search($plotroot,$plotscripts))){
+    continue;
+  }else{
+    //echo "Metiendo $plotroot<br/>";
+    array_push($plotscripts,$plotroot);
+  }
+  //echo "$plotroot<br/>";
   $plotmd5=$plotparts[1];
   if(array_search($plotmd5,$md5sums)){continue;}
   else{array_push($md5sums,$plotmd5);}
@@ -392,10 +402,11 @@ else if($if=="stats"){
   $numanalysed=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0 and astatus+0<4;");
   $numsubmit=mysqlCmd("select count(quakeid) from Quakes where astatus+0=4;");
   $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,2);
-  $firstquake=mysqlCmd("select min(adatetime) from Quakes where adatetime<>'';");
+  $firstquake=mysqlCmd("select adatetime from Quakes limit 1;");
+  $tfirst=$firstquake[0];
   $lastquake=mysqlCmd("select max(adatetime) from Quakes where adatetime<>'';");
-  $elapsed=mysqlCmd("select TIMEDIFF(max(adatetime),min(adatetime)) from Quakes where adatetime<>'';");
-  $elapsedsecs=mysqlCmd("select TIME_TO_SEC(TIMEDIFF(max(adatetime),min(adatetime))) from Quakes where adatetime<>'';");
+  $elapsed=mysqlCmd("select TIMEDIFF(max(adatetime),'$tfirst') from Quakes where adatetime<>'';");
+  $elapsedsecs=mysqlCmd("select TIME_TO_SEC(TIMEDIFF(max(adatetime),'$tfirst')) from Quakes where adatetime<>'';");
   $perquake=round($elapsedsecs[0]/$numsubmit[0],2);
   $pending=round(($numquakes[0]-$numsubmit[0])*$perquake,0);
   $projectedend=mysqlCmd("select DATE_ADD(max(adatetime),INTERVAL $pending SECOND) from Quakes where adatetime<>''");

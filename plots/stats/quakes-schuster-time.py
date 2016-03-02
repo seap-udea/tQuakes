@@ -82,10 +82,10 @@ tend=times[itimes[-1]]
 deltat=tend-tini
 
 vvv=1
-ncut=2000
+#ncut=2000
 #qbootstrap=1
 #ftype="number"
-ftype="time"
+#ftype="time"
 
 if ftype=="time":
     # TIMES
@@ -190,8 +190,9 @@ elif ftype=="number":
 # ############################################################
 # SELECTION
 # ############################################################
-jini=20
-jend=20
+if jini<0:jini=1
+if jend<0:jend=len(ts)
+
 rang="%d:%d"%(jini-1,jend-1+1);rangb="%d:%d"%(2*(jini-1),2*(jend-1+1))
 ts=eval("ts[%s]"%rang)
 logps=eval("logps[%s]"%rang)
@@ -231,6 +232,7 @@ for i in xrange(j):
             horizontalalignment="center",
             verticalalignment="bottom")
 
+
 xts=axs[1].get_xticks()
 xtl=[]
 for xt in xts:
@@ -239,6 +241,7 @@ for xt in xts:
 axs[0].set_xticklabels(xtl,rotation=35,
                        fontsize=10,horizontalalignment='right')
 axs[1].set_xticklabels([])
+
 
 # ############################################################
 # DECORATION 2

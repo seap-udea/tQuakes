@@ -626,7 +626,7 @@ def getPhases(search,component,db,vvv=True):
     """
     0:qjd,1:qlat,2:qlon,3:qdepth,4:Mlq
     Fourier: 5:sd, 6:dn, 7:fn, 8:mn
-    Boundaries: 9:sd, 10:fn, 11:mn
+    Boundaries: 9:sd, 10:dn, 11:fn, 12:mn
     """
     # ############################################################
     # COMPONENT INFORMATION
@@ -651,7 +651,7 @@ def getPhases(search,component,db,vvv=True):
         for j in xrange(5):
             table[i,j]=float(results[i][j+1])
 
-    for ip in xrange(1,7+1):
+    for ip in xrange(1,NUM_PHASES+1):
         sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes %s"%(np+ip,search)
         results=mysqlArray(sql,db)
         phases=[]
