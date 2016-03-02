@@ -10,6 +10,8 @@ system=os.system
 PI=numpy.pi
 sleep=timing.sleep
 timeit=timing.time
+DEG=PI/180
+RAD=180/PI
 
 # ######################################################################
 # GLOBAL
@@ -49,18 +51,18 @@ ETERNA COMPONENTS:
 0: for tidal gravity in nm/s**2.
 1: for tidal tilt in mas, at azimuth STATAZIMUT.
 2: for tidal vertical displacement in mm.
-3: for tidal horizontal displacement in mm at azimuth STATAZIMUT.
+3: for tidal horizontal displacement in mm at azimuth 0 deg.
 4: for tidal vertical strain in 10**-9 = nstr.
-5: for tidal horizontal strain in 10**-9 = nstr, at azimuth STATAZIMUT.
+5: for tidal horizontal strain in 10**-9 = nstr, at azimuth 0 deg.
 6: for tidal areal  strain in 10**-9 = nstr.
 7: for tidal shear  strain in 10**-9 = nstr.
 8: for tidal volume strain in 10**-9 = nstr.
-9: for ocean tides in mm.
+9: for tidal horizontal strain at azimuth 90 deg.
 """
 
-# NAME    :  g  tilt  vd vs hs ocean  areal shear volume
-# IN FILE :  1  2     3  4  5  6      7     8     9
-COMPONENTS=[ 0, 1,    2, 4, 5, 9]#,     6,    7,    8]
+# NAME    :  g  tilt  vd vs hs0 hs90   areal shear volume
+# IN FILE :  1  2     3  4  5   6      7     8     9
+COMPONENTS=[ 0, 1,    2, 4, 5,  9]#,     6,    7,    8]
 COMPONENTS_LONGTERM=[0]
 COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      grav=[0,"Tidal gravity",r"nm/s$^2$"],
@@ -72,7 +74,7 @@ COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      areal=[6,"Areal strain","nstr"],
                      shear=[7,"Shear","nstr"],
                      volume=[8,"Volume strain","nstr"],
-                     ocean=[9,"Ocean tides","mm"]
+                     hsn=[9,"Horizontal strain (Az = 90)","nstr"]
                  )
 
 # ######################################################################
@@ -279,7 +281,7 @@ def genEternaIni(basename,
                  qlat,qlon,qdepth,
                  year,month,day,
                  timespan,samplerate,
-                 component):
+                 component,azimut):
     
     content="""# This file %s.INI status 2006.04.25 containing control parameters
 # for programs DETIDE 3.30 and PREGRED 3.30
@@ -311,7 +313,7 @@ STATLATITU=     %.3f    # stations latitude  in degree
 STATLONITU=     %.3f       # stations longitude in degree
 STATELEVAT=     %.3f       # stations elevation in meter
 STATGRAVIT=      0.        # stations gravity in m/s**2
-STATAZIMUT=      0.        # stations azimuth in degree from north
+STATAZIMUT=     %.3f       # stations azimuth in degree from north
 INITIALEPO= %d  %d   %d    # initial epoch in year,month,day
 PREDICSPAN=     %d         # prediction time span in hours for PREDICT
 TIDALCOMPO=     %d         # tidal component, see manual
@@ -382,7 +384,7 @@ TIDALPARAM=  3.381379  4.347615   1.16000    0.0000 M4     #tidal param.
                                     
 """%(basename,basename,basename,basename,
      samplerate,
-     qlat,qlon,qdepth,
+     qlat,qlon,qdepth,azimut,
      year,month,day,
      timespan,component,
      basename)
@@ -453,13 +455,17 @@ def signalBoundary(t,s):
     
     tM=[];sM=[]
     tm=[];sm=[]
+    imax=100
     for i in xrange(1,n):
+        #if i<imax:print i,t[i],s[i],ds[i],ds[i-1]
         if ds[i]<ds[i-1]:
             tM+=[t[i]]
             sM+=[s[i]]
+            #if i<imax:print "Maximum:",t[i],s[i]
         if ds[i]>ds[i-1]:
             tm+=[t[i]]
             sm+=[s[i]]
+            #if i<imax:print "Minimum:",t[i],s[i]
 
     tM=numpy.array(tM);sM=numpy.array(sM)
     tm=numpy.array(tm);sm=numpy.array(sm)

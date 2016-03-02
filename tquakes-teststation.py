@@ -63,6 +63,7 @@ if not qfail:
         qrec=1
     else:
         print "\tServer is not receiving from this station.".upper()
+        qfail=1
         qrec=0
 
 # ##################################################
@@ -70,7 +71,7 @@ if not qfail:
 # ##################################################
 if not qfail and qrec:
     print "Testing ssh connection..."
-    out=System("scp .stationrc %s@%s:."%(conf.TQUSER,conf.DATASERVER))
+    out=System("scp -o 'StrictHostKeyChecking no' .stationrc %s@%s:."%(conf.TQUSER,conf.DATASERVER))
     if "Could not" in out:
         print "\tConnection failed.".upper()
         qfail=1
@@ -79,3 +80,5 @@ if not qfail and qrec:
 
 if not qfail:
     print "ALL TEST PASSED."
+
+exit(qfail)
