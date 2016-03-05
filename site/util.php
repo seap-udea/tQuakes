@@ -171,5 +171,12 @@ $DATE=$result[0];
 ////////////////////////////////////////////////////////////////////////
 $SCRATCHDIR="scratch/$SESSID/";
 if(!is_dir($SCRATCHDIR) and !isset($action)){shell_exec("mkdir -p $SCRATCHDIR");}
+if(isset($_SESSION["email"])){
+  $email=$_SESSION["email"];
+  $USERDIR="users/'$email'";
+  if(!is_dir($USERDIR)){
+    shell_exec("mkdir -p $USERDIR");
+  }
+}
 $STATSDIR="plots/stats/";
 ?>
