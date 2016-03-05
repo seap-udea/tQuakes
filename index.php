@@ -554,17 +554,25 @@ TABLE;
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="search"){
 
+  ////////////////////////////////////////////////////////////////////////
+  //SEARCH DATABASE
+  ////////////////////////////////////////////////////////////////////////
+  $CONTENT.="<h2><a name='search'>Search database</a></h2>";
+  $SUBMENU.="<a href='#search'>Search</a> | ";
+
   // INPUT
   if(isBlank($offset)){$offset=0;}
-  if(isBlank($limit)){$limit=10;}
+  if(isBlank($limit)){$limit=50;}
   if(isBlank($search)){$searchdb="quakeid<>''";} 
   else{$searchdb="quakeid<>'' and $search";}
   $search_url=urlencode($search);
 
   // SAVE SEARCH HISTORY
-  $fl=fopen("log/history.log","a");
-  fwrite($fl,"$DATE;;$searchtxt;;$search\n");
-  fclose($fl);
+  if(!isBlank($search)){
+    $fl=fopen("$SCRATCHDIR/history.log","a");
+    fwrite($fl,"$DATE;;$searchtxt;;$search\n");
+    fclose($fl);
+  }
 
   // SEARCH
   $result=mysqlCmd("select count(quakeid) from Quakes where $searchdb;");
@@ -597,7 +605,7 @@ else if($if=="search"){
 CONTROL;
 
   //EXAMPLES
-  $examples_cont="<div id='examples' style='background:pink;padding:10px;display:none'>Examples:<ul>";
+  $examples_cont="<div id='examples' class='explanation'>Examples:<ul>";
   $examples_set=searchExamples();
   $i=$examples_set[0];
   $examples=$examples_set[1];
@@ -612,9 +620,23 @@ EXAMPLES;
   }
   $examples_cont.="</ul></div>";
 
+  //DATABASE FIELDS
+  $dbfields="<div id='dbfields' class='explanation'><b>Database fields</b>:<p>";
+  $results=mysqlCmd("describe Quakes",$out=1);
+  foreach($results as $field){
+    $dbfields.=$field["Field"].", ";
+  }
+  $dbfields.="</p></div>";
+
+  //HISTORY
+$history=<<<H
+<div id='history' class='explanation'>
+</div>
+H;
+
   // TABLE HEADER
 $CONTENT.=<<<TABLE
-<form action="index.php" method=get>
+$FORM
 <table>
   <tr>
     <td>Description of search:</td>
@@ -625,7 +647,12 @@ $CONTENT.=<<<TABLE
       <a style="font-size:10px" href="JavaScript:void(null)" onclick="$('#examples').toggle('fast',null)">
 	Examples
       </a>,
-      <a style="font-size:10px" href="update.php?history">History</a>
+      <a style="font-size:10px" href="JavaScript:void(null)" onclick="$('#dbfields').toggle('fast',null)">
+	Database
+      </a>,
+      <a style="font-size:10px" href="JavaScript:void(null)" onclick="updateHistory(this);$('#history').toggle('fast',null)">
+	History
+      </a>
     </td>
     <td><input type="text" name="search" size="100" value="$search"></td>
   </tr>
@@ -638,6 +665,8 @@ $CONTENT.=<<<TABLE
   </tr>
 </table>
 $examples_cont
+$dbfields
+$history
 </form>
 
 <center>
@@ -681,6 +710,13 @@ TABLE;
     $i++;
   }
   $CONTENT.="</table>$control</center>";
+
+  ////////////////////////////////////////////////////////////////////////
+  //UPLOAD EARTHQUAKES
+  ////////////////////////////////////////////////////////////////////////
+  $CONTENT.="<h2><a name='upload'>Upload earthquakes</a></h2>";
+  $SUBMENU.="<a href='#upload'>Upload</a> | ";
+
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -940,13 +976,50 @@ $CONTENT.=<<<C
     </li>
 
     <li>
-      <a href=?if=data>Access analytical products</a>. Database
+      <a href=?if=data>Access to analytical products</a>. Database
       administrators perform analysis on the database to study the
       statistical correlation between seismicity and tides.  Here you
       will find some analytical products for the database.
     </li>
 
+    <li>
+      <a href=?if=download>Download tQuakes</a>. $tQuakes is an open
+      source project.  You may download the full $tQuakes server,
+      including a previously feed database or the $tQuakes working
+      station if you want to provide computing time to the project.
+    </li>
+
+    <li>
+      <a href=?if=references>Get a complete list of references in the
+      field</a>. We provide here the most complete list of peer
+      reviewed papers, books, thesis and other documents related
+      directly or indirectly to the investigation on the possible
+      connection between tides and seismic activity.
+    </li>
   </ul>
+</p>
+
+<p>
+  When you intend to use the information and tools of $tQuakes for
+  research purposes please citate the following bibliography:
+
+  <ul>
+    
+    <li>
+      <b>[Moncayo et al., 2016]</b> Gloria A. Moncayo, Jorge
+      I. Zuluaga and Gaspar M. Monsalve.  <i>A search for a correlation
+      between tides and seismicity in the equatorial west coast of
+      South America</i>. In preparation (2016).
+    </li>
+
+    <li>
+      <b>[Zuluaga et al., 2016]</b> Jorge I. Zuluaga, Gloria
+      A. Moncayo and Gaspar M. Monsalve. <i>tQuakes: an information
+      system of eartquakes and lunisolar tides</i>.  In preparation
+      (2016).
+    </li>
+  </ul>
+    
 </p>
 C;
 }
@@ -999,6 +1072,7 @@ echo<<<CONTENT
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
     <script src="site/jquery.js"></script>
+    <script src="site/tquakes.js"></script>
     <link rel="stylesheet" type="text/css" href="site/tquakes.css"/>
     <style>
       $PERMCSS
@@ -1013,10 +1087,11 @@ echo<<<CONTENT
     </header>
     <section>
       <span class="level0"><p class="menuitem"><a href="?">Home</a><hr/></p></span>
-      <span class="level0"><p class="menuitem"><a href="?if=search">Earthquakes database</a><hr/></p></span>
-      <span class="level0"><p class="menuitem"><a href="?if=data">Analytical products</a><hr/></p></span>
+      <span class="level0"><p class="menuitem"><a href="?if=search">Earthquakes</a><hr/></p></span>
+      <span class="level0"><p class="menuitem"><a href="?if=tids">Tides</a><hr/></p></span>
+      <span class="level0"><p class="menuitem"><a href="?if=data">Data products</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=download">Download tQuakes</a><hr/></p></span>
-      <span class="level0"><p class="menuitem"><a href="?if=register">Register your station</a><hr/></p></span>
+      <span class="level0"><p class="menuitem"><a href="?if=register">Register station</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=references">References</a><hr/></p></span>
       $USER
       <hr/>

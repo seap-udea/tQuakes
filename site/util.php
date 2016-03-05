@@ -19,6 +19,7 @@ foreach(array_keys($conf) as $key){
 //VARIABLES
 ////////////////////////////////////////////////////////////////////////
 session_start();
+$SESSID=session_id();
 foreach(array_keys($_GET) as $field){$$field=$_GET[$field];}
 foreach(array_keys($_POST) as $field){$$field=$_POST[$field];}
 $tQuakes="<a href='http://github.com/seap-udea/tQuakes'>tQuakes</a>";
@@ -145,33 +146,25 @@ OUTPUT;
   return array($code,$stdout,$stderr,$outtxt);
 }
 
+function parseParams($params)
+{
+  $parameters=array();
+  $parts=preg_split("/;/",$params);
+  foreach($parts as $part){
+    $comps=preg_split("/:/",$part);
+    $param=$comps[0];
+    $value=$comps[1];
+    $parameters["$param"]=$value;
+  }
+  return $parameters;
+}
+
 ////////////////////////////////////////////////////////////////////////
 //DATABASE INITIALIZATION
 ////////////////////////////////////////////////////////////////////////
 $DB=mysqli_connect("localhost",$DBUSER,$DBPASSWORD,$DBNAME);
 $result=mysqlCmd("select now();",$qout=0,$qlog=0);
 $DATE=$result[0];
-
-////////////////////////////////////////////////////////////////////////
-//lOGIN
-////////////////////////////////////////////////////////////////////////
-if(isset($admin)){include("site/protect.php");}
-$QADMIN=0;
-if(isset($_COOKIE["verify"])){
-  require_once("site/configuration.php");
-  $VERIFY=$_COOKIE["verify"];
-  $QADMIN=1;
-  $WUSER=$PASS_INFORMATION["$VERIFY"];
-}
-if($QADMIN){
-  echo "<div style='width:100%;background:lightgray;text-align:center'>ADMIN</div>";
-}
-
-////////////////////////////////////////////////////////////////////////
-//SESSION
-////////////////////////////////////////////////////////////////////////
-session_start();
-$SESSID=session_id();
 
 ////////////////////////////////////////////////////////////////////////
 //DIRECTORIES

@@ -24,7 +24,6 @@ clean:
 	@find . -name "*~" -exec rm {} \;
 	@find . -name "*.pyc" -exec rm {} \;
 	@find . -name "#*#" -exec rm {} \;
-	@find . -name "*.png" -exec rm {} \;
 
 cleanscratch:
 	@touch scratch/remove
