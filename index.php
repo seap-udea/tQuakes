@@ -560,16 +560,34 @@ else if($if=="search"){
   $CONTENT.="<h2><a name='search'>Search database</a></h2>";
   $SUBMENU.="<a href='#search'>Search</a> | ";
 
+
+$CONTENT.=<<<C
+<p>
+  Use the following form to search on the earthquakes database.
+  Queries should be written using
+  the <a href="http://www.w3schools.com/sql/" target="_blank">SQL
+  syntax</a> as if they started with <i>"select * from
+  Quakes..."</i>. Avoid the use of <i>"limit"</i> since it is
+  incompatible with the internal command of the search engine.
+</p>
+<p>
+  Use the <b>Examples</b> link to see several examples of how to query
+  the database.  The <b>Database</b> link shows you the fields of the
+  Earthquakes database.
+</p>
+C;
+
   // INPUT
   if(isBlank($offset)){$offset=0;}
-  if(isBlank($limit)){$limit=50;}
+  if(isBlank($limit)){$limit=25;}
   if(isBlank($search)){$searchdb="quakeid<>''";} 
   else{$searchdb="quakeid<>'' and $search";}
   $search_url=urlencode($search);
 
   // SAVE SEARCH HISTORY
   if(!isBlank($search)){
-    $fl=fopen("$SCRATCHDIR/history.log","a");
+    echo "STORE: $STOREDIR<br/>";
+    $fl=fopen("$STOREDIR/history.log","a");
     fwrite($fl,"$DATE;;$searchtxt;;$search\n");
     fclose($fl);
   }
@@ -592,20 +610,20 @@ else if($if=="search"){
   else{$limit_next=$numquakes-$offset_next;}
   
   $end=$offset+$limit-1;
-  $offset_all=$numquakes-$limit;
+  $offset_all=$numquakes-$limit+1;
 
   // CONTROL BUTTONS
   $control=<<<CONTROL
 <div style="font-size:10px;padding:10px;">
-<a href="?if=search&search=$search_url&offset=1&limit=$limit"><<</a> 
-<a href="?if=search&search=$search_url&offset=$offset_prev&limit=$limit_prev">Prev</a> ...
-<a href="?if=search&search=$search_url&offset=$offset_next&limit=$limit_next">Next</a>
-<a href="?if=search&search=$search_url&offset=$offset_all&limit=$limit">>></a> 
+<a href="?if=search&search=$search_url&offset=0&limit=$limit#quakes"><<</a> 
+<a href="?if=search&search=$search_url&offset=$offset_prev&limit=$limit_prev#quakes">Prev</a> ...
+<a href="?if=search&search=$search_url&offset=$offset_next&limit=$limit_next#quakes">Next</a>
+<a href="?if=search&search=$search_url&offset=$offset_all&limit=$limit#quakes">>></a> 
 </div>
 CONTROL;
 
   //EXAMPLES
-  $examples_cont="<div id='examples' class='explanation'>Examples:<ul>";
+  $examples_cont="<div id='examples' class='explanation'><h2>Examples</h2><ul>";
   $examples_set=searchExamples();
   $i=$examples_set[0];
   $examples=$examples_set[1];
@@ -621,12 +639,12 @@ EXAMPLES;
   $examples_cont.="</ul></div>";
 
   //DATABASE FIELDS
-  $dbfields="<div id='dbfields' class='explanation'><b>Database fields</b>:<p>";
+  $dbfields="<div id='dbfields' class='explanation'><h2>Database fields</h2>";
   $results=mysqlCmd("describe Quakes",$out=1);
   foreach($results as $field){
     $dbfields.=$field["Field"].", ";
   }
-  $dbfields.="</p></div>";
+  $dbfields.="</div>";
 
   //HISTORY
 $history=<<<H
@@ -637,31 +655,34 @@ H;
   // TABLE HEADER
 $CONTENT.=<<<TABLE
 $FORM
-<table>
-  <tr>
-    <td>Description of search:</td>
-    <td><input type="text" name="searchtxt" size="50" value="$searchtxt"></td>
-  </tr>
-  <tr>
-    <td valign="top">Search:<br/>
-      <a style="font-size:10px" href="JavaScript:void(null)" onclick="$('#examples').toggle('fast',null)">
+<table border="0px" cellspacing="0" style="width:100%;margin-left:0px;border:solid black 1px;padding:5px">
+  <tr style="font-size:20px">
+    <td valign="top" width="20%">Search:<br/>
+      <a style="font-size:12px" href="JavaScript:void(null)" onclick="$('#examples').toggle('fast',null)">
 	Examples
       </a>,
-      <a style="font-size:10px" href="JavaScript:void(null)" onclick="$('#dbfields').toggle('fast',null)">
+      <a style="font-size:12px" href="JavaScript:void(null)" onclick="$('#dbfields').toggle('fast',null)">
 	Database
       </a>,
-      <a style="font-size:10px" href="JavaScript:void(null)" onclick="updateHistory(this);$('#history').toggle('fast',null)">
+      <a style="font-size:12px" href="JavaScript:void(null)" onclick="updateHistory(this);$('#history').toggle('fast',null)">
 	History
       </a>
     </td>
-    <td><input type="text" name="search" size="100" value="$search"></td>
+    <td valign="top"><input type="text" name="search" size="60" style="line-height:30px;font-size:20px" value="$search" placeholder="Your sql query"></td>
   </tr>
   <tr>
-    <td>Number of quakes:</td>
-    <td><input type="text" name="limit" value=$limit></td>
+    <td valign="top">Description of search:</td>
+    <td valign="top"><input type="text" name="searchtxt" size="80" value="$searchtxt" placeholder="Description of your query"></td>
   </tr>
   <tr>
-    <td colspan=2><input type="submit" name="if" value="search"></td>
+    <td valign="top">Earthquakes per page:</td>
+    <td valign="top"><input type="text" name="limit" size="5" value=$limit></td>
+  </tr>
+  <tr>
+    <td colspan=2>
+      <input type="submit" name="if" value="search">
+      <input type="reset" value="clear">
+    </td>
   </tr>
 </table>
 $examples_cont
@@ -670,18 +691,21 @@ $history
 </form>
 
 <center>
-  <h4>Quakes $offset-$end ($limit/$numquakes)</h4>
+  <h4><a name="quakes">Quakes $offset-$end ($limit/$numquakes)</a></h4>
 $control
-<table border=1px style="font-size:12px">
+<table border=1px style="font-size:12px" cellspacing="0px">
 <tr>
-  <td>Num.</td>
-  <td>Quake id.</td>
-  <td>Status</td>
-  <td>Lat.,Lon.</td>
-  <td>Depth</td>
-  <td>Date/Time</td>
-  <td>M<sub>l</sub></td>
-  <td>Location</td>
+  <td class="level0">Num.</td>
+  <td class="level0">Quake id.</td>
+  <td class="level0">Lat.,Lon.</td>
+  <td class="level0">Depth</td>
+  <td class="level0">Date/Time</td>
+  <td class="level0">M<sub>l</sub></td>
+  <td class="level0">Stations<sup>1</sup></td>
+  <td class="level0">Cluster 1<sup>2</sup></td>
+  <td class="level0">Location</td>
+  <td class="level2">Status</td>
+  <td class="level2">Date status</td>
 </tr>
 TABLE;
 
@@ -696,14 +720,17 @@ TABLE;
 
 $CONTENT.=<<<TABLE
   <tr>
-    <td>$i</td>
-    <td><a href="?if=quake&quakeid=$quakeid">$quakeid</a></td>
-    <td>$quake_status_txt</td>
-    <td>$qlat,$qlon</td>
-    <td>$qdepth</td>
-    <td>$qdatetime</td>
-    <td>$Ml</td>
-    <td>$municipio, $departamento</td>
+    <td class="level0 num">$i</td>
+    <td class="level0 txt"><a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a></td>
+    <td class="level0 num">$qlat, $qlon</td>
+    <td class="level0 txt">$qdepth&pm;$qdeptherr</td>
+    <td class="level0 num">$qdatetime</td>
+    <td class="level0 txt">$Ml</td>
+    <td class="level0 txt">$numstations</td>
+    <td class="level0 txt">$cluster1</td>
+    <td class="level0 txt">$municipio, $departamento, $country</td>
+    <td class="level2 txt">$quake_status_txt</td>
+    <td class="level2 txt">$adatetime</td>
   </tr>
 TABLE;
 
@@ -711,11 +738,30 @@ TABLE;
   }
   $CONTENT.="</table>$control</center>";
 
+$CONTENT.=<<<C
+<b>Notes:</b>
+<ol>
+  <li>
+    Number of stations that detected the earthquake.
+  </li>
+  <li>
+    Clusters are labeled in this way: 0 means that earthquake is not
+    classified in a cluster; [LABEL] is the cluster to which an
+    earthquake belong; [-LABEL] is the most intense earthquake in the
+    cluster.
+  </li>
+</ol>
+C;
+
   ////////////////////////////////////////////////////////////////////////
   //UPLOAD EARTHQUAKES
   ////////////////////////////////////////////////////////////////////////
   $CONTENT.="<h2><a name='upload'>Upload earthquakes</a></h2>";
   $SUBMENU.="<a href='#upload'>Upload</a> | ";
+
+$CONTENT.=<<<C
+<img src="img/menatwork.png" width="10%"/>
+C;
 
 }
 
@@ -735,6 +781,98 @@ else if($if=="station"){
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//QUAKE SIMPLE INFORMATION
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+else if($if=="quakesimple"){
+  
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  // RECOVER QUAKE INFO
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  $result=mysqlCmd("select * from Quakes where quakeid='$quakeid'",$qout=1);
+  $quake=$result[0];
+  
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  // FULL INFORMATION
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  $fullinfo="";
+  $basicinfo="";
+  $noinfo="<li><b>Missing information</b>:";
+  foreach(array_keys($quake) as $key){
+    if(preg_match("/^\d+$/",$key)){continue;}
+    $value=$$key=$quake["$key"];
+    if(!isBlank($value)){
+      $fullinfo.="<li><b>$key</b>: $value</li>";
+    }else{
+      $noinfo.="$key, ";
+    }
+  }
+  $noinfo=trim($noinfo,",");
+  $noinfo.="</li>";
+  
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  // BASIC INFO
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  $departamento=preg_replace("/_/"," ",$departamento);
+  $municipio=preg_replace("/_/"," ",$municipio);
+  $quake_status_txt=$QUAKE_STATUS[$astatus];
+$basicinfo.=<<<BASIC
+  <li><b>Date and time</b>: $qdatetime</li>
+    <li><b>Location</b>: $municipio ($departamento, $country)</li>
+  <li><b>Geographic position</b>: lat. $qlat deg., lon. $qlon deg.</li>
+  <li><b>Depth</b>: $qdepth km</li>
+  <li><b>Status</b>: $quake_status_txt.</li>
+  <li><b>Station</b>: $stationid.</li>
+BASIC;
+  
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  // GENERATE MAP
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  $quakedir="$SCRATCHDIR/$quakeid";
+  if(!is_dir("$quakedir")){shell_exec("mkdir -p $quakedir/");}
+  $img=shell_exec("ls $quakedir/*.png");
+  if(isBlank($img)){
+    shell_exec("cd $quakedir;rm -rf *.py *.conf");
+    shell_exec("cd $quakedir;ln -s ../../../plots/quakes/quake-map.py");
+    shell_exec("cd $quakedir;ln -s ../../../tquakes.py");
+    shell_exec("cd $quakedir;ln -s ../../../util");
+    shell_exec("cd $quakedir;ln -s ../../../configuration");
+    shell_exec("cd $quakedir;cp ../../../plots/quakes/quake-map.conf .");
+    shell_exec("cd $quakedir;PYTHONPATH=. MPLCONFIGDIR=/tmp python quake-map.py $qlon $qlat");
+  }
+  $img=shell_exec("ls $quakedir/*.png");
+
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  // RENDER
+  // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  $referer=$_SERVER["HTTP_REFERER"];
+$SUBMENU.=<<<QUAKE
+<a href="$referer">Back</a>
+QUAKE;
+
+$CONTENT.=<<<QUAKE
+<figure style="float:right;right:0px;width:60%;">	       
+  <a href="$img" target="_blank">
+    <img src="$img" width="100%">
+  </a>
+  <figcaption>Scatter plot of the earthquakes including $quakeid (white dot)</figcaption>
+</figure>
+
+<h3>Earthquake $quakeid</h3>
+
+<h4>Basic information</h4>
+<ul>
+  $basicinfo
+</ul>
+
+<h4>Full information</h4>
+<ul style="width:80%;word-wrap:break-word">
+  $fullinfo
+  $noinfo
+</ul>
+QUAKE;
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //QUAKE INFORMATION
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="quake"){
@@ -745,12 +883,12 @@ else if($if=="quake"){
   
   $fullinfo="";
   $basicinfo="";
+
   foreach(array_keys($quake) as $key){
     if(preg_match("/^\d+$/",$key)){continue;}
     $value=$$key=$quake["$key"];
     $fullinfo.="<li><b>$key</b>: $value</li>";
   }
-
   
   // BASIC INFO
   $departamento=preg_replace("/_/"," ",$departamento);
@@ -758,7 +896,7 @@ else if($if=="quake"){
   $quake_status_txt=$QUAKE_STATUS[$astatus];
 $basicinfo.=<<<BASIC
   <li><b>Date and time</b>: $qdatetime</li>
-  <li><b>Location</b>: $municipio ($departamento)</li>
+    <li><b>Location</b>: $municipio ($departamento, $country)</li>
   <li><b>Geographic position</b>: lat. $qlat deg., lon. $qlon deg.</li>
   <li><b>Depth</b>: $qdepth km</li>
   <li><b>Status</b>: $quake_status_txt.</li>
@@ -767,7 +905,8 @@ BASIC;
   
   // DOWNLOAD
   $dirquakes="$HOMEDIR/$TQUSER/tQuakes/";
-  if(file_exists($dirquakes."$quakeid-eterna.tar.7z")){
+  $filequake=$dirquakes."$quakeid-eterna.tar.7z";
+  if(file_exists($filequake)){
 
     //REMOVE PREVIOUS DOWNLOAD QUAKES
     //shell_exec("rm -r $SCRATCHDIR/*"); //ONLY IF YOU WANT TO PRESERVE
@@ -775,7 +914,7 @@ BASIC;
     //CREATE QUAKE ID
     $quakedir="$SCRATCHDIR/$quakeid";
     if(!is_dir("$quakedir") or isset($replotall) or 0){
-      echo "<i>Creating directory for $quakeid...</i><br/>";
+      $CONTENT.="<i>Creating directory for $quakeid...</i><br/>";
       shell_exec("mkdir -p $quakedir/");
       shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
       
@@ -829,9 +968,13 @@ DOWN;
 
   // DISPLAY INFO
   $referer=$_SERVER["HTTP_REFERER"];
-echo<<<QUAKE
+
+$SUBMENU.=<<<QUAKE
 <a href="$referer">Back</a> |
 <a href="index.php?if=quake&quakeid=$quakeid&replotall">Replot all</a>
+QUAKE;
+
+$CONTENT.=<<<QUAKE
 <h3>Earthquake $quakeid</h3>
 
 <h4>Basic information</h4>
@@ -850,7 +993,7 @@ echo<<<QUAKE
 </ul>
 
 <h4>Full information</h4>
-<ul>
+<ul style="width:80%;word-wrap:break-word">
   $fullinfo
 </ul>
 QUAKE;

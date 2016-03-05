@@ -18,7 +18,7 @@ if(0){}
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if($action=="updatehistory"){
   $ps=parseParams($params);
-  $histfile="$SCRATCHDIR/history.log";
+  $histfile="$STOREDIR/history.log";
   if(file_exists($histfile)){
     $lines=file($histfile);
     $html="<h2>Search History</h2><ul>";
@@ -32,7 +32,7 @@ else if($action=="updatehistory"){
       if(!isBlank($explanation)){
 	$html.="<li>$date<br/>$explanation<br/>";
       }else{$html.="<li>$date<br/>";}
-      $html.="<a href='$target_url&search=$query_url'>$query</a></li>";
+      $html.="<a href='?if=search&search=$query_url'>$query</a></li>";
     }
     $html.="</ul>";
   }else{

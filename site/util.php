@@ -173,10 +173,15 @@ $SCRATCHDIR="scratch/$SESSID/";
 if(!is_dir($SCRATCHDIR) and !isset($action)){shell_exec("mkdir -p $SCRATCHDIR");}
 if(isset($_SESSION["email"])){
   $email=$_SESSION["email"];
-  $USERDIR="users/'$email'";
+  $emailnoat=preg_replace("/@/","",$email);
+  $USERDIR="users/$emailnoat";
   if(!is_dir($USERDIR)){
     shell_exec("mkdir -p $USERDIR");
   }
+  $STOREDIR=$USERDIR;
+}else{
+  $STOREDIR=$SCRATCHDIR;
 }
+
 $STATSDIR="plots/stats/";
 ?>
