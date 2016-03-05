@@ -1,3 +1,6 @@
+<?php
+$REFERENCES=<<<REF
+
 <ul>
 
 <li>Servicio Geológico Colombiano - Red Sismológica Nacional. Base datos sismicidad desde 1993.</li>
@@ -30,3 +33,5 @@
 <li>Heaton, T. "Tidal Triggering of Earthquakes" Bulletin of the Seismological Society of America, Vol.72, No. 6, pp.2181-2200, 1982.</li>
 
 </ul>
+REF;
+?>

@@ -18,10 +18,45 @@ foreach(array_keys($conf) as $key){
 ////////////////////////////////////////////////////////////////////////
 //VARIABLES
 ////////////////////////////////////////////////////////////////////////
+session_start();
 foreach(array_keys($_GET) as $field){$$field=$_GET[$field];}
 foreach(array_keys($_POST) as $field){$$field=$_POST[$field];}
 $tQuakes="<a href='http://github.com/seap-udea/tQuakes'>tQuakes</a>";
 $GITREPO="http://github.com/seap-udea/tQuakes";
+$FORM="<form method='post' enctype='multipart/form-data' accept-charset='utf-8'>";
+$STATUS="";
+$ERRORS="";
+
+////////////////////////////////////////////////////////////////////////
+//VERIFY IDENTITY
+////////////////////////////////////////////////////////////////////////
+$QPERM=0;
+$NAME="Anynymous";
+if(isset($_SESSION["ulevel"])){
+  $QPERM=$_SESSION["ulevel"];
+  $NAME=$_SESSION["uname"];
+  $EMAIL=$_SESSION["email"];
+}
+$PERMCSS="";
+$type="inline";
+$perm="$type";
+$nperm="none";
+if($QPERM>0){
+  $perm="$type";
+  $nperm="none";
+}
+$PERMCSS.=".level0{display:$perm;}\n.nolevel0{display:$nperm;}\n";
+for($i=1;$i<=4;$i++){
+  $perm="none";
+  $nperm="$type";
+  if($i<=$QPERM){$perm="$type";$nperm="none";}
+  $PERMCSS.=".level$i{display:$perm;}\n.nolevel$i{display:$nperm;}\n";
+}
+$PERMCSS.=".level5{display:none;}\n.nolevel5{display:$type;}\n";
+$PERM=array("0"=>"Anónimo",
+	    "1"=>"User",
+	    "2"=>"Administrator",
+	    );
 
 ////////////////////////////////////////////////////////////////////////
 //ENUM
@@ -32,6 +67,17 @@ $QUAKE_STATUS=array("Waiting","Fetched","Calculated","Analysed","Submitted");
 ////////////////////////////////////////////////////////////////////////
 //ROUTINES
 ////////////////////////////////////////////////////////////////////////
+function errorMsg($msg)
+{
+  global $ERRORS;
+  $ERRORS.="<p>".$msg."</p>";
+}
+
+function statusMsg($msg)
+{
+  global $STATUS;
+  $STATUS.="".$msg."<br/>";
+}
 function sqlNoblank($out)
 {
   $res=mysqli_fetch_array($out);

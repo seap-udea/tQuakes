@@ -11,6 +11,7 @@ alter table Quakes
       add column extra4 varchar(255),
       add column extra5 varchar(255);
 */
+/*
 alter table Stations
       add column extra1 varchar(255),
       add column extra2 varchar(255),
@@ -20,25 +21,17 @@ alter table Stations
 
 create table Clusters
 (
-       /*BASIC IDENTIFICATION*/
+       //BASIC IDENTIFICATION
        clusterid varchar(7),
-       /*Types: R85, KG72, KG74, CORSSA, UHR86*/
+       //Types: R85, KG72, KG74, CORSSA, UHR86
        cluster_type varchar(20),
-       /*Parameters of cluster Method: separated by ;*/
        cluster_pars varchar(255),
-       /*Parameters of cluster Method: separated by ;*/
        cluster_results varchar(1500),
 
-       /*CHARACTERISTIC QUAKES*/
-       /*First quake*/
        firstquakeid varchar(7),
-       /*Quake of maximum magnitude*/
        maxquakeid varchar(7),
-       /*NUmber of quakes*/
        numquakes varchar(10),
 
-       /*LOCATION AND TIME OF CLUSTER*/
-       /*Equivalent properties*/
        qlatequiv varchar(15),
        qlonequiv varchar(15),
        qdepequiv varchar(15),
@@ -46,13 +39,31 @@ create table Clusters
        qjdmean varchar(50),
        qduration varchar(50),
 
-       /*EXTRA*/
        extra1 varchar(255),       
        extra2 varchar(255),       
        extra3 varchar(255),       
        extra4 varchar(255),       
        extra5 varchar(255),       
 
-       /*PRIMARY KEY*/       
        primary key (clusterid)
 )
+*/
+/*
+create table Users (
+       -- Basic
+       email varchar(100),
+       uname varchar(100),
+       password varchar(255),
+
+       -- e.g. Nivel de permisos 1, Basic ; 2, Admin.
+       ulevel varchar(2),
+
+       -- Extras
+       extra1 varchar(255),
+       extra2 varchar(255),
+       extra3 varchar(255),
+       primary key (email)       
+);
+*/
+/*insert ignore into Users (email,uname,password,ulevel) values ('seapudea@gmail.com','SEAP-UdeA',MD5('123'),'2');*/
+alter table Users add column activate varchar(1);
