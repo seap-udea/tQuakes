@@ -120,6 +120,119 @@ if(!isBlank($action)){
     }
   }
   ////////////////////////////////////////////////////////////////////////
+  //LOGIN
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="calculate"){
+    //========================================
+    //CHECK QUAKEID
+    //========================================
+    if(!isBlank($quakeid)){
+      $qdone=1;
+    }else{
+      $qdone=0;
+      do{
+	$quakeid=generateRandomString(7);
+      }while(mysqlCmd("select quakeid from Quakes where quakeid='$quakeid';"));
+      echo "Quakeid: $quakeid";
+      return 0;
+    }
+    //========================================
+    //CREATE DIRECTORY OF QUAKE
+    //========================================
+    $quakedir="$SCRATCHDIR/$quakeid";
+    if(!is_dir("$quakedir")){
+      shell_exec("mkdir -p $quakedir/");
+    }
+
+    //========================================
+    //QUAKE ALREADY CALCULATED
+    //========================================
+    if($qdone){
+      //echo "Quake already labeled...<br/>";
+      //++++++++++++++++++++++++++++++++++++++++
+      // RECOVER QUAKE INFO
+      //++++++++++++++++++++++++++++++++++++++++
+      if($result=mysqlCmd("select * from Quakes where quakeid='$quakeid' and astatus+0=4",$qout=1)){
+	
+	//echo "Quake submitted...<br/>";
+	$quake=$result[0];
+
+	//++++++++++++++++++++++++++++++++++++++++
+	// GET PRECALCULATED VALUES
+	//++++++++++++++++++++++++++++++++++++++++
+	$dirquakes="$HOMEDIR/$TQUSER/tQuakes/";
+	$filequake=$dirquakes."$quakeid-eterna.tar.7z";
+
+	//CHECK IF PRECALCULATED FILES ALREADY EXISTS
+	if(file_exists($filequake)){
+
+	  //echo "Precalculated file found...<br/>";
+	  //CHECK IF THEY HAVE BEEN UNZIPED
+	  if(!file_exists("$quakedir/$quakeid-eterna.tar")){
+	    //echo "Tarfile does not exist...<br/>";
+	    shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
+	    shell_exec("cd $quakedir;p7zip -d $quakeid-eterna.tar.7z");
+	    shell_exec("cd $quakedir;p7zip -d $quakeid-analysis.tar.7z");
+	    shell_exec("cd scratch/$SESSID;tar cf $quakeid.tar $quakeid/$quakeid-*");
+
+	    //UNTAR ALL FILES
+	    //echo "Untaring results...<br/>";
+	    shell_exec("cd $quakedir;tar xf $quakeid-eterna.tar");
+	    shell_exec("cd $quakedir;tar xf $quakeid-analysis.tar");
+	    
+	    //COPY PLOTTING SCRIPTS
+	    shell_exec("cd $quakedir;rm -rf *.py");
+	    shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.py;do ln -s \$plot;done");
+	   
+	    //echo "Creating plots...<br/>";
+	    //PLOT
+	    shell_exec("for plot in $quakedir/*.py;do PYTHONPATH=. MPLCONFIGDIR=/tmp python \$plot;done");
+	  }else{
+	    //echo "Plots already created...<br/>";
+	  }
+	  goto endcalculate;
+	}else{
+	  //echo "File has not been calculated yet...";
+	}
+      }
+    }
+
+    //========================================
+    //CALCULATE
+    //========================================
+
+  endcalculate:
+    //========================================
+    //COMMON CODE
+    //========================================
+    $tideresults="<h2>Results</h2>";
+    $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);
+    $size_analysis=round(filesize("$quakedir/$quakeid-analysis.tar")/1024.0,0);
+    $size_full=round(filesize("$SCRATCHDIR/$quakeid.tar")/1024.0,0);
+    
+    //SHOW PLOTS
+    $plots="";
+    $output=shell_exec("ls -m $quakedir/*.png");
+    $listplots=preg_split("/\s*,\s*/",$output);
+    foreach($listplots as $plot){
+      $plotname=rtrim(shell_exec("basename $plot"));
+      $plotbase=preg_split("/\./",$plotname)[0];
+$plots.=<<<PLOT
+<li><b>Plot</b>:
+  <ul>
+    <li><a name="$plotbase">File</a>: <a href="$plot">$plotname</a></li>
+    <li>Preview:<br/>
+      <a href="$plot" target="_blank">
+	<img src="$plot" width="400px">
+      </a>
+    </li>
+    <li><a href="update.php?replot&plot=$plot">Replot</a></li>
+  </ul>
+PLOT;
+    }
+    $tideresults.=$plots;
+  }
+  ////////////////////////////////////////////////////////////////////////
   //REGISTER STATION
   ////////////////////////////////////////////////////////////////////////
   else {
@@ -694,10 +807,11 @@ $history
   <h4><a name="quakes">Quakes $offset-$end ($limit/$numquakes)</a></h4>
 $control
 <table border=1px style="font-size:12px" cellspacing="0px">
-<tr>
+<tr class="header">
   <td class="level0">Num.</td>
   <td class="level0">Quake id.</td>
   <td class="level0">Lat.,Lon.</td>
+  <td class="level0">Pos. error</td>
   <td class="level0">Depth</td>
   <td class="level0">Date/Time</td>
   <td class="level0">M<sub>l</sub></td>
@@ -707,13 +821,43 @@ $control
   <td class="level2">Status</td>
   <td class="level2">Date status</td>
 </tr>
+<tr class="header">
+  <td class="level0 txt">--</td>
+  <td class="level0 txt">--</td>
+  <td class="level0 txt">deg.,deg.</td>
+  <td class="level0 txt">km, km</td>
+  <td class="level0 txt">km&pm;km</td>
+  <td class="level0 txt">D/M/YYYY,H:M:S</td>
+  <td class="level0 txt">--</td>
+  <td class="level0 txt">--</td>
+  <td class="level0 txt">--</td>
+  <td class="level0 txt">City,Province,Country</td>
+  <td class="level2 txt">--</td>
+  <td class="level2 txt">--</td>
+</tr>
 TABLE;
 
+  $fl=fopen("$SCRATCHDIR/subset.csv","w");
+  $qh=1;
   $i=$offset;
   foreach($quakes as $quake){
+    $fields="";
+    $values="";
     foreach(array_keys($quake) as $key){
+      if(preg_match("/^\d+$/",$key)){continue;}
+      if($qh){
+	$fields.="'$key', ";
+      }
       $$key=$quake["$key"];
+      $values.="'".$$key."', ";
     }
+    $fields.="\n";
+    $values.="\n";
+    if($qh){
+      $qh=0;
+      fwrite($fl,$fields);
+    }
+    fwrite($fl,$values);
     $quake_status_txt=$QUAKE_STATUS[$astatus];
     $departamento=preg_replace("/_/"," ",$departamento);
     $municipio=preg_replace("/_/"," ",$municipio);
@@ -721,8 +865,12 @@ TABLE;
 $CONTENT.=<<<TABLE
   <tr>
     <td class="level0 num">$i</td>
-    <td class="level0 txt"><a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a></td>
+    <td class="level0 txt">
+      <a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a><br/>
+      <a href="?if=quaketide&quakeid=$quakeid">tides</a>
+    </td>
     <td class="level0 num">$qlat, $qlon</td>
+    <td class="level0 num">&pm;$qlaterr,&pm;$qlonerr</td>
     <td class="level0 txt">$qdepth&pm;$qdeptherr</td>
     <td class="level0 num">$qdatetime</td>
     <td class="level0 txt">$Ml</td>
@@ -737,10 +885,17 @@ TABLE;
     $i++;
   }
   $CONTENT.="</table>$control</center>";
+  fclose($fl);
 
 $CONTENT.=<<<C
-<b>Notes:</b>
+<p><b>Download</b>:<a href=$SCRATCHDIR/subset.csv>subset.csv</a></p>
+<p><b>Notes:</b></p>
 <ol>
+  <li>
+    The present dataset comes from the database compiled by the
+    <a href=http://seisan.sgc.gov.co/RSNC target=_blank>Red
+    Sismológica Nacional de Colombia</a>.
+  </li>
   <li>
     Number of stations that detected the earthquake.
   </li>
@@ -818,8 +973,9 @@ else if($if=="quakesimple"){
 $basicinfo.=<<<BASIC
   <li><b>Date and time</b>: $qdatetime</li>
     <li><b>Location</b>: $municipio ($departamento, $country)</li>
-  <li><b>Geographic position</b>: lat. $qlat deg., lon. $qlon deg.</li>
-  <li><b>Depth</b>: $qdepth km</li>
+  <li><b>Geographic position</b>: lat. $qlat deg.(&pm;$qlaterr km),
+  lon. $qlon deg. (&pm;$qlonerr km)</li>
+  <li><b>Depth</b>: $qdepth&pm;$qdeptherr km</li>
   <li><b>Status</b>: $quake_status_txt.</li>
   <li><b>Station</b>: $stationid.</li>
 BASIC;
@@ -869,6 +1025,115 @@ $CONTENT.=<<<QUAKE
   $fullinfo
   $noinfo
 </ul>
+
+<h4>Notes:</h4>
+<ul>
+  <li>
+    <b>qsignal</b> value of the signal for each component.  Values are
+    sorted in this way: gravitational acceleration (symbol gt,
+    comp. num. 0, nm/s<sup>2</sup>), tidal tilt (t, 1, mas), vertical
+    displacement (vd, 2, mm), vertical strain (vs, 3, corresponding to
+    esp_zz, nstr), horizontal strain at azimuth 0 (hs0, 4, eps_qq,
+    nstr), horizontal strain at azimuth 90 degrees (hsn, 5, esp_ll,
+    nstr).
+  </li>
+  <li>
+    <b>qphases</b> contain all the phases for every single component
+    in the format: [fourier_phase1_sd]; [fourier_phase1_d];
+    [fourier_phase1_fn]; [fourier_phase1_mn]; [time1_sd]:[phase1_sd];
+    [time1_sd]:[phase1_sd]; [time1_d]:[phase1_d];
+    [time1_fn]:[phase1_fn]; [time1_mn]:[phase1_mn]; where "sd" is
+    semidiurnal, "d" is diurnal, "fn" is fornightly (~15 days) and
+    "mn" is monthly.  For each component there is a set of fourier and
+    time phases in the format above.
+  </li>
+</ul>
+QUAKE;
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//QUAKE TIDES
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+else if($if=="quaketide"){
+  
+  // RECOVER QUAKE INFO
+  if(isset($quakeid)){
+    $result=mysqlCmd("select * from Quakes where quakeid='$quakeid'",$qout=1);
+    $quake=$result[0];
+    
+    foreach(array_keys($quake) as $key){
+      if(preg_match("/^\d+$/",$key)){continue;}
+      $value=$$key=$quake["$key"];
+    }
+    $departamento=preg_replace("/_/"," ",$departamento);
+    $municipio=preg_replace("/_/"," ",$municipio);
+  }
+
+  // SUBMENU
+  if(!isset($referer)){
+    $referer=$_SERVER["HTTP_REFERER"];
+  }
+$SUBMENU.=<<<QUAKE
+<a href="$referer">Back</a> |
+QUAKE;
+
+$CONTENT.=<<<QUAKE
+<h2>Earthquake Tides</h2>
+
+<h3>Form</h3>
+$FORM
+<table border=0px>
+<tr>
+  <td>Quake id.:</td>
+  <td>
+    <input id="quakeid" type="text" name="quakeid" value="$quakeid" readonly>
+  </td>
+</tr>
+<tr>
+  <td>Latitude:</td>
+  <td>
+    <input type="text" name="qlat" value="$qlat">
+  </td>
+</tr>
+<tr>
+  <td>Longitude:</td>
+  <td>
+    <input type="text" name="qlon" value="$qlon">
+  </td>
+</tr>
+<tr>
+  <td>Depth (km):</td>
+  <td>
+    <input type="text" name="qdepth" value="$qdepth">
+  </td>
+</tr>
+<tr>
+  <td valign="top">
+    Date and time:<br/>
+    <i style="font-size:10px">D/M/YYYY H:M:S</i>
+  </td>
+  <td valign="top">
+    <input type="text" name="qdatetime" value="$qdatetime">
+  </td>
+</tr>
+<tr>
+  <td valign="top">
+    Julian Day:
+  </td>
+  <td valign="top">
+    <span id="qjd">$qjd</span>
+  </td>
+</tr>
+<tr>
+<td colspan=2>
+<input type="submit" name="action" value="calculate">
+<input type="reset" value="reset">
+</td>
+</tr>
+</table>
+<input type="hidden" name="referer" value="$referer">
+</form>
+$tideresults
 QUAKE;
 }
 
@@ -1231,7 +1496,7 @@ echo<<<CONTENT
     <section>
       <span class="level0"><p class="menuitem"><a href="?">Home</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=search">Earthquakes</a><hr/></p></span>
-      <span class="level0"><p class="menuitem"><a href="?if=tids">Tides</a><hr/></p></span>
+      <span class="level0"><p class="menuitem"><a href="?if=quaketide">Calculate tides</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=data">Data products</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=download">Download tQuakes</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=register">Register station</a><hr/></p></span>

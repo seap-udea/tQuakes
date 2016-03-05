@@ -40,6 +40,7 @@ def plot(quakeid,component):
     qphases=quake.qphases.split(";")
 
     phtime=qphases[np+3+1].split(":")
+    
     phase_sd=float(phtime[1])
     phtime=qphases[np+3+2].split(":")
     phase_dn=float(phtime[1])
