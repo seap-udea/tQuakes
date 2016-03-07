@@ -1,0 +1,25 @@
+#!/bin/bash
+. configuration
+. common
+
+j=0
+while [ 1 ]
+do
+    sleep 2
+
+    # CHECK IF STOP SIGNAL HAVE BEEN SENT
+    if [ -e stop ];then 
+	echo "Stopping."
+	exit 0
+    fi
+
+    # RUN PROCESS PER EACH PROCESSOR
+    python tquakes-pipeline.py
+    
+    # WAIT UNTIL PROCESSES END
+    wait
+    ((j++))
+
+    # BREAK AFTER 
+    if [ $j -gt $DAEMON_LIMIT ];then exit 0;fi
+done

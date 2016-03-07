@@ -1,0 +1,121 @@
+body{
+    font-family:Arial;
+}
+a{
+    text-decoration:none;
+}
+a:hover{
+    font-size:1.1em;
+}
+a:visited{
+    color:blue;
+}
+div.container{
+    background:yellow;
+    height:100%;
+}
+header,section,aside{
+    padding:5px;
+    border:solid black 0px;
+    margin:1px;
+}
+header{
+    font-size:4em;
+    background-image:url("../img/earthquake.png");
+    background-size:100% 100%;
+    border-bottom:solid black 1px;
+    height:15%;
+}
+section{
+    float:left;
+    width:14%;
+    height:78%;
+    background:lightgray;
+    overflow:scroll;
+}
+aside{
+    float:right;
+    width:82%;
+    height:78%;
+    overflow:scroll;
+}
+nav{
+    background:lightgray;
+    padding:5px;
+    margin-bottom:10px;
+}
+footer{
+    float:left;
+    bottom:0px;
+    width:98%;
+    font-size:12px;
+    border-top:solid black 1px;
+    padding:5px;
+}
+p.menuitem{
+    border-bottom:groove lightgray 0px;
+    margin:0px;
+    padding:5px;
+}
+div.status{
+    position:absolute;
+    width:20%;
+    top:0px;
+    left:40%;
+    height:5%;
+    background:lightgray;
+    padding:5px;
+    text-align:center;
+    font-style:italic;
+    overflow:auto;
+    z-index:10000;
+    text-align:center;
+}
+div.errors{
+    position:absolute;
+    top:0px;
+    width:20%;
+    left:40%;
+    height:5%;
+    background:pink;
+    padding:5px;
+    font-style:italic;
+    overflow:auto;
+    z-index:10000;
+    text-align:center;
+}
+img.tquakes{
+    float:left;
+    top:0px;
+    height:100%;
+}
+img.seap{
+    float:right;
+    top:0px;
+    height:100%;
+    left:100px
+}
+figcaption{
+    font-style:italic;
+    font-size:12px;
+    text-align:center;
+}
+li{
+    margin-bottom:8px;
+}
+div.explanation{
+    background:lightgray;
+    padding:10px;
+    font-size:12px;
+    display:none;
+}
+td.num{
+    text-align:right;
+}
+td.txt{
+    text-align:center;
+}
+tr.header{
+    background:lightgray;
+    font-style:italic;
+}
