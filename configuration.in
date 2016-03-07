@@ -1,5 +1,5 @@
-PACKAGES_FULL="mysql-server python-numpy python-mysqldb python-setuptools gnuplot-x11 apache2 php5 php5-mysql wget links p7zip python-mpltoolkits.basemap gfortran";
-PACKAGES_STATION="gnuplot-x11 dosemu links p7zip python-numpy python-mysqldb";
+PACKAGES_FULL="mysql-server python-mysqldb python-setuptools gnuplot-x11 apache2 php5 php5-mysqldb wget links p7zip python-mpltoolkits.basemap";
+PACKAGES_STATION="gnuplot-x11 dosemu links p7zip python-mysqldb python-numpy python-mpltoolkits.basemap";
 HOMEDIR="/home";
 TQUSER="tquakes";
 DBUSER="tquakes";
@@ -13,3 +13,4 @@ NUMQUAKES=3;
 SAMPLERATE=3600;
 TIMEWIDTH=90.0;
 
+DAEMON_LIMIT=1000000;

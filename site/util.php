@@ -159,7 +159,7 @@ function parseParams($params)
   $parameters=array();
   $parts=preg_split("/;/",$params);
   foreach($parts as $part){
-    $comps=preg_split("/:/",$part);
+    $comps=preg_split("/=/",$part);
     $param=$comps[0];
     $value=$comps[1];
     $parameters["$param"]=$value;
@@ -173,6 +173,21 @@ function parseParams($params)
 $DB=mysqli_connect("localhost",$DBUSER,$DBPASSWORD,$DBNAME);
 $result=mysqlCmd("select now();",$qout=0,$qlog=0);
 $DATE=$result[0];
+
+//COMPONENTS
+$COMPONENTS=array( 0, 1,    2, 4, 5,  9);
+$COMPONENTS_DICT=array(array("pot",-1,"Tidal potential","m<sup>2</sup>/s<sup>2</sup>"),
+		       array("grav",0,"Tidal gravity","nm/s<sup>2</sup>"),
+		       array("tilt",1,"Tidal tilt","mas"),
+		       array("vd",2,"Vertical displacement","mm"),
+		       array("hd",3,"Horizontal displacement","mm"),
+		       array("vs",4,"Vertical strain","nstr"),
+		       array("hs",5,"Horizontal strain","nstr"),
+		       array("areal",6,"Areal strain","nstr"),
+		       array("shear",7,"Shear","nstr"),
+		       array("volume",8,"Volume strain","nstr"),
+		       array("hst",9,"Horizontal strain (Az = 90)","nstr")
+		       );
 
 ////////////////////////////////////////////////////////////////////////
 //DIRECTORIES

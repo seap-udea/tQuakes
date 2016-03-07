@@ -11,23 +11,17 @@ print "\tRunning ETERNA for quake '%s'..."%quakeid
 conf=loadConf("configuration")
 
 # ##################################################
-# LOAD STATION INFORMATION
-# ##################################################
-station=loadConf(".stationrc")
-
-# ##################################################
 # RUN ETERNA
 # ##################################################
 # GENERATE ETERNA.INI FILES PER COMPONENT
-
 lquakeid=quakeid.lower()
 for component in COMPONENTS:
     print "\t\tRunning component %d..."%component
     System("cp project%d project"%(component))
-    System("dosemu -t -quiet PREDICT.EXE &> %s%d.log"%(quakeid,component))
+    System("/usr/bin/dosemu -t -quiet PREDICT.EXE &> %s%d.log"%(quakeid,component))
     system("bash prd2plain.sh %s%d.prd > %s%d.plain"%(lquakeid,component,
                                                       lquakeid,component))
-
+    
 # GENERATE DATAFILES
 print "\tGenerating plain data file..."
 ic=0

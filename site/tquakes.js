@@ -94,3 +94,14 @@ function updateHistory(element)
 {
     ajaxDo('updatehistory','',onUpdateHistory);
 }
+
+function onUpdateJD(juliandate)
+{
+    var $qjd=$('#qjd');
+    $qjd.html(juliandate);
+}
+
+function updateJD(element)
+{
+    ajaxDo('updatejd','date='+element.value,onUpdateJD);
+}

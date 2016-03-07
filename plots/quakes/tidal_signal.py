@@ -14,13 +14,14 @@ def plot(quakeid,component):
     nc,np=numComponent(component)
     
     # ############################################################
-    # CONNECT TO DATABASE
+    # QUAKE PROPERTIES
     # ############################################################
-    connection=connectDatabase()
-    db=connection.cursor()
-    quake=quakeProperties(quakeid,db)
-    quakestr=quake.quakestr
     quake=loadConf(DIRNAME+"/quake.conf")
+    quakestr="QUAKE-lat_%+.2f-lon_%+.2f-dep_%+.2f-JD_%.5f"%\
+        (float(quake.qlat),
+         float(quake.qlon),
+         float(quake.qdepth),
+         float(quake.qjd))
 
     # ############################################################
     # PREPARE FIGURE

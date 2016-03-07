@@ -39,6 +39,16 @@ else if($action=="updatehistory"){
     $html="No history";
   }
 }
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//UPDATE HISTORY
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+else if($action=="updatejd"){
+  $ps=parseParams($params);
+  $date=$ps["date"];
+  $qjd=rtrim(shell_exec("PYTHONPATH=. python util/date2jd.py '$date'"));
+  if(isBlank($qjd)){$html="Bad date";}
+  else{$html=$qjd;}
+}
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //NOT RECOGNIZED

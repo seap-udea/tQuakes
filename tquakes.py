@@ -317,7 +317,7 @@ def genEternaIni(basename,
                  qlat,qlon,qdepth,
                  year,month,day,
                  timespan,samplerate,
-                 component):
+                 component,azimut):
     
     content="""# This file %s.INI status 2006.04.25 containing control parameters
 # for programs DETIDE 3.30 and PREGRED 3.30
@@ -349,7 +349,7 @@ STATLATITU=     %.3f    # stations latitude  in degree
 STATLONITU=     %.3f       # stations longitude in degree
 STATELEVAT=     %.3f       # stations elevation in meter
 STATGRAVIT=      0.        # stations gravity in m/s**2
-STATAZIMUT=      0.        # stations azimuth in degree from north
+STATAZIMUT=     %.3f       # stations azimuth in degree from north
 INITIALEPO= %d  %d   %d    # initial epoch in year,month,day
 PREDICSPAN=     %d         # prediction time span in hours for PREDICT
 TIDALCOMPO=     %d         # tidal component, see manual
@@ -420,7 +420,7 @@ TIDALPARAM=  3.381379  4.347615   1.16000    0.0000 M4     #tidal param.
                                     
 """%(basename,basename,basename,basename,
      samplerate,
-     qlat,qlon,qdepth,
+     qlat,qlon,qdepth,azimut,
      year,month,day,
      timespan,component,
      basename)

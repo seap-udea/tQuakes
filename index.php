@@ -120,96 +120,258 @@ if(!isBlank($action)){
     }
   }
   ////////////////////////////////////////////////////////////////////////
-  //LOGIN
+  //CALCULATE
   ////////////////////////////////////////////////////////////////////////
   else if($action=="calculate"){
+
     //========================================
-    //CHECK QUAKEID
+    //CHECK INPUT FORM
     //========================================
-    if(!isBlank($quakeid)){
-      $qdone=1;
-    }else{
-      $qdone=0;
-      do{
-	$quakeid=generateRandomString(7);
-      }while(mysqlCmd("select quakeid from Quakes where quakeid='$quakeid';"));
-      echo "Quakeid: $quakeid";
-      return 0;
+    if(isBlank($qlat)){
+      errorMsg("You must provide a latitude");
+      goto endaction;
     }
+    if(isBlank($qlon)){
+      errorMsg("You must provide a longitude");
+      goto endaction;
+    }
+    if(isBlank($qdepth)){
+      errorMsg("You must provide a depth");
+      goto endaction;
+    }
+    if(isBlank($qdatetime)){
+      errorMsg("You must provide a date");
+      goto endaction;
+    }
+    $qjd=rtrim(shell_exec("PYTHONPATH=. python util/date2jd.py '$qdatetime'"));
+    if(isBlank($qjd)){
+      errorMsg("Bad date");
+      goto endaction;
+    }
+    statusMsg("All fields checked...");
+
     //========================================
-    //CREATE DIRECTORY OF QUAKE
+    //GENERATE QUAKEID
+    //========================================
+    $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid' and qjd='$qjd'");
+    if(!$quakeindb){
+      $quakestr="QUAKE-lat_$qlat-lon_$qlon-dep_$qdepth-JD_$qjd";
+      $md5str=md5($quakestr);
+      $quakeid=strtoupper(substr($md5str,0,7));
+      while(mysqlCmd("select quakeid from Quakes where quakeid='$quakeid';")){
+	$quakeid=str_shuffle($quakeid);
+      }
+      statusMsg("Quakeid $quakeid not in database...");
+    }
+
+    //========================================
+    //CREATE QUAKE SCRATCH DIRECTORY
     //========================================
     $quakedir="$SCRATCHDIR/$quakeid";
-    if(!is_dir("$quakedir")){
-      shell_exec("mkdir -p $quakedir/");
+    if(!is_dir($quakedir)){
+      shell_exec("mkdir -p $quakedir");
+      statusMsg("Scratch directory created...");
     }
-
+    
     //========================================
-    //QUAKE ALREADY CALCULATED
+    //CHECKTYPE
     //========================================
-    if($qdone){
-      //echo "Quake already labeled...<br/>";
-      //++++++++++++++++++++++++++++++++++++++++
-      // RECOVER QUAKE INFO
-      //++++++++++++++++++++++++++++++++++++++++
-      if($result=mysqlCmd("select * from Quakes where quakeid='$quakeid' and astatus+0=4",$qout=1)){
-	
-	//echo "Quake submitted...<br/>";
-	$quake=$result[0];
+    /*
+      There are the following types of earthquakes:
+      1) Earthquake in database (qdb=1):
+         1.1) Earthquake is not calculated (qdone=0)
+	 1.2) Earthquake is already calculated (qdone=1)
+      2) Earthquake not in database (qdb=0):
+         1.1) Earthquake is in queue (qdone=0)
+	 1.2) Earthquake is already calculated (qdone=1)
+     */
+    //TYPE BY DEFAULT
+    $qdb=0;$qdone=0;
 
-	//++++++++++++++++++++++++++++++++++++++++
-	// GET PRECALCULATED VALUES
-	//++++++++++++++++++++++++++++++++++++++++
-	$dirquakes="$HOMEDIR/$TQUSER/tQuakes/";
-	$filequake=$dirquakes."$quakeid-eterna.tar.7z";
-
-	//CHECK IF PRECALCULATED FILES ALREADY EXISTS
-	if(file_exists($filequake)){
-
-	  //echo "Precalculated file found...<br/>";
-	  //CHECK IF THEY HAVE BEEN UNZIPED
-	  if(!file_exists("$quakedir/$quakeid-eterna.tar")){
-	    //echo "Tarfile does not exist...<br/>";
-	    shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
-	    shell_exec("cd $quakedir;p7zip -d $quakeid-eterna.tar.7z");
-	    shell_exec("cd $quakedir;p7zip -d $quakeid-analysis.tar.7z");
-	    shell_exec("cd scratch/$SESSID;tar cf $quakeid.tar $quakeid/$quakeid-*");
-
-	    //UNTAR ALL FILES
-	    //echo "Untaring results...<br/>";
-	    shell_exec("cd $quakedir;tar xf $quakeid-eterna.tar");
-	    shell_exec("cd $quakedir;tar xf $quakeid-analysis.tar");
-	    
-	    //COPY PLOTTING SCRIPTS
-	    shell_exec("cd $quakedir;rm -rf *.py");
-	    shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.py;do ln -s \$plot;done");
-	   
-	    //echo "Creating plots...<br/>";
-	    //PLOT
-	    shell_exec("for plot in $quakedir/*.py;do PYTHONPATH=. MPLCONFIGDIR=/tmp python \$plot;done");
-	  }else{
-	    //echo "Plots already created...<br/>";
-	  }
-	  goto endcalculate;
-	}else{
-	  //echo "File has not been calculated yet...";
-	}
+    if($quakeindb){
+      $qdb=1;
+      //CHECK IF IT'S DONE
+      if(mysqlCmd("select * from Quakes where quakeid='$quakeid' and astatus+0=4")){
+	$qdone=1;
+      }else{
+	$qdone=0;
+      }
+    }else{
+      $qdb=0;
+      if(file_exists("data/tQuakes/$quakeid.conf")){
+	$qdone=1;
+      }else{
+	$qdone=0;
       }
     }
+    statusMsg("Quake type: qdb=$qdb, qdone=$qdone...");
+    
+    //========================================
+    //IF QUAKE HAS NOT BEEN CALCULATED
+    //========================================
+    if(!$qdone){
+
+      //CREATE CALCULATION DIRECTORY
+      $cquakedir="data/quakes/$quakeid";
+      if(!is_dir($cquakedir)){
+	shell_exec("mkdir -p $cquakedir");
+	statusMsg("Calculation directory created...");
+
+	shell_exec("cp -rd data/quakes/TEMPLATE/* $cquakedir");
+	shell_exec("cp -rd data/quakes/TEMPLATE/.[a-z]* $cquakedir");
+	
+	//SPLIT DATETIME
+	$parts=preg_split("/\s+/",$qdatetime);
+	$date=$parts[0];
+	$time=$parts[1];
+	
+	//CREATE CONFIGURATION
+	$fl=fopen("$cquakedir/quake.conf","w");
+$conf=<<<C
+qdepth='$qdepth'
+quakeid='$quakeid'
+qlat='$qlat'
+qdate='$date'
+qlon='$qlon'
+qtime='$time'
+qjd='$qjd'
+
+C;
+         fwrite($fl,$conf);
+	 fclose($fl);
+	 
+	 //========================================
+	 //PREPARE RUN
+	 //========================================
+	 shell_exec("PYTHONPATH=. python $cquakedir/quake-prepare.py $quakeid");
+	 statusMsg("Eterna files generated...");
+      }
+      statusMsg("Quake $quakeid in queue...");
+      goto endcalculate;
+    }
 
     //========================================
-    //CALCULATE
+    //IF QUAKE HAS BEEN ALREADY CALCULATED
     //========================================
+    else{
+      if($qdb){
+	statusMsg("Quake $quakeid in db...");
+	$dirquakes="$HOMEDIR/$TQUSER/tQuakes/";
+      }else{
+	statusMsg("Quake $quakeid not in db...");
+	$dirquakes="data/tQuakes/";
+      }
 
-  endcalculate:
+      //========================================
+      // RECOVER QUAKE INFO
+      //========================================
+      $filequake="$dirquakes/$quakeid-eterna.tar.7z";
+
+      //CHECK IF PRECALCULATED FILES ALREADY EXISTS
+      if(file_exists($filequake)){
+	statusMsg("Results for $quakeid found...");
+
+	//CHECK IF THEY HAVE BEEN UNZIPED
+	if(!file_exists("$quakedir/$quakeid-eterna.tar")){
+	  statusMsg("Unzipping files...");
+	  shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
+	  shell_exec("cp -rf $dirquakes/$quakeid.conf $quakedir/");
+	  shell_exec("cd $quakedir;p7zip -d $quakeid-eterna.tar.7z");
+	  shell_exec("cd $quakedir;p7zip -d $quakeid-analysis.tar.7z");
+	  shell_exec("cd $SCRATCHDIR;tar cf $quakeid.tar $quakeid/$quakeid-*");
+	  
+	  //UNTAR ALL FILES
+	  shell_exec("cd $quakedir;tar xf $quakeid-eterna.tar");
+	  shell_exec("cd $quakedir;tar xf $quakeid-analysis.tar");
+	  
+	  //COPY PLOTTING SCRIPTS
+	  shell_exec("cd $quakedir;rm -rf *.py");
+	  shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.py;do ln -s \$plot;done");
+	}//End tar file exists
+      }//End quake has been completed
+    }
+    
     //========================================
-    //COMMON CODE
+    //PLOT
+    //========================================
+    shell_exec("for plot in $quakedir/*.py;do PYTHONPATH=. MPLCONFIGDIR=/tmp python \$plot;done");
+    statusMsg("Plots generated...");
+
+    //========================================
+    //GENERATE REPORT
     //========================================
     $tideresults="<h2>Results</h2>";
+    
+    //FILES
     $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);
     $size_analysis=round(filesize("$quakedir/$quakeid-analysis.tar")/1024.0,0);
     $size_full=round(filesize("$SCRATCHDIR/$quakeid.tar")/1024.0,0);
+
+    //QUAKE PROPERTIES
+    $quakeconf="$quakedir/$quakeid.conf";
+    $quake=parse_ini_file($quakeconf);
+	   
+    //COMPONENT SIGNAL
+    $signaltxt.="<h3>Component signal</h3><ul>";
+    $signals=preg_split("/;/",$quake["qsignal"]);
+    $i=0;
+    foreach($signals as $signal){
+      $ncomp=$COMPONENTS[$i];
+      $component=$COMPONENTS_DICT[$ncomp+1];
+      $namecomponent=$component[2];
+      $units=$component[3];
+      if(isBlank($signal)){continue;}
+      $signaltxt.="<li><b>$namecomponent</b>:$signal $units</li>";
+      $i++;
+    }
+    $signaltxt.="</ul>";
+    $tideresults.=$signaltxt;
+
+    //COMPONENT PHASES
+    $phases=preg_split("/;/",$quake["qphases"]);
+$phasetxt=<<<P
+<h3>Component phases</h3>
+<table border=1px cellspacing=0px>
+<tr>
+<td>Component</td>
+<td>Diurnal</td>
+<td>Semi diurnal</td>
+<td>Fornightly</td>
+<td>Monthly</td>
+</tr>
+P;
+
+    $i=0;
+    foreach($COMPONENTS as $ncomp){
+      $component=$COMPONENTS_DICT[$ncomp+1];
+      $namecomponent=$component[2];
+      $phasetxt.="<tr><td>$namecomponent</td>";
+      for($j=0;$j<4;$j++){
+	$iphase=8*$i+4+$j;
+	$phasetime=$phases[$iphase];
+	$parts=preg_split("/:/",$phasetime);
+	$time=$parts[0];
+	$phase=$parts[1];
+	$phasetxt.="<td>$phase</td>";
+      }
+      $phasetxt.="</tr>";
+      $i++;
+    }
     
+    $phasetxt.="</table>";
+    $tideresults.=$phasetxt;
+    
+$tideresults.=<<<T
+  <h3>Downloads</h3>
+  <ul>
+    <li><a href=$quakeconf target=_blank>Summary file</a></li>
+    <li><a href=$quakedir/$quakeid-eterna.tar>Eterna results</a> ($size_eterna kB)</li>
+    <li><a href=$quakedir/$quakeid-analysis.tar>Analysis results</a> ($size_analysis kB)</li>
+    <li><a href=$SCRATCHDIR/$quakeid.tar>All results</a> ($size_full kB)</li>
+  </ul>
+  
+T;
+
     //SHOW PLOTS
     $plots="";
     $output=shell_exec("ls -m $quakedir/*.png");
@@ -231,7 +393,10 @@ $plots.=<<<PLOT
 PLOT;
     }
     $tideresults.=$plots;
-  }
+
+  endcalculate:
+  }//End action=calculate
+
   ////////////////////////////////////////////////////////////////////////
   //REGISTER STATION
   ////////////////////////////////////////////////////////////////////////
@@ -827,7 +992,7 @@ $control
   <td class="level0 txt">deg.,deg.</td>
   <td class="level0 txt">km, km</td>
   <td class="level0 txt">km&pm;km</td>
-  <td class="level0 txt">D/M/YYYY,H:M:S</td>
+  <td class="level0 txt">D/M/YY H:M:S</td>
   <td class="level0 txt">--</td>
   <td class="level0 txt">--</td>
   <td class="level0 txt">--</td>
@@ -1113,7 +1278,7 @@ $FORM
     <i style="font-size:10px">D/M/YYYY H:M:S</i>
   </td>
   <td valign="top">
-    <input type="text" name="qdatetime" value="$qdatetime">
+    <input type="text" name="qdatetime" value="$qdatetime" onchange="updateJD(this)">
   </td>
 </tr>
 <tr>
