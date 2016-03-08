@@ -1,5 +1,6 @@
 import MySQLdb as mdb
 import csv,datetime,commands,re,os,numpy,cmath,time as timing
+from scipy import signal
 from sys import exit,argv,stderr
 from util.jdcal import *
 
@@ -965,7 +966,7 @@ def plotSignal(quakeid,component,plt):
     print "Saving figure ",figname
     fig.savefig(figname)
 
-def plotBoundaries(quakeid,component):
+def plotBoundaries(quakeid,component,plt):
     # ############################################################
     # COMPONENT
     # ############################################################
