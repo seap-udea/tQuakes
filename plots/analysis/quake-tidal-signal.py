@@ -7,6 +7,7 @@ use('Agg')
 import matplotlib.pyplot as plt
 confile=prepareScript()
 conf=execfile(confile)
+quake=loadConf("quake.conf")
 
 # ############################################################
 # CONNECT TO DATABASE
@@ -18,6 +19,11 @@ db=connection.cursor()
 # PREPARE PLOTTING REGION
 # ############################################################
 fig,axs=subPlots(plt,[1])
+
+# ############################################################
+# PLOT
+# ############################################################
+plotSignal(quake.quakeid,component,plt)
 
 # ############################################################
 # SAVING FIGURE
