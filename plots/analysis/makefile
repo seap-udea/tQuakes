@@ -1,6 +1,4 @@
 BRANCH=$(shell bash .getbranch)
-NEWSCRIPT=""
-SCRIPT=""
 
 new:
 	@echo "Creating new script '$(NEWSCRIPT)'..."
