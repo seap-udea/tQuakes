@@ -428,7 +428,7 @@ $plots.=<<<PLOT
 	<img src="$plot" width="400px">
       </a>
     </li>
-    <li><a href="update.php?replot&plot=$plot">Replot</a></li>
+    <li><a href="plot.php?replot&plot=$plot">Replot</a></li>
   </ul>
 PLOT;
        }
@@ -626,8 +626,8 @@ foreach($listplots as $plot)
   else{array_push($md5sums,$plotmd5);}
 
   $replot="";
-  if($QADMIN){
-    $replot="<a href='update.php?replotui&plot=$plotroot&md5sum=$plotmd5' target='_blank'>Replot</a> |";
+  if($QPERM){
+    $replot="<a href='plot.php?replotui&plot=$plotroot&md5sum=$plotmd5' target='_blank'>Replot</a> |";
   }
 
 $plotlist.=<<<PLOT
@@ -636,7 +636,7 @@ $plotlist.=<<<PLOT
   <i>$plotroot</i><br/>
   $replot 
   <a href="$STATSDIR/$plotroot.history/${plotroot}__$plotmd5.conf" target="_blank">Conf</a> |
-  <a href="update.php?plothistory&plot=$plotroot" target="_blank">History</a>
+  <a href="plot.php?plothistory&plot=$plotroot" target="_blank">History</a>
   <br/>
   <i style="font-size:10px">$plotmd5</i>
   <a href="$plot" target="_blank">
@@ -1517,7 +1517,7 @@ $plots.=<<<PLOT
 	<img src="$plot" width="400px">
       </a>
     </li>
-    <li><a href="update.php?replot&plot=$plot">Replot</a></li>
+    <li><a href="plot.php?replot&plot=$plot">Replot</a></li>
   </ul>
 PLOT;
     }
