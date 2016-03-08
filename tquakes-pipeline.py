@@ -107,4 +107,4 @@ for quake in qlist:
     system("rm -r %s"%quakedir)
 
     # STORING TIME
-    $iq+=1
+    iq+=1

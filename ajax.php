@@ -18,7 +18,7 @@ if(0){}
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if($action=="updatehistory"){
   $ps=parseParams($params);
-  $histfile="$STOREDIR/history.log";
+  $histfile="$SCRATCHDIR/history.log";
   if(file_exists($histfile)){
     $lines=file($histfile);
     $html="<h2>Search History</h2><ul>";
@@ -38,6 +38,7 @@ else if($action=="updatehistory"){
   }else{
     $html="No history";
   }
+  $html.="<p><a href=?if=search&action=cleanhistory>Clean history</a></p>";
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //UPDATE HISTORY

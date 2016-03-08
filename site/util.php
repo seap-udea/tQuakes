@@ -27,6 +27,7 @@ $GITREPO="http://github.com/seap-udea/tQuakes";
 $FORM="<form method='post' enctype='multipart/form-data' accept-charset='utf-8'>";
 $STATUS="";
 $ERRORS="";
+$URLPAGE=$_SERVER["REQUEST_URI"];
 
 ////////////////////////////////////////////////////////////////////////
 //VERIFY IDENTITY
@@ -201,10 +202,7 @@ if(isset($_SESSION["email"])){
   if(!is_dir($USERDIR)){
     shell_exec("mkdir -p $USERDIR");
   }
-  $STOREDIR=$USERDIR;
-}else{
-  $STOREDIR=$SCRATCHDIR;
+  $SCRATCHDIR=$USERDIR;
 }
-
 $STATSDIR="plots/stats/";
 ?>

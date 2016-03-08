@@ -119,10 +119,23 @@ if(!isBlank($action)){
       }
     }
   }
+
+  ////////////////////////////////////////////////////////////////////////
+  //CLEAN 
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="cleansynthetic"){
+    statusMsg("Cleaning synthetic earthquakes");
+    shell_exec("rm -r $SCRATCHDIR/*.tar $SCRATCHDIR/???????");
+  }
+  else if($action=="cleanhistory"){
+    statusMsg("Cleaning history");
+    shell_exec("rm -r $SCRATCHDIR/history.log");
+  }
+
   ////////////////////////////////////////////////////////////////////////
   //CALCULATE
   ////////////////////////////////////////////////////////////////////////
-  else if($action=="calculate"){
+  else if($action=="calculate" or $action="plot"){
 
     //========================================
     //CHECK INPUT FORM
@@ -153,14 +166,19 @@ if(!isBlank($action)){
     //========================================
     //GENERATE QUAKEID
     //========================================
+    if(!isset($qpreserve)){$qpreserve=0;}
+    $quakestr="QUAKE-lat_$qlat-lon_$qlon-dep_$qdepth-JD_$qjd";
+    $md5str=md5($quakestr);
+    $tquakeid=strtoupper(substr($md5str,0,7));
+    while(mysqlCmd("select quakeid from Quakes where quakeid='$tquakeid';")){
+      $tquakeid=str_shuffle($tquakeid);
+    }
+    if(isset($quakeid) and !$qpreserve){
+      if($quakeid!=$tquakeid){$quakeid=$tquakeid;}
+    }
+
     $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid' and qjd='$qjd'");
     if(!$quakeindb){
-      $quakestr="QUAKE-lat_$qlat-lon_$qlon-dep_$qdepth-JD_$qjd";
-      $md5str=md5($quakestr);
-      $quakeid=strtoupper(substr($md5str,0,7));
-      while(mysqlCmd("select quakeid from Quakes where quakeid='$quakeid';")){
-	$quakeid=str_shuffle($quakeid);
-      }
       statusMsg("Quakeid $quakeid not in database...");
     }
 
@@ -194,7 +212,11 @@ if(!isBlank($action)){
       if(mysqlCmd("select * from Quakes where quakeid='$quakeid' and astatus+0=4")){
 	$qdone=1;
       }else{
-	$qdone=0;
+	if(file_exists("data/tQuakes/$quakeid.conf")){
+	  $qdone=1;
+	}else{
+	  $qdone=0;
+	}
       }
     }else{
       $qdb=0;
@@ -287,20 +309,20 @@ C;
 	  //COPY PLOTTING SCRIPTS
 	  shell_exec("cd $quakedir;rm -rf *.py");
 	  shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.py;do ln -s \$plot;done");
+	  shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.sh;do ln -s \$plot;done");
+	  shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.conf;do ln -s \$plot;done");
+	  shell_exec("cd $quakedir;ln -s ../../../tquakes.py");
+	  shell_exec("cd $quakedir;ln -s ../../../util");
+	  shell_exec("cd $quakedir;ln -s ../../../configuration");
 	}//End tar file exists
       }//End quake has been completed
     }
     
     //========================================
-    //PLOT
-    //========================================
-    shell_exec("for plot in $quakedir/*.py;do PYTHONPATH=. MPLCONFIGDIR=/tmp python \$plot;done");
-    statusMsg("Plots generated...");
-
-    //========================================
     //GENERATE REPORT
     //========================================
-    $tideresults="<h2>Results</h2>";
+    $tideresults="<h2><a name=results>Results</a></h2>";
+    $SUBMENU.="<a href='#results'>Results</a> : ";
     
     //FILES
     $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);
@@ -312,7 +334,9 @@ C;
     $quake=parse_ini_file($quakeconf);
 	   
     //COMPONENT SIGNAL
-    $signaltxt.="<h3>Component signal</h3><ul>";
+    $signaltxt.="<h3><a nmae=signal>Component signal</a></h3><ul>";
+    $SUBMENU.="<a href='#signal'>Signal</a> | ";
+
     $signals=preg_split("/;/",$quake["qsignal"]);
     $i=0;
     foreach($signals as $signal){
@@ -328,9 +352,11 @@ C;
     $tideresults.=$signaltxt;
 
     //COMPONENT PHASES
+    $SUBMENU.="<a href='#phases'>Phases</a> | ";
+
     $phases=preg_split("/;/",$quake["qphases"]);
 $phasetxt=<<<P
-<h3>Component phases</h3>
+<h3><a name=phases>Component phases</a></h3>
 <table border=1px cellspacing=0px>
 <tr>
 <td>Component</td>
@@ -360,9 +386,10 @@ P;
     
     $phasetxt.="</table>";
     $tideresults.=$phasetxt;
+    $SUBMENU.="<a href='#download'>Download</a> | ";
     
 $tideresults.=<<<T
-  <h3>Downloads</h3>
+  <h3><a name=download>Downloads</a></h3>
   <ul>
     <li><a href=$quakeconf target=_blank>Summary file</a></li>
     <li><a href=$quakedir/$quakeid-eterna.tar>Eterna results</a> ($size_eterna kB)</li>
@@ -373,12 +400,25 @@ $tideresults.=<<<T
 T;
 
     //SHOW PLOTS
-    $plots="";
-    $output=shell_exec("ls -m $quakedir/*.png");
-    $listplots=preg_split("/\s*,\s*/",$output);
-    foreach($listplots as $plot){
-      $plotname=rtrim(shell_exec("basename $plot"));
-      $plotbase=preg_split("/\./",$plotname)[0];
+    if($action=="plot"){
+      //========================================
+      //PLOT
+      //========================================
+      shell_exec("bash $quakedir/plotall.sh $quakedir");
+      statusMsg("Plots generated...");
+
+      //========================================
+      //SHOW PLOTS
+      //========================================
+      $SUBMENU.="<a href='#plots'>Plots</a> | ";
+      $tideresults.="<h3><a name=plots>Plots</a></h3>";
+
+      $plots="";
+      $output=shell_exec("ls -m $quakedir/*.png");
+      $listplots=preg_split("/\s*,\s*/",$output);
+      foreach($listplots as $plot){
+	$plotname=rtrim(shell_exec("basename $plot"));
+	$plotbase=preg_split("/\./",$plotname)[0];
 $plots.=<<<PLOT
 <li><b>Plot</b>:
   <ul>
@@ -391,10 +431,16 @@ $plots.=<<<PLOT
     <li><a href="update.php?replot&plot=$plot">Replot</a></li>
   </ul>
 PLOT;
+       }
+       $tideresults.=$plots;
     }
-    $tideresults.=$plots;
 
   endcalculate:
+    if(!$qdone){
+      $tideresults.="Processing request...<br/><img src=img/loader.gif>";
+      header("Refresh:3;url=$URLPAGE&action=calculate&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd");
+    }
+
   }//End action=calculate
 
   ////////////////////////////////////////////////////////////////////////
@@ -864,8 +910,7 @@ C;
 
   // SAVE SEARCH HISTORY
   if(!isBlank($search)){
-    echo "STORE: $STOREDIR<br/>";
-    $fl=fopen("$STOREDIR/history.log","a");
+    $fl=fopen("$SCRATCHDIR/history.log","a");
     fwrite($fl,"$DATE;;$searchtxt;;$search\n");
     fclose($fl);
   }
@@ -1032,7 +1077,7 @@ $CONTENT.=<<<TABLE
     <td class="level0 num">$i</td>
     <td class="level0 txt">
       <a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a><br/>
-      <a href="?if=quaketide&quakeid=$quakeid">tides</a>
+      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd">tides</a>
     </td>
     <td class="level0 num">$qlat, $qlon</td>
     <td class="level0 num">&pm;$qlaterr,&pm;$qlonerr</td>
@@ -1074,13 +1119,89 @@ $CONTENT.=<<<C
 C;
 
   ////////////////////////////////////////////////////////////////////////
+  //LIST OF CALCULATED EARTHQUAKES
+  ////////////////////////////////////////////////////////////////////////
+$CONTENT.=<<<C
+<h2><a name='synthetic'>Synthetic earthquakes</a></h2> 
+
+<p>
+  The following table enumerates the synthetic Earthquake data you
+  have used to calculate tides at locations, depths and times
+  different from that available in the database.
+</p>
+
+C;
+
+  $SUBMENU.="<a href='#synthetic'>Synthetic</a> | ";
+
+  $output=shell_exec("cd $SCRATCHDIR;ls -m *.tar");
+  $listquakes=preg_split("/\s*,\s*/",$output);
+  statusMsg("Synthetic quakes:");
+
+$tablesynth=<<<TABLE
+<table border=1px style="font-size:12px" cellspacing="0px">
+<tr class="header">
+  <td class="level0">Quake id.</td>
+  <td class="level0">Lat.,Lon.</td>
+  <td class="level0">Depth</td>
+  <td class="level0">Date/Time</td>
+</tr>
+<tr class="header">
+  <td class="level0 txt">--</td>
+  <td class="level0 txt">deg.,deg.</td>
+  <td class="level0 txt">km</td>
+  <td class="level0 txt">D/M/YY H:M:S</td>
+</tr>
+TABLE;
+
+  $i=0;
+  foreach($listquakes as $quake){
+    if(isBlank($quake)){continue;}
+    $parts=preg_split("/\./",$quake);
+    $quakeid=$parts[0];
+    if(mysqlCmd("select * from Quakes where quakeid='$quakeid'")){continue;}
+    statusMsg("Quake $quakeid...");
+    $quake=parse_ini_file("$SCRATCHDIR/$quakeid/$quakeid.conf");
+
+    $quakeid=$quake["quakeid"];
+    $qlat=$quake["qlat"];
+    $qlon=$quake["qlon"];
+    $qdepth=$quake["qdepth"];
+    $qdatetime=$quake["qdate"]." ".$quake["qtime"];
+    $qjd=$quake["qjd"];
+
+$tablesynth.=<<<TABLE
+  <tr>
+    <td class="level0 txt">
+      <a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a><br/>
+      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd">tides</a>
+    </td>
+    <td class="level0 num">$qlat, $qlon</td>
+    <td class="level0 txt">$qdepth</td>
+    <td class="level0 num">$qdatetime</td>
+  </tr>
+TABLE;
+    $i++;
+  }
+  $tablesynth.="</table>";
+  if($i==0){
+    $tablesynth="<i>(No synthetic earthquakes found)</i>";
+  }
+$CONTENT.=<<<C
+<center>
+  $tablesynth
+</center>
+  <p><a href=?if=search&action=cleansynthetic>Clean synthetic earthquakes</a></p>
+C;
+ 
+  ////////////////////////////////////////////////////////////////////////
   //UPLOAD EARTHQUAKES
   ////////////////////////////////////////////////////////////////////////
   $CONTENT.="<h2><a name='upload'>Upload earthquakes</a></h2>";
   $SUBMENU.="<a href='#upload'>Upload</a> | ";
 
 $CONTENT.=<<<C
-<img src="img/menatwork.png" width="10%"/>
+<center><img src="img/menatwork.png" width="10%"/></center>
 C;
 
 }
@@ -1152,7 +1273,9 @@ BASIC;
   if(!is_dir("$quakedir")){shell_exec("mkdir -p $quakedir/");}
   $img=shell_exec("ls $quakedir/*.png");
   if(isBlank($img)){
-    shell_exec("cd $quakedir;rm -rf *.py *.conf");
+    shell_exec("cd $quakedir;rm -rf *.py");
+    shell_exec("cp $HOMEDIR/$TQUSER/tQuakes/$quakeid.conf $quakedir/quake.conf");
+    shell_exec("cp $HOMEDIR/$TQUSER/tQuakes/$quakeid.conf $quakedir");
     shell_exec("cd $quakedir;ln -s ../../../plots/quakes/quake-map.py");
     shell_exec("cd $quakedir;ln -s ../../../tquakes.py");
     shell_exec("cd $quakedir;ln -s ../../../util");
@@ -1238,6 +1361,9 @@ else if($if=="quaketide"){
   if(!isset($referer)){
     $referer=$_SERVER["HTTP_REFERER"];
   }
+  
+  if(!isset($qjd)){$qjd="<i style='font-size:10px;color:gray'>Enter the Date and time...</i>";}
+
 $SUBMENU.=<<<QUAKE
 <a href="$referer">Back</a> |
 QUAKE;
@@ -1245,13 +1371,21 @@ QUAKE;
 $CONTENT.=<<<QUAKE
 <h2>Earthquake Tides</h2>
 
-<h3>Form</h3>
+<p>
+  Use this form to modify or create new earthquake location and time
+  in order to calculate tides.  Use the "calculate" button if you only
+  want to get basic information about tides (signal value, tidal
+  phases, etc.).  Use the "plot" button to get plots of the tidal
+  timeseries and other related graphs.
+</p>
+
+<h3>Basic properties</h3>
 $FORM
 <table border=0px>
 <tr>
   <td>Quake id.:</td>
   <td>
-    <input id="quakeid" type="text" name="quakeid" value="$quakeid" readonly>
+    <input id="quakeid" type="text" name="quakeid" value="$quakeid" placeholder="Wait for it..." readonly>
   </td>
 </tr>
 <tr>
@@ -1275,7 +1409,7 @@ $FORM
 <tr>
   <td valign="top">
     Date and time:<br/>
-    <i style="font-size:10px">D/M/YYYY H:M:S</i>
+    <i style="font-size:10px">D/MM/YY HH:MM:SS</i>
   </td>
   <td valign="top">
     <input type="text" name="qdatetime" value="$qdatetime" onchange="updateJD(this)">
@@ -1292,11 +1426,13 @@ $FORM
 <tr>
 <td colspan=2>
 <input type="submit" name="action" value="calculate">
+<input type="submit" name="action" value="plot">
 <input type="reset" value="reset">
 </td>
 </tr>
 </table>
 <input type="hidden" name="referer" value="$referer">
+<input type="hidden" name="qpreserve" value="0">
 </form>
 $tideresults
 QUAKE;
@@ -1606,6 +1742,7 @@ C;
 //STATUS MESSAGE
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 $MSG="";
+/*
 if(strlen($STATUS)){
 $MSG.=<<<M
   <div class="status">
@@ -1613,7 +1750,6 @@ $MSG.=<<<M
   </div>
 M;
 }
-
 if(strlen($ERRORS)){
 $MSG.=<<<M
   <div class="errors">
@@ -1621,6 +1757,7 @@ $MSG.=<<<M
   </div>
 M;
 }
+*/
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //USER
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -1640,6 +1777,10 @@ U;
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //CONTENT
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+$navstyle="";
+if(!isBlank($SUBMENU)){
+$navstyle="style='border-bottom:solid black 1px'";
+}
 echo<<<CONTENT
 <html>
   <head>
@@ -1654,31 +1795,42 @@ echo<<<CONTENT
 
   <body>
     $MSG
+    <div style="background:lightgray;width:100%;height:95%">
     <header>
-      <img class="tquakes" src="img/tquakes.png"/>
-      <img class="seap" src="img/LogoSEAP-White.jpg"/>
+      <a href=?><img class="tquakes" src="img/tquakes.png" style="height:100%"/></a>
+      <img class="logogroup" src="img/LogoSEAP-White.jpg" align="middle"/>
     </header>
     <section>
       <span class="level0"><p class="menuitem"><a href="?">Home</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=search">Earthquakes</a><hr/></p></span>
-      <span class="level0"><p class="menuitem"><a href="?if=quaketide">Calculate tides</a><hr/></p></span>
-      <span class="level0"><p class="menuitem"><a href="?if=data">Data products</a><hr/></p></span>
-      <span class="level0"><p class="menuitem"><a href="?if=download">Download tQuakes</a><hr/></p></span>
-      <span class="level0"><p class="menuitem"><a href="?if=register">Register station</a><hr/></p></span>
+      <span class="level0"><p class="menuitem"><a href="?if=quaketide">Tides</a><hr/></p></span>
+      <span class="level0"><p class="menuitem"><a href="?if=data">Products</a><hr/></p></span>
+      <span class="level0"><p class="menuitem"><a href="?if=download">Download</a><hr/></p></span>
+      <span class="level0"><p class="menuitem"><a href="?if=register">Station</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=references">References</a><hr/></p></span>
       $USER
       <hr/>
       <span class="level2"><p class="menuitem"><a href="?if=stations">Computing Stations</a><hr/></p></span>
     </section>
     <aside>
-      <nav style="background:lightgray">
+      <nav $navstyle>
 	$SUBMENU
       </nav>
       $CONTENT
     </aside>
+    <div class="placebar">
+      <b>Status bar</b><hr/>
+      <span style=color:black>
+	$STATUS
+      </span>
+      <span style=color:red>
+	$ERRORS
+      </span>
+    </div>
+    </div>
     <footer>
       <i>
-	Developed by Jorge I. Zuluaga, Gloria Moncayo & Gaspar Monsalve (2015), sessid: $SESSID
+	Developed by Jorge I. Zuluaga, Gloria Moncayo & Gaspar Monsalve (2015)sessid: $SESSID
       </i>
     </footer>
   </body>

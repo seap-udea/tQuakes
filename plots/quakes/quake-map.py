@@ -9,6 +9,7 @@ from matplotlib.colors import LogNorm
 from mpl_toolkits.basemap import Basemap as map,shiftgrid
 confile=prepareScript()
 conf=execfile(confile)
+quake=loadConf("quake.conf")
 
 # ############################################################
 # CONNECT TO DATABASE
@@ -34,6 +35,11 @@ qids,quakes=getQuakes(search,db)
 nquakes=len(qids)
 
 # ############################################################
+# GET QUAKE MAP
+# ############################################################
+
+
+# ############################################################
 # CREATE MAPS
 # ############################################################
 ms=scatterMap(axs[0],quakes[:,QLAT],quakes[:,QLON],resolution=resolution,
@@ -42,7 +48,7 @@ ms=scatterMap(axs[0],quakes[:,QLAT],quakes[:,QLON],resolution=resolution,
               color='k',marker='o',linestyle='none',
               markeredgecolor='none',markersize=1,zorder=10)
 
-slon=float(argv[1]);slat=float(argv[2]);
+slon=float(quake.qlon);slat=float(quake.qlat);
 x,y=ms(slon,slat)
 ms.plot(x,y,'wo',markersize=20,zorder=50000)
 

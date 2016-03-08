@@ -136,7 +136,7 @@ def loadConf(filename):
 
 def fileBase(filename):
     dirs=filename.split("/")
-    search=re.search("([^\/]+)\.[^\/]+",filename)
+    search=re.search("([^\/]+)\.[^\/]+$",filename)
     basename=search.group(1)
     dirname="/".join(dirs[:-1])
     return dirname,basename
