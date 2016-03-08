@@ -541,7 +541,7 @@ C;
 //DATA PRODUCTS
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="data"){
-
+  $plotlist="";
 $CONTENT.=<<<C
 
 One of the most important products of $tQuakes is data. A lot of it.
@@ -553,59 +553,26 @@ affecting the places where those Earthquakes happened.
 Here are some of the available data products from $tQuakes:
 <ul>
 C;
+ 
+   //==================================================
+   //PLOTS
+   //==================================================
+ 
+   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   //LIST OF PLOTS GENERATED SO FAR
+   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   $output=shell_exec("find $STATSDIR -name 'stats-*.py'");
+   $listplots=preg_split("/\n/",$output);
 
-//==================================================
-//DATABASE
-//==================================================
-$file="data/sql/Quakes.sql.7z";
-$base=rtrim(shell_exec("basename $file"));
-$size=round(filesize($file)/1024.0,0);
-$time=date("F d Y H:i:s",filemtime($file));
+   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   //FOR EACH PLOT ALL PLOTS GENERATED
+   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   foreach($listplots as $plot){
+     $plotname=rtrim(shell_exec("basename $plot"));
+     $plotbase=preg_split("/\./",$plotname)[0];
+     echo "$plotbase<br/>";
+  /*
 
-$CONTENT.=<<<C
-<li>
-  <b>Earthquakes database:</b> The complete database of Earth quakes
-  analysed by $tQuakes.
-  <ul>
-    <li>File: <a href="$file">$base</a></li>
-    <li>Size: $size kB</li>
-    <li>Last update: $time</li>
-  </ul>
-</li>
-C;
-
-//==================================================
-//INSTALLATION SCRIPT
-//==================================================
-$file="data/sql/tQuakes.sh";
-$base=rtrim(shell_exec("basename $file"));
-$size=round(filesize($file)/1024.0,0);
-$time=date("F d Y H:i:s",filemtime($file));
-$CONTENT.=<<<C
-<li>
-  <b>Earthquakes database installer:</b> Bash script to install
-  database in a Linux (debian-like) server.
-  <ul>
-    <li>File: <a href="$file">$base</a></li>
-    <li>Size: $size kB</li>
-    <li>Last update: $time</li>
-  </ul>
-</li>
-C;
-
-//==================================================
-//PLOTS
-//==================================================
-$numcols=4;
-$width=100/$numcols;
-$output=shell_exec("find $STATSDIR -name '*.png'");
-$listplots=preg_split("/\n/",$output);
-$plotlist="<li><b>Plots:</b><br/><table border=0px><tr><td colspan=$numcols></td>";
-$i=0;
-$md5sums=array("foo");
-$plotscripts=array();
-foreach($listplots as $plot)
-{
   if(($i%$numcols)==0){$plotlist.="</tr><tr>";}
   if(isBlank($plot)){continue;}
   $plotname=rtrim(shell_exec("basename $plot"));
@@ -645,16 +612,18 @@ $plotlist.=<<<PLOT
   </center>
   </td>
 PLOT;
-
+  */
   $i++;
 }
+/*
 if($i==0){$plotlist.="<i>No plot in history</i>";}
 else{
   $rem=3-$i%3;
   if($rem){$plotlist.="<td colspan=$rem></td></tr>";}
 }
 $plotlist.="</table>";
-$CONTENT.="$plotlist</li></ul>";
+*/
+  $CONTENT.="$plotlist</li></ul>";
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

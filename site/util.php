@@ -204,5 +204,5 @@ if(isset($_SESSION["email"])){
   }
   $SCRATCHDIR=$USERDIR;
 }
-$STATSDIR="plots/stats/";
+$STATSDIR="plots/analysis/";
 ?>
