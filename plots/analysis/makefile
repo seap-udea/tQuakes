@@ -26,6 +26,8 @@ clean:
 	@find . -name "*~" -exec rm {} \;
 	@find . -name "*.pyc" -exec rm {} \;
 	@find . -name "#*#" -exec rm {} \;
+	@find . -name "*__*.png" -exec mv {} plothell/ \;
+	@find . -name "*__*.conf" -exec mv {} plothell/ \;
 	@find . -name "*.png" -exec rm {} \;
 	@for dir in *.history;do touch $$dir/delete;done
 	@-rm *.history/*

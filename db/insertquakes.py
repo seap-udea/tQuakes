@@ -42,7 +42,7 @@ for quake in content:
     print "\tJD: ",quake["qjd"]
 
     # CALCULATE QUAKE STRING
-    quake["quakestr"]="QUAKE-lat_%+.2f-lon_%+.2f-dep_%+.2f-JD_%.5f"%\
+    quake["quakestr"]="QUAKE-lat_%+.4f-lon_%+.4f-dep_%+.4f-JD_%.5f"%\
         (float(quake["Latitud"]),
          float(quake["Longitud"]),
          float(quake["Profundidad"]),

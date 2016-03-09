@@ -890,6 +890,12 @@ def saveFigure(confile,fig):
     # SAVE FIGURE
     figname="%s/%s__%s.png"%(DIRNAME,BASENAME,md5sum[0:5])
     print "Saving figure ",figname
+    # WATER MARK
+    ax=fig.gca()
+    ax.text(-0.05,1.0,"tQuakes",
+            horizontalalignment='right',verticalalignment='top',
+            rotation=90,fontsize=10,color='b',alpha=0.2,
+            transform=ax.transAxes)
     fig.savefig(figname)
 
 def plotSignal(quakeid,component,plt):
@@ -967,6 +973,14 @@ def plotSignal(quakeid,component,plt):
     fig.savefig(figname)
     return fig
 
+def quake2str(qlat,qlon,qdepth,qjd):
+    quakestr="QUAKE-lat_%+08.4f-lon_%+09.4f-dep_%+010.4f-JD_%.5f"%\
+        (float(qlat),
+         float(qlon),
+         float(qdepth),
+         float(qjd))
+    return quakestr
+
 def plotBoundaries(quakeid,component,plt):
     # ############################################################
     # COMPONENT
@@ -986,6 +1000,7 @@ def plotBoundaries(quakeid,component,plt):
          float(quake.qlon),
          float(quake.qdepth),
          float(quake.qjd))
+    quakestr=quake2str(quake.qlat,quake.qlon,quake.qdepth,quake.qjd)
 
     # ############################################################
     # PREPARE FIGURE
@@ -1130,7 +1145,7 @@ def plotBoundaries(quakeid,component,plt):
     # ############################################################
     ax.text(1.02,0.5,quakestr,
             horizontalalignment='center',verticalalignment='center',
-            rotation=90,fontsize=10,color='k',alpha=0.2,
+            rotation=90,fontsize=8,color='k',alpha=0.2,
             transform=ax.transAxes)
     
     figname="%s/%s.png"%(DIRNAME,BASENAME)

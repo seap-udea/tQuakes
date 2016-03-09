@@ -208,12 +208,6 @@ M;
   //CLEAN STATS
   ////////////////////////////////////////////////////////////////////////
   else if($action=="cleanstats"){
-
-  }
-  ////////////////////////////////////////////////////////////////////////
-  //CLEAN STATS
-  ////////////////////////////////////////////////////////////////////////
-  else if($action=="cleanstats"){
    shell_exec("cd $STATSDIR;make clean");
    statusMsg("Cleaned...");
   }
@@ -222,7 +216,7 @@ M;
   ////////////////////////////////////////////////////////////////////////
   else if($action=="restats"){
    shell_exec("cd $STATSDIR;make plotall");
-   statusMsg("Replot...");
+   header("Refresh:0;url=?if=data&status=Replot");
   }
   ////////////////////////////////////////////////////////////////////////
   //LOGOUT
@@ -321,23 +315,60 @@ M;
     statusMsg("All fields checked...");
 
     //========================================
-    //GENERATE QUAKEID
+    //PREPARE VARIABLES
     //========================================
     if(!isset($qpreserve)){$qpreserve=0;}
-    $quakestr="QUAKE-lat_$qlat-lon_$qlon-dep_$qdepth-JD_$qjd";
+    statusMsg("Preserve $qpreserve");
+
+    //========================================
+    //GENERATE NEW QUAKEID
+    //========================================
+    $quakestr=sprintf("QUAKE-lat_%+08.4f-lon_%+09.4f-dep_%+010.4f-JD_%.5f",$qlat,$qlon,$qdepth,$qjd);
+    statusMsg("Quake string: $quakestr");
     $md5str=md5($quakestr);
     $tquakeid=strtoupper(substr($md5str,0,7));
+    statusMsg("New quakeid $tquakeid");
     while(mysqlCmd("select quakeid from Quakes where quakeid='$tquakeid';")){
       $tquakeid=str_shuffle($tquakeid);
     }
-    if(isset($quakeid) and !$qpreserve){
-      if($quakeid!=$tquakeid){$quakeid=$tquakeid;}
-    }
 
+    //========================================
+    //CHECK IF QUAKEID IS IN DB
+    //========================================
     $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid' and qjd='$qjd'");
     if(!$quakeindb){
       statusMsg("Quakeid $quakeid not in database...");
+      $qpreserve=0;
+    }else{
+      statusMsg("Stored quakestr: ".$quakeindb["quakestr"]);
+      //IF QUAKESTR DOES NOT MATCH THE QUAKE PARAMETERS HAVE CHANGED
+      if($quakeindb["quakestr"]!=$quakestr){
+	$qcopy=0;
+	$qpreserve=0;
+	$quakeid=$tquakeid;
+	statusMsg("Quakestrs does not match");
+	statusMsg("New quakeid $quakeid");
+      }else{
+	statusMsg("Quakestrs match");
+      }
     }
+    statusMsg("After checking $qpreserve");
+
+    //========================================
+    //CHECK IF A QUAKEID HAS HAD BEEN PROVIDED
+    //========================================
+    $qcopy=0;
+    if(isset($quakeid)){
+      if(!$qpreserve){
+	//IF NO PRESERVE THE NEW QUAKEID IS THE CALCULATED ONE
+	if($quakeid!=$tquakeid){$quakeid=$tquakeid;}
+      }else{
+	//IF QUAKE IS PRESERVED CREATE A COPY OF THE DIRECTORY OF EARTHQUAKE
+	$qcopy=1;
+      }
+    }
+    statusMsg("Copy $qcopy");
+    statusMsg("Final $quakeid");
 
     //========================================
     //CREATE QUAKE SCRATCH DIRECTORY
@@ -354,32 +385,42 @@ M;
     /*
       There are the following types of earthquakes:
       1) Earthquake in database (qdb=1):
-         1.1) Earthquake is not calculated (qdone=0)
-	 1.2) Earthquake is already calculated (qdone=1)
-      2) Earthquake not in database (qdb=0):
-         1.1) Earthquake is in queue (qdone=0)
-	 1.2) Earthquake is already calculated (qdone=1)
+         1.0) Earthquake is not calculated (qdone=0)
+	 1.1) Earthquake is already calculated (qdone=1)
+      0) Earthquake not in database (qdb=0):
+         0.0) Earthquake is in queue (qdone=0)
+	 0.1) Earthquake is already calculated (qdone=1)
      */
+
     //TYPE BY DEFAULT
     $qdb=0;$qdone=0;
 
+    $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid' and qjd='$qjd'");
     if($quakeindb){
+      statusMsg("Quake in db");
       $qdb=1;
       //CHECK IF IT'S DONE
       if(mysqlCmd("select * from Quakes where quakeid='$quakeid' and astatus+0=4")){
+	statusMsg("Quake done");
 	$qdone=1;
       }else{
+	statusMsg("Quake in db but not done");
 	if(file_exists("data/tQuakes/$quakeid.conf")){
+	  statusMsg("Quake already prepared");
 	  $qdone=1;
 	}else{
+	  statusMsg("Quake not prepared");
 	  $qdone=0;
 	}
       }
     }else{
+      statusMsg("Quake not in db");
       $qdb=0;
       if(file_exists("data/tQuakes/$quakeid.conf")){
+	statusMsg("Quake already prepared");
 	$qdone=1;
       }else{
+	statusMsg("Quake not prepared");
 	$qdone=0;
       }
     }
@@ -447,11 +488,11 @@ C;
       $filequake="$dirquakes/$quakeid-eterna.tar.7z";
 
       //CHECK IF PRECALCULATED FILES ALREADY EXISTS
-      if(file_exists($filequake) or 1){
+      if(file_exists($filequake)){
 	statusMsg("Results for $quakeid found...");
 
 	//CHECK IF THEY HAVE BEEN UNZIPED
-	if(!file_exists("$quakedir/$quakeid-eterna.tar") or 1){
+	if(!file_exists("$quakedir/$quakeid-eterna.tar")){
 	  statusMsg("Unzipping files...");
 	  shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
 	  shell_exec("cp -rf $dirquakes/$quakeid.conf $quakedir/");
@@ -483,6 +524,13 @@ C;
 	      shell_exec("echo 'component=\"$symbol\"' >> $quakedir/quake-$plot-$symbol.conf");
 	      shell_exec("echo 'description=\"Plot $plot for component $componentname\"' >> $quakedir/quake-$plot-$symbol.conf");
 	    }
+	  }
+
+	  //CREATE A COPY WITH THE NEW QUAKEID
+	  if($qcopy){
+	    statusMsg("Linking $tquakeid with $quakeid...");
+	    shell_exec("cd $SCRATCHDIR/;ln -s $quakeid $tquakeid");
+	    shell_exec("cd $SCRATCHDIR/;ln -s $quakeid.tar $tquakeid.tar");
 	  }
 
 	}//End tar file exists
@@ -589,23 +637,23 @@ T;
 	  $description=shell_exec("cat $quakedir/$plotbase.html");
 	  if(isBlank($description)){$description="<h4>$plotbase</h4>";}
 	  statusMsg("Generating plot $plotbase...");
-	  $output=shell_exec("find $quakedir -name '${plotbase}__*.png'");
+	  $output=shell_exec("find -L $quakedir -name '${plotbase}__*.png'");
 	  if(isBlank($output)){
 	    $cmd="cd $quakedir;python $plotbase.py";
 	    shell_exec($cmd);
+	    $output=shell_exec("find -L $quakedir -name '${plotbase}__*.png'");
 	  }else{
 	    statusMsg("Plot already generated...");
 	  }
 	  $listpng=preg_split("/\n/",$output);
 	  $plots.="$description<div class='plotstack'>";
 	  foreach($listpng as $png){
-	    statusMsg("PNG: $png");
 	    if(isBlank($png)){continue;}
 	    $pngname=rtrim(shell_exec("basename $png"));
 	    $pngbase=preg_split("/\./",$pngname)[0];
 	    $pngparts=preg_split("/__/",$pngbase);
 	    $pngmd5=$pngparts[1];
-	    if(array_search($pngmd5,$plotmd5s)){continue;}
+	    if(in_array($pngmd5,$plotmd5s)){continue;}
 	    else{array_push($plotmd5s,$pngmd5);}
 	    $plot=parse_ini_file("$quakedir/$plotbase.history/$pngbase.conf");
 	    if(isset($plot["description"])){$deschist=$plot["description"];}
@@ -626,7 +674,7 @@ T;
   endcalculate:
     if(!$qdone){
       $tideresults.="Processing request...<br/><img src=img/loader.gif>";
-      header("Refresh:3;url=$URLPAGE&action=calculate&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd");
+      header("Refresh:3;url=$URLPAGE&action=$action&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd");
     }
 
   }//End action=calculate
@@ -839,7 +887,8 @@ $CONTENT.=<<<C
 <div class="level2 admin">
   Administrative area: 
   <a href="?if=data&action=cleanstats">Clean plots</a> | 
-  <a href="?if=data&action=restats">Replot all</a>
+  <a href="?if=data&action=restats">Replot all</a> | 
+  <a href="plot.php?plothell">Plot hell</a>
 </div>
 <p></p>
 C;
@@ -870,7 +919,7 @@ C;
      //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      //LOOK FOR ALL PLOTS
      //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-     $output=shell_exec("find $STATSDIR -name '${plotbase}__*.png'");
+     $output=shell_exec("find -L $STATSDIR -name '${plotbase}__*.png'");
      if(isBlank($output)){
        $plotlist.="";
      }else{
@@ -1514,27 +1563,31 @@ BASIC;
   // GENERATE MAP
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   $quakedir="$SCRATCHDIR/$quakeid";
-  if(!is_dir("$quakedir")){shell_exec("mkdir -p $quakedir/");}
-  $img=shell_exec("ls $quakedir/*.png");
-  if(isBlank($img)){
+  if(!is_dir("$quakedir")){
+    shell_exec("mkdir -p $quakedir/");
     shell_exec("cd $quakedir;rm -rf *.py");
     shell_exec("cp $HOMEDIR/$TQUSER/tQuakes/$quakeid.conf $quakedir/quake.conf");
     shell_exec("cp $HOMEDIR/$TQUSER/tQuakes/$quakeid.conf $quakedir");
     shell_exec("cd $quakedir;ln -s ../../../tquakes.py");
     shell_exec("cd $quakedir;ln -s ../../../util");
     shell_exec("cd $quakedir;ln -s ../../../configuration");
+  }
+
+  $img=shell_exec("ls $quakedir/quake-map*.png");
+  if(isBlank($img)){
     shell_exec("cd $quakedir;cp -r ../../../plots/analysis/quake-map.* .");
     shell_exec("cd $quakedir;PYTHONPATH=. MPLCONFIGDIR=/tmp python quake-map.py");
+    $img=shell_exec("ls $quakedir/quake-map*.png");
   }
-  $img=shell_exec("ls $quakedir/quake-map*.png");
 
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // RENDER
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   $referer=$_SERVER["HTTP_REFERER"];
 $SUBMENU.=<<<QUAKE
-<a href="$referer">Back</a>
+<a href="$referer">Back</a> | 
 QUAKE;
+  $SUBMENU.="<a href='$WEBSERVER/?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd'>Tides</a>";
   
   preg_match("/__([^\.]+).png/",$img,$matches);
   $plotmd5=$matches[1];
@@ -1679,7 +1732,7 @@ $FORM
 </tr>
 </table>
 <input type="hidden" name="referer" value="$referer">
-<input type="hidden" name="qpreserve" value="0">
+<input type="hidden" name="qpreserve" value="$qpreserve">
 </form>
 $tideresults
 QUAKE;
@@ -2044,7 +2097,7 @@ echo<<<CONTENT
     $MSG
     <div style="background:lightgray;width:100%;height:95%">
     <header>
-      <a href=?><img class="tquakes" src="img/tquakes.png" style="height:100%"/></a>
+      <a href=$WEBSERVER><img class="tquakes" src="img/tquakes.png" style="height:100%"/></a>
       <img class="logogroup" src="img/LogoSEAP-White.jpg" align="middle"/>
     </header>
     <section>

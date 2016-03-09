@@ -316,4 +316,5 @@ if(isset($_SESSION["email"])){
   $SCRATCHDIR=$USERDIR;
 }
 $STATSDIR="plots/analysis/";
+$PLOTHELL="attic/plothell/";
 ?>
