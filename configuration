@@ -5,8 +5,8 @@ TQUSER="tquakes";
 DBUSER="tquakes";
 DBPASSWORD="quakes2015";
 DBNAME="tQuakes";
-EMAIL_USERNAME="seapudea@gmail.com"
-EMAIL_PASSWORD="SEAP2015"
+EMAIL_USERNAME="jorge.zuluaga@udea.edu.co"
+EMAIL_PASSWORD="jizc71755174"
 
 WEBSERVER="http://urania.udea.edu.co/tQuakes"
 DATASERVER="urania.udea.edu.co"

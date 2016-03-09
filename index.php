@@ -89,7 +89,7 @@ if(!isBlank($action)){
       errorMsg("Paswords does not match");
       goto endaction;
     }
-    if(isBlank($name)){
+    if(isBlank($uname)){
       errorMsg("Invalid name");
       goto endaction;
     }
@@ -97,7 +97,6 @@ if(!isBlank($action)){
       //DATABASE ENTRY
       $password=md5($password);
       $ulevel="1";
-      $uname=$name;
       insertSql("Users",array("uname"=>"",
 			      "email"=>"",
 			      "password"=>"",
@@ -113,16 +112,16 @@ $message=<<<M
   Dear $name,
 </p>
 <p>
-  We have received your request to open an account in $tQuakes$
+  We have received your request to open an account in $tQuakes
   website.  In order to use your account you need to activate it using
   the link below:
 </p>
 <p>
-  <a href="$SITEURL/index.php?action=activate&email=$email">Click to activate your account</a>
+  <a href="$WEBSERVER/index.php?action=activate&email=$email">Click to activate your account</a>
 </p>
 <p>Best wishes,</p>
 <p>
-  <b>$tQuakes Admini</b>
+  <b>$tQuakes Administrator</b>
 </p>
 M;
        $subject="[tQuakes] Account activation";
@@ -135,13 +134,81 @@ M;
   //ACTIVATE
   ////////////////////////////////////////////////////////////////////////
   else if($action=="activate"){
-   if(isset($if)){unset($if);}
+    if($result=mysqlCmd("select * from Users where email='$email'")){
+      mysqlCmd("update Users set activate='1' where email='$email'");
+      header("Refresh:0;url=$WEBSERVER/?if=user&status=Your account has been activated");
+    }else{
+      errorMsg("La cuenta de $email no existe.");
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////
+  //RECOVER
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="Change"){
+    //TEST FORM
+    if(isBlank($pass1) or
+       isBlank($pass2)){
+      errorMsg("No password provided");
+      goto endaction;
+    }
+    if($pass1!=$pass2){
+      errorMsg("Password does not match");
+      goto endaction;
+    }
+    $results=mysqlCmd("select * from Users where email='$email'");
+    $spass=$results["password"];
+    if($pass!=$spass){
+      errorMsg("Authentication failed.");
+      goto endaction;
+    }
+    if(strlen($ERRORS)==0){
+      $password=md5($pass1);
+      mysqlCmd("update Users set password='$password' where email='$email'");
+      header("Refresh:0;url=$WEBSERVER/?if=user&status=Password modified");
+    }
   }
   ////////////////////////////////////////////////////////////////////////
   //RECOVER
   ////////////////////////////////////////////////////////////////////////
   else if($action=="Recover"){
-   if(isset($if)){unset($if);}
+
+    if($results=mysqlCmd("select * from Users where email='$email'")){
+
+      $pass=$results["password"];
+      $uname=$results["uname"];
+
+$message=<<<M
+<p>
+  Dear $uname,
+</p>
+<p>
+  We have received a request to recover your password in $tQuakes. In
+  order to proceed please use the link below:
+</p>
+<p>
+  <a href="$WEBSERVER/index.php?if=setpassword&email=$email&pid=$pass">Click
+  to change your password</a>
+</p>
+<p>Best wishes,</p>
+<p>
+  <b>$tQuakes Administrator</b>
+</p>
+M;
+      $subject="[tQuakes] Password reset";
+
+      sendMail($email,$subject,$message,$EHEADERS);
+
+      statusMsg("We have sent a recovery message to your e-mail");
+    }else{
+      errorMsg("E-mail not recognized.");
+      goto endaction;
+    }
+  }
+  ////////////////////////////////////////////////////////////////////////
+  //CLEAN STATS
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="cleanstats"){
+
   }
   ////////////////////////////////////////////////////////////////////////
   //CLEAN STATS
@@ -555,6 +622,7 @@ if(0){}
 //USER
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="user"){
+  if($QPERM<1){
 $CONTENT.=<<<C
 <h3>User login</h3>
 $FORM
@@ -582,8 +650,45 @@ $FORM
 </table>
 </form>
 C;
+  }else{
+    $CONTENT="<i>You are already logged in as $NAME</i>";
+  }
 }
 
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//NEW USER
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+else if($if=="setpassword"){
+  $results=mysqlCmd("select * from Users where email='$email'");
+  $spass=$results["password"];
+  if($pid==$spass){
+$CONTENT.=<<<C
+$FORM
+<h3>Changing password for $email</h3>
+<input type="hidden" name="pass" value="$pid">
+<input type="hidden" name="email" value="$email">
+<table>
+<tr>
+  <td>New password:</td>
+  <td><input type="password" name="pass1" placeholder="Your new password"></td>
+</tr>
+<tr>
+  <td>Confirm password:</td>
+  <td><input type="password" name="pass2" placeholder="Repeat your password"></td>
+</tr>
+<tr>
+  <td colspan=2>
+    <input type="submit" name="action" value="Change">
+  </td>
+</tr>
+</table>
+</form>
+C;
+  }else{
+    errorMsg("User not authorized");
+    $CONTENT.="<i>Authentication failed</i>";
+  }
+}
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //NEW USER
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -591,7 +696,6 @@ else if($if=="newuser"){
 $CONTENT.=<<<C
 <form>
 <h3>Nuevo usuario</h3>
-<input type="hidden" name="mode" value="nuevo">
 <table>
 <tr>
   <td>Name:</td>
@@ -623,17 +727,17 @@ C;
 //RECOVER PASS
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="recoverpass"){
-$content.=<<<C
+$CONTENT.=<<<C
 <form>
-<h3>Recuperación de Contraseña</h3>
+<h2>Password Recovery</h2>
 <table>
 <tr>
   <td>E-mail:</td>
-  <td><input type="text" name="email" placeholder="Su e-mail"></td>
+  <td><input type="text" name="email" placeholder="Your registered e-mail"></td>
 </tr>
 <tr>
   <td colspan=2>
-    <input type="submit" name="action" value="Recupera">
+    <input type="submit" name="action" value="Recover">
   </td>
 </tr>
 </table>

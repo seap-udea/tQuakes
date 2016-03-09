@@ -1,15 +1,17 @@
 <?php
 ////////////////////////////////////////////////////////////////////////
+//LIBRARIES
+////////////////////////////////////////////////////////////////////////
+require "util/PHPMailer/PHPMailerAutoload.php";
+
+////////////////////////////////////////////////////////////////////////
 //CONFIGURATION
 ////////////////////////////////////////////////////////////////////////
-$USER="tquakes";
-$PASSWORD="quakes2015";
-$DATABASE="tQuakes";
-
 $conf=parse_ini_file("configuration");
 foreach(array_keys($conf) as $key){
   $GLOBALS["$key"]=$conf["$key"];
 }
+
 $conf=parse_ini_file("common");
 foreach(array_keys($conf) as $key){
   $GLOBALS["$key"]=$conf["$key"];
@@ -25,8 +27,8 @@ foreach(array_keys($_POST) as $field){$$field=$_POST[$field];}
 $tQuakes="<a href='http://github.com/seap-udea/tQuakes'>tQuakes</a>";
 $GITREPO="http://github.com/seap-udea/tQuakes";
 $FORM="<form method='post' enctype='multipart/form-data' accept-charset='utf-8'>";
-$STATUS="";
-$ERRORS="";
+$STATUS="$status";
+$ERRORS="$errors";
 $URLPAGE=$_SERVER["REQUEST_URI"];
 
 ////////////////////////////////////////////////////////////////////////
@@ -208,8 +210,8 @@ function sendMail($email,$subject,$message,$headers="")
   $mail->SMTPAuth = true;
   $mail->Username = $GLOBALS["EMAIL_USERNAME"];
   $mail->Password = $GLOBALS["EMAIL_PASSWORD"];
-  $mail->setFrom($mail->Username, 'Sistema de Solicitud de Comisiones FCEN/UdeA');
-  $mail->addReplyTo($mail->Username, 'Sistema de Solicitud de Comisiones FCEN/UdeA');
+  $mail->setFrom($mail->Username, 'tQuakes Administrator');
+  $mail->addReplyTo($mail->Username, 'tQuakes Administrator');
   $mail->addAddress($email,"Destinatario");
   $mail->Subject=$subject;
   $mail->CharSet="UTF-8";
