@@ -1,0 +1,8 @@
+Map:stats-distribution-map.py
+Distribution:stats-distribution.py
+Extremes:stats-properties-map.py
+Contours:stats-properties-contour.py
+Schuster Contours:stats-schuster-contour.py
+Schuster Map:stats-schuster-map.py
+Schuster Analysis:stats-schuster-sample.py
+Schuster time:stats-schuster-time.py

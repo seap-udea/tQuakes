@@ -13,7 +13,7 @@ new:
 	@git add -f $(NEWSCRIPT).history/.dir
 	@git add -f $(NEWSCRIPT).history/.gitignore
 
-all:
+plotall:
 	@for script in *.py;do python $$script;done
 	@make permissions
 

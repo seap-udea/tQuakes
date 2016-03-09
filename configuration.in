@@ -3,8 +3,10 @@ PACKAGES_STATION="gnuplot-x11 dosemu links p7zip python-mysqldb python-numpy pyt
 HOMEDIR="/home";
 TQUSER="tquakes";
 DBUSER="tquakes";
-DBPASSWORD="quakes2015";
+DBPASSWORD="<pass>";
 DBNAME="tQuakes";
+EMAIL_USERNAME="username@mail.com"
+EMAIL_PASSWORD="<pass>"
 
 WEBSERVER="http://localhost/tQuakes"
 DATASERVER="localhost"

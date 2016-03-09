@@ -153,3 +153,10 @@ figcaption.plot{
 div.plotstack{
     display:table;
 }
+a.top{
+    font-size:10px;
+}
+div.admin{
+    background:lightgray;
+    padding:5px;
+}

@@ -168,6 +168,75 @@ function parseParams($params)
   return $parameters;
 }
 
+function insertSql($table,$mapfields)
+{
+  global $GLOBALS;
+  foreach(array_keys($GLOBALS) as $var){$$var=$GLOBALS["$var"];}
+  
+  $fields="(";
+  $values="(";
+  $udpate="";
+  $i=0;
+  foreach(array_keys($mapfields) as $field){
+    $nvalue=$mapfields["$field"];
+    if($nvalue==""){$nvalue=$field;}
+    $value=$$nvalue;
+    $fields.="$field,";
+    $values.="'$value',";
+    if($i>0){$update.="$field=VALUES($field),";}
+    $i++;
+  }
+  $fields=rtrim($fields,",").")";
+  $values=rtrim($values,",").")";
+  $update=rtrim($update,",");
+  $sql="insert into $table $fields values $values on duplicate key update $update";
+  $result=mysqlCmd($sql);
+  
+  return $result;
+}
+
+function sendMail($email,$subject,$message,$headers="")
+{
+  date_default_timezone_set('Etc/UTC');
+  $mail = new PHPMailer;
+  $mail->isSMTP();
+  $mail->SMTPDebug = 0;
+  $mail->Debugoutput = 'html';
+  $mail->Host = 'smtp.gmail.com';
+  $mail->Port = 587;
+  $mail->SMTPSecure = 'tls';
+  $mail->SMTPAuth = true;
+  $mail->Username = $GLOBALS["EMAIL_USERNAME"];
+  $mail->Password = $GLOBALS["EMAIL_PASSWORD"];
+  $mail->setFrom($mail->Username, 'Sistema de Solicitud de Comisiones FCEN/UdeA');
+  $mail->addReplyTo($mail->Username, 'Sistema de Solicitud de Comisiones FCEN/UdeA');
+  $mail->addAddress($email,"Destinatario");
+  $mail->Subject=$subject;
+  $mail->CharSet="UTF-8";
+  $mail->Body=$message;
+  $mail->IsHTML(true);
+  if(!($status=$mail->send())) {
+    $status="Mailer Error:".$mail->ErrorInfo;
+  }
+  return $status;
+}
+
+function sendShortMail($email,$subject,$message)
+{
+  $headers="";
+  $headers.="From: noreply@udea.edu.co\r\n";
+  $headers.="Reply-to: noreply@udea.edu.co\r\n";
+  $headers.="MIME-Version: 1.0\r\n";
+  $headers.="MIME-Version: 1.0\r\n";
+  $headers.="Content-type: text/html\r\n";
+$message.=<<<M
+<p>
+<b>tQuakes</b>
+</p>
+M;
+  sendMail($email,$subject,$message,$headers);
+}
+
 ////////////////////////////////////////////////////////////////////////
 //DATABASE INITIALIZATION
 ////////////////////////////////////////////////////////////////////////

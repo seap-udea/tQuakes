@@ -66,7 +66,97 @@ if(!isBlank($action)){
     $sql="insert into Stations (station_id,station_name,station_email,station_arch,station_nproc,station_mem,station_mac,station_receiving) values ('$station_id','$station_name','$station_email','$station_arch','$station_nproc','$station_mem','$station_mac','$station_receiving') on duplicate key update station_name=VALUES(station_name),station_email=VALUES(station_email),station_arch=VALUES(station_arch),station_nproc=VALUES(station_nproc),station_mem=VALUES(station_mem),station_mac=VALUES(station_mac),station_receiving=VALUES(station_receiving);";
     mysqlCmd($sql);
   }
+  ////////////////////////////////////////////////////////////////////////
+  //NEW USER
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="Create"){
+    $if="newuser";
+    //TEST FORM
+    if(isBlank($email) or
+       !preg_match("/@/",$email)){
+      errorMsg("You should provide a valid e-mail");
+      goto endaction;
+    }
+    if(mysqlCmd("select * from Users where email='$email'")){
+      errorMsg("A user with this e-mail already exists"); 
+      goto endaction;
+    }      
+    if(isBlank($password)){
+      errorMsg("Password invalid");
+      goto endaction;
+    }
+    if($password!=$cpassword){
+      errorMsg("Paswords does not match");
+      goto endaction;
+    }
+    if(isBlank($name)){
+      errorMsg("Invalid name");
+      goto endaction;
+    }
+    if(strlen($ERRORS)==0){
+      //DATABASE ENTRY
+      $password=md5($password);
+      $ulevel="1";
+      $uname=$name;
+      insertSql("Users",array("uname"=>"",
+			      "email"=>"",
+			      "password"=>"",
+			      "ulevel"=>"")
+		);
 
+      //MESSAGES
+      statusMsg("User has been registered.  Please check your e-mail to activate the
+account.");
+
+$message=<<<M
+<p>
+  Dear $name,
+</p>
+<p>
+  We have received your request to open an account in $tQuakes$
+  website.  In order to use your account you need to activate it using
+  the link below:
+</p>
+<p>
+  <a href="$SITEURL/index.php?action=activate&email=$email">Click to activate your account</a>
+</p>
+<p>Best wishes,</p>
+<p>
+  <b>$tQuakes Admini</b>
+</p>
+M;
+       $subject="[tQuakes] Account activation";
+
+       sendMail($email,$subject,$message,$EHEADERS);
+    }
+    if(isset($if)){unset($if);}
+  }
+  ////////////////////////////////////////////////////////////////////////
+  //ACTIVATE
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="activate"){
+   if(isset($if)){unset($if);}
+  }
+  ////////////////////////////////////////////////////////////////////////
+  //RECOVER
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="Recover"){
+   if(isset($if)){unset($if);}
+  }
+  ////////////////////////////////////////////////////////////////////////
+  //CLEAN STATS
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="cleanstats"){
+   shell_exec("cd $STATSDIR;make clean");
+   statusMsg("Cleaned...");
+  }
+  ////////////////////////////////////////////////////////////////////////
+  //REPLOT STATS
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="restats"){
+   shell_exec("cd $STATSDIR;make plotall");
+   statusMsg("Replot...");
+  }
   ////////////////////////////////////////////////////////////////////////
   //LOGOUT
   ////////////////////////////////////////////////////////////////////////
@@ -74,7 +164,7 @@ if(!isBlank($action)){
     session_unset();
     $urlref="?";
     statusMsg("Logout succesful");
-    header("Refresh:1;url=$urlref");
+    header("Refresh:0;url=$urlref");
   }
   ////////////////////////////////////////////////////////////////////////
   //LOGIN
@@ -110,7 +200,7 @@ if(!isBlank($action)){
 	  }
 	  if(preg_match("/user/",$urlref)){$urlref="index.php";}
 	  statusMsg("Login succesful");
-	  header("Refresh:1;url=$urlref");
+	  header("Refresh:0;url=$urlref");
 	}else{
 	  errorMsg("Invalid password");
 	}
@@ -460,6 +550,7 @@ PLOT;
 ////////////////////////////////////////////////////////////////////////
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 if(0){}
+
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //USER
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -482,14 +573,69 @@ $FORM
     <input type="submit" name="action" value="Login">
   </td>
 </tr>
-<!--
 <tr>
   <td colspan=2>
-    <a href=?mode=nuevo>Nuevo usuario</a> |
-    <a href=?mode=recupera>Recuperar contraseña</a>
+    <a href=?if=newuser>New user</a> |
+    <a href=?if=recoverpass>Recover  password</a>
   </td>
 </tr>
--->
+</table>
+</form>
+C;
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//NEW USER
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+else if($if=="newuser"){
+$CONTENT.=<<<C
+<form>
+<h3>Nuevo usuario</h3>
+<input type="hidden" name="mode" value="nuevo">
+<table>
+<tr>
+  <td>Name:</td>
+  <td><input type="text" name="uname" placeholder="Name" value="$uname"></td>
+</tr>
+<tr>
+  <td>E-mail:</td>
+  <td><input type="text" name="email" placeholder="Your e-mail" value="$email"></td>
+</tr>
+<tr>
+  <td>Password:</td>
+  <td><input type="password" name="password" placeholder="Your password"></td>
+</tr>
+<tr>
+  <td>Confirm password:</td>
+  <td><input type="password" name="cpassword" placeholder="Your password"></td>
+</tr>
+<tr>
+  <td colspan=2>
+    <input type="submit" name="action" value="Create">
+  </td>
+</tr>
+</table>
+</form>
+C;
+}
+
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//RECOVER PASS
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+else if($if=="recoverpass"){
+$content.=<<<C
+<form>
+<h3>Recuperación de Contraseña</h3>
+<table>
+<tr>
+  <td>E-mail:</td>
+  <td><input type="text" name="email" placeholder="Su e-mail"></td>
+</tr>
+<tr>
+  <td colspan=2>
+    <input type="submit" name="action" value="Recupera">
+  </td>
+</tr>
 </table>
 </form>
 C;
@@ -545,14 +691,22 @@ else if($if=="data"){
 $CONTENT.=<<<C
 
 <h2>Data Products</h2>
+<p>
+  One of the most important products of $tQuakes is data. A lot of it.
+  
+  Data containing information about Earthquakes around the globe (more
+  specifically in Colombia and South America) and the lunisolar tides
+  affecting the places where those Earthquakes happened.
 
-One of the most important products of $tQuakes is data. A lot of it.
+  Here are some of the available data products from $tQuakes.
+</p>
 
-Data containing information about Earthquakes around the globe (more
-specifically in Colombia and South America) and the lunisolar tides
-affecting the places where those Earthquakes happened.
-
-Here are some of the available data products from $tQuakes:
+<div class="level2 admin">
+  Administrative area: 
+  <a href="?if=data&action=cleanstats">Clean plots</a> | 
+  <a href="?if=data&action=restats">Replot all</a>
+</div>
+<p></p>
 C;
  
    //==================================================
@@ -562,14 +716,20 @@ C;
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    //LIST OF SCRIPTS
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   $output=shell_exec("find $STATSDIR -name 'stats-*.py'");
-   $listplots=preg_split("/\n/",$output);
-
+   //$output=shell_exec("find $STATSDIR -name 'stats-*.py'");
+   //$listplots=preg_split("/\n/",$output);
+   $listplots=file("$STATSDIR/stats-sorting.txt");
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    //FOR EACH SCRIPT...
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   foreach($listplots as $plot){
-     if(isBlank($plot)){continue;}
+   $SUBMENU.="<a name=submenu></a>";
+   foreach($listplots as $plotprops){
+     if(isBlank($plotprops)){continue;}
+     $parts=preg_split("/:/",$plotprops);
+     $submenu=$parts[0];
+     $submenu_key=preg_replace("/\s/","_",$submenu);
+     $SUBMENU.="<a href=#$submenu_key>$submenu</a> | ";
+     $plot=$parts[1];
      $plotname=rtrim(shell_exec("basename $plot"));
      $plotbase=preg_split("/\./",$plotname)[0];
 
@@ -581,7 +741,7 @@ C;
        $plotlist.="";
      }else{
        $description=shell_exec("cat $STATSDIR/$plotbase.html");
-       $plotlist.="$description<div class='plotstack'>";
+       $plotlist.="<a name=$submenu_key><a class='top' href=#submenu>Top</a>$description<div class='plotstack'>";
        $listhist=preg_split("/\n/",$output);
        foreach($listhist as $hist){
 	 if(isBlank($hist)){continue;}
@@ -595,7 +755,7 @@ C;
 
 	 $replot="";
 	 if($QPERM){
-	   $replot="<a href='plot.php?replotui&plot=$plotbase&md5sum=$histmd5' target='_blank'>Replot</a> | ";
+	   $replot="";
 	 }
 
 $plotlist.=<<<IMG
@@ -605,7 +765,7 @@ $plotlist.=<<<IMG
   </a>
   <figcaption class="plot">
   $deschist [PID: $histparts[1]]<br/>
-  $replot
+  <span class="level2"><a href='plot.php?replotui&plot=$plotbase&md5sum=$histmd5' target='_blank'>Replot</a> | </span>
   <a href="$STATSDIR/$plotbase.history/${plotbase}__$histparts[1].conf" target="_blank">Conf</a>  | 
   <a href="plot.php?plothistory&plot=$plotbase" target="_blank">History</a>
   </figcaption>
