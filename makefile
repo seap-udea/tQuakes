@@ -29,6 +29,10 @@ cleanscratch:
 	@touch scratch/remove
 	@rm -r scratch/*
 
+cleanusers:
+	@echo "Cleaning users directory..."
+	@rm -rf users/*/*
+
 cleandata:
 	@echo "Cleaning data..."
 	@touch data/quakes/ooooooo

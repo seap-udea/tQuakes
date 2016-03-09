@@ -239,6 +239,43 @@ M;
   sendMail($email,$subject,$message,$headers);
 }
 
+function generateFigure($plotdir,$plotname,$plotmd5,
+			$description="No description",
+			$figure_style="",$img_style="",$figcaption_style="")
+{
+  $plotbase="${plotname}__$plotmd5";
+  $conf=parse_ini_file("$plotdir/$plotname.history/$plotbase.conf");
+  if(isset($conf["description"])){
+    $description=$conf["description"];
+  }
+  $plotimg="$plotdir/$plotbase.png";
+
+$plottxt=<<<PLOT
+<figure class="plot" style="$figure_style">
+  <a href="$plotimg" target="_blank">
+    <img class="plot" src="$plotimg" style="$img_style">
+  </a>
+  <figcaption class="plot" style="$figcaption_style">
+    $description [PID: $plotmd5]<br/>
+    <span class="level2">
+      <a href="plot.php?replotui&plot=$plotname&md5sum=$plotmd5&dir=$plotdir" 
+	       target="_blank">
+	Replot
+      </a> | 
+    </span>
+    <a href="$plotdir/$plotname.history/${plotname}__$plotmd5.conf" target="_blank">
+      Conf
+    </a>  | 
+    <a href="plot.php?plothistory&plot=$plotname&dir=$plotdir" target="_blank">
+      History
+    </a>
+  </figcaption>
+</figure>
+PLOT;
+
+   return $plottxt;
+}
+
 ////////////////////////////////////////////////////////////////////////
 //DATABASE INITIALIZATION
 ////////////////////////////////////////////////////////////////////////
@@ -260,6 +297,7 @@ $COMPONENTS_DICT=array(array("pot",-1,"Tidal potential","m<sup>2</sup>/s<sup>2</
 		       array("volume",8,"Volume strain","nstr"),
 		       array("hst",9,"Horizontal strain (Az = 90)","nstr")
 		       );
+$QUAKE_PLOTS=array("tidal-boundaries","tidal-signal");
 
 ////////////////////////////////////////////////////////////////////////
 //DIRECTORIES

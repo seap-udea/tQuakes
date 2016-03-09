@@ -1,4 +1,4 @@
-BRANCH=$(shell bash .getbranch)
+	BRANCH=$(shell bash .getbranch)
 
 new:
 	@echo "Creating new script '$(NEWSCRIPT)'..."
@@ -29,6 +29,13 @@ clean:
 	@find . -name "*.png" -exec rm {} \;
 	@for dir in *.history;do touch $$dir/delete;done
 	@-rm *.history/*
+
+cleanplot:
+	@echo "Cleaning plot $(PLOT)..."
+	@ls $(PLOT).history
+	@touch $(PLOT).history/done
+	@rm $(PLOT).history/*
+	@rm $(PLOT)__*.png
 
 permissions:
 	@echo "Setting permissions for web..."

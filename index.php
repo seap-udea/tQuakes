@@ -447,11 +447,11 @@ C;
       $filequake="$dirquakes/$quakeid-eterna.tar.7z";
 
       //CHECK IF PRECALCULATED FILES ALREADY EXISTS
-      if(file_exists($filequake)){
+      if(file_exists($filequake) or 1){
 	statusMsg("Results for $quakeid found...");
 
 	//CHECK IF THEY HAVE BEEN UNZIPED
-	if(!file_exists("$quakedir/$quakeid-eterna.tar")){
+	if(!file_exists("$quakedir/$quakeid-eterna.tar") or 1){
 	  statusMsg("Unzipping files...");
 	  shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
 	  shell_exec("cp -rf $dirquakes/$quakeid.conf $quakedir/");
@@ -463,14 +463,28 @@ C;
 	  shell_exec("cd $quakedir;tar xf $quakeid-eterna.tar");
 	  shell_exec("cd $quakedir;tar xf $quakeid-analysis.tar");
 	  
-	  //COPY PLOTTING SCRIPTS
-	  shell_exec("cd $quakedir;rm -rf *.py");
-	  shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.py;do ln -s \$plot;done");
-	  shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.sh;do ln -s \$plot;done");
-	  shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.conf;do ln -s \$plot;done");
+	  //COPY SUPPORTING PYTHON FILES
 	  shell_exec("cd $quakedir;ln -s ../../../tquakes.py");
 	  shell_exec("cd $quakedir;ln -s ../../../util");
 	  shell_exec("cd $quakedir;ln -s ../../../configuration");
+	  shell_exec("cd $quakedir;ln -s ../../../plots/analysis/makefile");
+
+	  //COPY PLOTTING SCRIPTS
+	  foreach($COMPONENTS as $ncomp){
+	    $component=$COMPONENTS_DICT[$ncomp+1];
+	    $symbol=$component[0];
+	    $componentname=$component[2];
+	    foreach($QUAKE_PLOTS as $plot){
+	      foreach(array("py","conf","html","history") as $ext){
+		$cmd="cp -r plots/analysis/quake-$plot.$ext $quakedir/quake-$plot-$symbol.$ext";
+		shell_exec($cmd);
+	      }
+	      shell_exec("echo >> $quakedir/quake-$plot-$symbol.conf");
+	      shell_exec("echo 'component=\"$symbol\"' >> $quakedir/quake-$plot-$symbol.conf");
+	      shell_exec("echo 'description=\"Plot $plot for component $componentname\"' >> $quakedir/quake-$plot-$symbol.conf");
+	    }
+	  }
+
 	}//End tar file exists
       }//End quake has been completed
     }
@@ -561,7 +575,7 @@ T;
       //========================================
       //PLOT
       //========================================
-      shell_exec("bash $quakedir/plotall.sh $quakedir");
+      shell_exec("cd $quakedir;make plotall");
       statusMsg("Plots generated...");
 
       //========================================
@@ -857,11 +871,9 @@ C;
 	 if(isset($plot["description"])){$deschist=$plot["description"];}
 	 else{$deschist="No description";}
 
-	 $replot="";
-	 if($QPERM){
-	   $replot="";
-	 }
-
+	 $plotfigure=generateFigure($STATSDIR,$plotbase,$histmd5);
+	 $plotlist.="$plotfigure";
+	 /*
 $plotlist.=<<<IMG
 <figure class="plot">
   <a href="$hist" target="_blank">
@@ -875,6 +887,8 @@ $plotlist.=<<<IMG
   </figcaption>
 </figure>
 IMG;
+	 */
+
        }
        $plotlist.="</div>";
   }
@@ -1514,10 +1528,10 @@ BASIC;
     shell_exec("cd $quakedir;ln -s ../../../tquakes.py");
     shell_exec("cd $quakedir;ln -s ../../../util");
     shell_exec("cd $quakedir;ln -s ../../../configuration");
-    shell_exec("cd $quakedir;cp ../../../plots/quakes/quake-map.conf .");
-    shell_exec("cd $quakedir;PYTHONPATH=. MPLCONFIGDIR=/tmp python quake-map.py $qlon $qlat");
+    shell_exec("cd $quakedir;cp -r ../../../plots/analysis/quake-map.* .");
+    shell_exec("cd $quakedir;PYTHONPATH=. MPLCONFIGDIR=/tmp python quake-map.py");
   }
-  $img=shell_exec("ls $quakedir/*.png");
+  $img=shell_exec("ls $quakedir/quake-map*.png");
 
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // RENDER
@@ -1526,14 +1540,18 @@ BASIC;
 $SUBMENU.=<<<QUAKE
 <a href="$referer">Back</a>
 QUAKE;
+  
+  preg_match("/__([^\.]+).png/",$img,$matches);
+  $plotmd5=$matches[1];
+  $plotfigure=generateFigure($quakedir,"quake-map",$plotmd5,
+			     /*Description*/"",
+			     /*figure style*/"float:right;width:50%;",
+			     /*img style*/"",
+			     /*figcaption style*/"");
 
 $CONTENT.=<<<QUAKE
-<figure style="float:right;right:0px;width:60%;">	       
-  <a href="$img" target="_blank">
-    <img src="$img" width="100%">
-  </a>
-  <figcaption>Scatter plot of the earthquakes including $quakeid (white dot)</figcaption>
-</figure>
+
+  $plotfigure
 
 <h3>Earthquake $quakeid</h3>
 
