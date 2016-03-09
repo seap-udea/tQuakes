@@ -575,35 +575,49 @@ T;
       //========================================
       //PLOT
       //========================================
-      shell_exec("cd $quakedir;make plotall");
-      statusMsg("Plots generated...");
-
-      //========================================
-      //SHOW PLOTS
-      //========================================
       $SUBMENU.="<a href='#plots'>Plots</a> | ";
       $tideresults.="<h3><a name=plots>Plots</a></h3>";
-
       $plots="";
-      $output=shell_exec("ls -m $quakedir/*.png");
-      $listplots=preg_split("/\s*,\s*/",$output);
-      foreach($listplots as $plot){
-	$plotname=rtrim(shell_exec("basename $plot"));
-	$plotbase=preg_split("/\./",$plotname)[0];
-$plots.=<<<PLOT
-<li><b>Plot</b>:
-  <ul>
-    <li><a name="$plotbase">File</a>: <a href="$plot">$plotname</a></li>
-    <li>Preview:<br/>
-      <a href="$plot" target="_blank">
-	<img src="$plot" width="400px">
-      </a>
-    </li>
-    <li><a href="plot.php?replot&plot=$plot">Replot</a></li>
-  </ul>
-PLOT;
-       }
-       $tideresults.=$plots;
+
+      foreach($COMPONENTS as $ncomp){
+	$component=$COMPONENTS_DICT[$ncomp+1];
+	$symbol=$component[0];
+	$componentname=$component[2];
+	foreach($QUAKE_PLOTS as $plot){
+	  $plotbase="quake-$plot-$symbol";
+	  $description=shell_exec("cat $quakedir/$plotbase.html");
+	  if(isBlank($description)){$description="<h4>$plotbase</h4>";}
+	  statusMsg("Generating plot $plotbase...");
+	  $output=shell_exec("find $quakedir -name '${plotbase}__*.png'");
+	  if(isBlank($output)){
+	    $cmd="cd $quakedir;python $plotbase.py";
+	    shell_exec($cmd);
+	  }else{
+	    statusMsg("Plot already generated...");
+	  }
+	  $listpng=preg_split("/\n/",$output);
+	  $plots.="$description<div class='plotstack'>";
+	  foreach($listpng as $png){
+	    statusMsg("PNG: $png");
+	    if(isBlank($png)){continue;}
+	    $pngname=rtrim(shell_exec("basename $png"));
+	    $pngbase=preg_split("/\./",$pngname)[0];
+	    $pngparts=preg_split("/__/",$pngbase);
+	    $pngmd5=$pngparts[1];
+	    $plot=parse_ini_file("$quakedir/$plotbase.history/$pngbase.conf");
+	    if(isset($plot["description"])){$deschist=$plot["description"];}
+	    else{$deschist="No description";}
+	    $plotfigure=generateFigure($quakedir,$plotbase,$pngmd5);
+	    $plots.="$plotfigure";
+	    statusMsg("Plot generated...");
+	    //break;
+	  }
+	  $plots.="</div>";
+	}
+	//break;
+      }
+      statusMsg("All plots generated...");
+      $tideresults.=$plots;
     }
 
   endcalculate:
@@ -1524,7 +1538,6 @@ BASIC;
     shell_exec("cd $quakedir;rm -rf *.py");
     shell_exec("cp $HOMEDIR/$TQUSER/tQuakes/$quakeid.conf $quakedir/quake.conf");
     shell_exec("cp $HOMEDIR/$TQUSER/tQuakes/$quakeid.conf $quakedir");
-    shell_exec("cd $quakedir;ln -s ../../../plots/quakes/quake-map.py");
     shell_exec("cd $quakedir;ln -s ../../../tquakes.py");
     shell_exec("cd $quakedir;ln -s ../../../util");
     shell_exec("cd $quakedir;ln -s ../../../configuration");
@@ -2082,7 +2095,7 @@ echo<<<CONTENT
     </div>
     <footer>
       <i>
-	Developed by Jorge I. Zuluaga, Gloria Moncayo & Gaspar Monsalve (2015)sessid: $SESSID
+	Developed by Jorge I. Zuluaga (2015) - sessid: $SESSID
       </i>
     </footer>
   </body>

@@ -52,8 +52,8 @@ div.placebar{
     background:lightgray;
     padding-left:10px;
     padding-top:10px;
+    overflow:scroll;
 }
-
 nav{
     padding-bottom:5px;
     margin-bottom:10px;
@@ -141,7 +141,7 @@ img.logogroup{
 }
 figure.plot{
     float:left;
-    width:20vw;
+    width:25vw;
 }
 img.plot{
     width:100%;

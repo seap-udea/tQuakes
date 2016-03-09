@@ -928,7 +928,7 @@ def plotSignal(quakeid,component,plt):
     t=signal[:,0]-float(quake.qjd)
     s=signal[:,nc]
     smin=s.min();smax=s.max()
-
+    
     ax.plot(t,s)
     ax.plot([0],[value],marker='o',color='r',markersize=10,markeredgecolor="None")
     ax.axvline(0,color='r')
@@ -961,10 +961,11 @@ def plotSignal(quakeid,component,plt):
             horizontalalignment='center',verticalalignment='center',
             rotation=90,fontsize=10,color='k',alpha=0.2,
             transform=ax.transAxes)
-    
+
     figname="%s/%s.png"%(DIRNAME,BASENAME)
     print "Saving figure ",figname
     fig.savefig(figname)
+    return fig
 
 def plotBoundaries(quakeid,component,plt):
     # ############################################################
@@ -975,7 +976,7 @@ def plotBoundaries(quakeid,component,plt):
     name=info[1]
     units=info[2]
     nc,np=numComponent(component)
-    
+
     # ############################################################
     # QUAKE PROPERTIES
     # ############################################################
@@ -1135,3 +1136,4 @@ def plotBoundaries(quakeid,component,plt):
     figname="%s/%s.png"%(DIRNAME,BASENAME)
     print "Saving figure ",figname
     fig.savefig(figname)
+    return fig

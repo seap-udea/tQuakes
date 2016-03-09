@@ -16,14 +16,9 @@ connection=connectDatabase()
 db=connection.cursor()
 
 # ############################################################
-# PREPARE PLOTTING REGION
-# ############################################################
-fig,axs=subPlots(plt,[1])
-
-# ############################################################
 # PLOT
 # ############################################################
-plotSignal(quake.quakeid,component,plt)
+fig=plotSignal(quake.quakeid,component,plt)
 
 # ############################################################
 # SAVING FIGURE

@@ -244,11 +244,13 @@ function generateFigure($plotdir,$plotname,$plotmd5,
 			$figure_style="",$img_style="",$figcaption_style="")
 {
   $plotbase="${plotname}__$plotmd5";
-  $conf=parse_ini_file("$plotdir/$plotname.history/$plotbase.conf");
+  $confile="$plotdir/$plotname.history/$plotbase.conf";
+  $conf=parse_ini_file($confile);
   if(isset($conf["description"])){
     $description=$conf["description"];
   }
   $plotimg="$plotdir/$plotbase.png";
+  if(!file_exists($plotimg)){$plotimg="$plotdir/$plotname.history/$plotbase.png";}
 
 $plottxt=<<<PLOT
 <figure class="plot" style="$figure_style">
