@@ -20,6 +20,17 @@ db=connection.cursor()
 fig,axs=subPlots(plt,[1],w=0.9)
 
 # ############################################################
+# COMPONENT AND PHASE INFORMATION
+# ############################################################
+info=COMPONENTS_DICT[component]
+compnum=info[0]
+compname=info[1]
+
+info=PHASES_DICT[phase]
+phasenum=info[0]
+phasename=info[1]
+
+# ############################################################
 # GET PHASES
 # ############################################################
 latb=center[0]-dlat/2;latu=center[0]+dlat/2
@@ -40,7 +51,7 @@ limit %d"""%(latb,latu,
 qids,quakes=getPhases(search,component,db)
 nquakes=len(qids)
 if random:phases=360*numpy.random.random(nquakes)
-else:phases=360*quakes[:,phase]
+else:phases=360*quakes[:,4+phasenum]
 
 # ############################################################
 # CALCULATE CONTOUR
@@ -83,7 +94,8 @@ axs[0].set_yticklabels(ytl)
 
 axs[0].set_xlabel("$M_l$",fontsize=14)
 axs[0].set_ylabel("Depth (km)",fontsize=14)
-axs[0].set_title("$\log(p)$, %s, phase %s"%(COMPONENTS_DICT[component][1],PHASES[phase]),
+axs[0].set_title("$\log(p)$, %s, phase %s"%(COMPONENTS_DICT[component][1],
+                                            PHASES_DICT[phase][1]),
                  position=(0.5,1.02))
 
 axs[0].grid(zorder=10)

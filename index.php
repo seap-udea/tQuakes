@@ -579,6 +579,7 @@ T;
       $tideresults.="<h3><a name=plots>Plots</a></h3>";
       $plots="";
 
+      $plotmd5s=array();
       foreach($COMPONENTS as $ncomp){
 	$component=$COMPONENTS_DICT[$ncomp+1];
 	$symbol=$component[0];
@@ -604,6 +605,8 @@ T;
 	    $pngbase=preg_split("/\./",$pngname)[0];
 	    $pngparts=preg_split("/__/",$pngbase);
 	    $pngmd5=$pngparts[1];
+	    if(array_search($pngmd5,$plotmd5s)){continue;}
+	    else{array_push($plotmd5s,$pngmd5);}
 	    $plot=parse_ini_file("$quakedir/$plotbase.history/$pngbase.conf");
 	    if(isset($plot["description"])){$deschist=$plot["description"];}
 	    else{$deschist="No description";}
@@ -848,9 +851,8 @@ C;
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    //LIST OF SCRIPTS
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   //$output=shell_exec("find $STATSDIR -name 'stats-*.py'");
-   //$listplots=preg_split("/\n/",$output);
    $listplots=file("$STATSDIR/stats-sorting.txt");
+
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    //FOR EACH SCRIPT...
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -875,47 +877,27 @@ C;
        $description=shell_exec("cat $STATSDIR/$plotbase.html");
        $plotlist.="<a name=$submenu_key><a class='top' href=#submenu>Top</a>$description<div class='plotstack'>";
        $listhist=preg_split("/\n/",$output);
+       $plotmd5s=array();
        foreach($listhist as $hist){
 	 if(isBlank($hist)){continue;}
 	 $histname=rtrim(shell_exec("basename $hist"));
 	 $histbase=preg_split("/\./",$histname)[0];
 	 $histparts=preg_split("/__/",$histbase);
 	 $histmd5=$histparts[1];
+	 if(in_array($histmd5,$plotmd5s)){continue;}
+	 else{array_push($plotmd5s,$histmd5);}
 	 $plot=parse_ini_file("$STATSDIR/$plotbase.history/$histbase.conf");
 	 if(isset($plot["description"])){$deschist=$plot["description"];}
 	 else{$deschist="No description";}
 
 	 $plotfigure=generateFigure($STATSDIR,$plotbase,$histmd5);
 	 $plotlist.="$plotfigure";
-	 /*
-$plotlist.=<<<IMG
-<figure class="plot">
-  <a href="$hist" target="_blank">
-    <img class="plot" src="$hist">
-  </a>
-  <figcaption class="plot">
-  $deschist [PID: $histparts[1]]<br/>
-  <span class="level2"><a href='plot.php?replotui&plot=$plotbase&md5sum=$histmd5' target='_blank'>Replot</a> | </span>
-  <a href="$STATSDIR/$plotbase.history/${plotbase}__$histparts[1].conf" target="_blank">Conf</a>  | 
-  <a href="plot.php?plothistory&plot=$plotbase" target="_blank">History</a>
-  </figcaption>
-</figure>
-IMG;
-	 */
 
        }
        $plotlist.="</div>";
+     }
+     $i++;
   }
-  $i++;
-}
-/*
-if($i==0){$plotlist.="<i>No plot in history</i>";}
-else{
-  $rem=3-$i%3;
-  if($rem){$plotlist.="<td colspan=$rem></td></tr>";}
-}
-$plotlist.="</table>";
-*/
   $CONTENT.="$plotlist</li></ul>";
 }
 
