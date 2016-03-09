@@ -544,6 +544,8 @@ else if($if=="data"){
   $plotlist="";
 $CONTENT.=<<<C
 
+<h2>Data Products</h2>
+
 One of the most important products of $tQuakes is data. A lot of it.
 
 Data containing information about Earthquakes around the globe (more
@@ -551,7 +553,6 @@ specifically in Colombia and South America) and the lunisolar tides
 affecting the places where those Earthquakes happened.
 
 Here are some of the available data products from $tQuakes:
-<ul>
 C;
  
    //==================================================
@@ -559,60 +560,60 @@ C;
    //==================================================
  
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   //LIST OF PLOTS GENERATED SO FAR
+   //LIST OF SCRIPTS
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    $output=shell_exec("find $STATSDIR -name 'stats-*.py'");
    $listplots=preg_split("/\n/",$output);
 
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   //FOR EACH PLOT ALL PLOTS GENERATED
+   //FOR EACH SCRIPT...
    //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    foreach($listplots as $plot){
+     if(isBlank($plot)){continue;}
      $plotname=rtrim(shell_exec("basename $plot"));
      $plotbase=preg_split("/\./",$plotname)[0];
-     echo "$plotbase<br/>";
-  /*
 
-  if(($i%$numcols)==0){$plotlist.="</tr><tr>";}
-  if(isBlank($plot)){continue;}
-  $plotname=rtrim(shell_exec("basename $plot"));
-  $plotbase=preg_split("/\./",$plotname)[0];
-  $plotparts=preg_split("/__/",$plotbase);
-  $plotroot=$plotparts[0];
-  //print_r($plotscripts);
-  //echo array_search($plotroot,$plotscript);
-  if(!isBlank(array_search($plotroot,$plotscripts))){
-    continue;
-  }else{
-    //echo "Metiendo $plotroot<br/>";
-    array_push($plotscripts,$plotroot);
-  }
-  //echo "$plotroot<br/>";
-  $plotmd5=$plotparts[1];
-  if(array_search($plotmd5,$md5sums)){continue;}
-  else{array_push($md5sums,$plotmd5);}
+     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     //LOOK FOR ALL PLOTS
+     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     $output=shell_exec("find $STATSDIR -name '${plotbase}__*.png'");
+     if(isBlank($output)){
+       $plotlist.="";
+     }else{
+       $description=shell_exec("cat $STATSDIR/$plotbase.html");
+       $plotlist.="$description<div class='plotstack'>";
+       $listhist=preg_split("/\n/",$output);
+       foreach($listhist as $hist){
+	 if(isBlank($hist)){continue;}
+	 $histname=rtrim(shell_exec("basename $hist"));
+	 $histbase=preg_split("/\./",$histname)[0];
+	 $histparts=preg_split("/__/",$histbase);
+	 $histmd5=$histparts[1];
+	 $plot=parse_ini_file("$STATSDIR/$plotbase.history/$histbase.conf");
+	 if(isset($plot["description"])){$deschist=$plot["description"];}
+	 else{$deschist="No description";}
 
-  $replot="";
-  if($QPERM){
-    $replot="<a href='plot.php?replotui&plot=$plotroot&md5sum=$plotmd5' target='_blank'>Replot</a> |";
-  }
+	 $replot="";
+	 if($QPERM){
+	   $replot="<a href='plot.php?replotui&plot=$plotbase&md5sum=$histmd5' target='_blank'>Replot</a> | ";
+	 }
 
-$plotlist.=<<<PLOT
-  <td width="$width=100%" valign="top">
-  <center>
-  <i>$plotroot</i><br/>
-  $replot 
-  <a href="$STATSDIR/$plotroot.history/${plotroot}__$plotmd5.conf" target="_blank">Conf</a> |
-  <a href="plot.php?plothistory&plot=$plotroot" target="_blank">History</a>
-  <br/>
-  <i style="font-size:10px">$plotmd5</i>
-  <a href="$plot" target="_blank">
-  <img src="$plot" width="100%">
+$plotlist.=<<<IMG
+<figure class="plot">
+  <a href="$hist" target="_blank">
+    <img class="plot" src="$hist">
   </a>
-  </center>
-  </td>
-PLOT;
-  */
+  <figcaption class="plot">
+  $deschist [PID: $histparts[1]]<br/>
+  $replot
+  <a href="$STATSDIR/$plotbase.history/${plotbase}__$histparts[1].conf" target="_blank">Conf</a>  | 
+  <a href="plot.php?plothistory&plot=$plotbase" target="_blank">History</a>
+  </figcaption>
+</figure>
+IMG;
+       }
+       $plotlist.="</div>";
+  }
   $i++;
 }
 /*

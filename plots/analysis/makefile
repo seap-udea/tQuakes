@@ -5,6 +5,7 @@ new:
 	@test $(NEWSCRIPT) != ""
 	@cp template.tpy $(NEWSCRIPT).py
 	@cp template.tconf $(NEWSCRIPT).conf
+	@cp template.thtml $(NEWSCRIPT).html
 	@mkdir $(NEWSCRIPT).history
 	@touch $(NEWSCRIPT).history/.dir
 	@echo "*" > $(NEWSCRIPT).history/.gitignore

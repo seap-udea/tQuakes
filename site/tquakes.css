@@ -5,7 +5,8 @@ a{
     text-decoration:none;
 }
 a:hover{
-    font-size:1.1em;
+    font-size:1.0em;
+    text-decoration:underline;
 }
 a:visited{
     color:blue;
@@ -137,4 +138,18 @@ img.logogroup{
     height:100%;
     float:right;
     margin-right:0em;
+}
+figure.plot{
+    float:left;
+    width:20vw;
+}
+img.plot{
+    width:100%;
+    border:solid black 1px;
+}
+figcaption.plot{
+    margin-top:10px;
+}
+div.plotstack{
+    display:table;
 }

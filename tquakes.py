@@ -828,7 +828,7 @@ if __name__=="__main__":
         else:
             print "This is tQuakes!"
 
-def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None):
+def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None,fac=2.0):
     """
     Subplots
     """
@@ -843,7 +843,7 @@ def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None):
         dh+=[0]
 
     # EFFECTIVE PLOTTING REGION
-    hall=(1-2*b-sum(dh))
+    hall=(1-fac*b-sum(dh))
     hs=(hall*numpy.array(panels))/spanels
     fach=(1.0*max(panels))/spanels
 
@@ -881,14 +881,14 @@ def prepareScript():
     # SIGNATURE
     md5sum=md5sumFile(confile)
     # COPY CONFIGURATION FILE
-    System("cp %s %s/%s__%s.conf"%(confile,dirname,BASENAME,md5sum))
+    System("cp %s %s/%s__%s.conf"%(confile,dirname,BASENAME,md5sum[0:5]))
     return confile
 
 def saveFigure(confile,fig):
     # MD5SUM FOR THIS REALIZATION
     md5sum=md5sumFile(confile)
     # SAVE FIGURE
-    figname="%s/%s__%s.png"%(DIRNAME,BASENAME,md5sum)
+    figname="%s/%s__%s.png"%(DIRNAME,BASENAME,md5sum[0:5])
     print "Saving figure ",figname
     fig.savefig(figname)
 
