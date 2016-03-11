@@ -1,1 +1,13 @@
 Options -Indexes
+<Files "configuration">
+       Deny from all
+</Files>
+<Files "common">
+       Deny from all
+</Files>
+<Files "*.py">
+       Deny from all
+</Files>
+<Files "*.sh">
+       Deny from all
+</Files>
