@@ -51,7 +51,7 @@ fs.close()
 # ##################################################
 # GET STATION
 # ##################################################
-out=System("links -dump '%s/index.php?action=preregister&station_id=%s&station_arch=%s&station_nproc=%d&station_mem=%d&station_mac=%s'"%\
+out=System("links -dump '%s/action.php?action=preregister&station_id=%s&station_arch=%s&station_nproc=%d&station_mem=%d&station_mac=%s'"%\
            (conf.WEBSERVER,
             station_id,
             station_arch,

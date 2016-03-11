@@ -32,7 +32,7 @@ if not qfail:
 # ##################################################
 if not qfail:
     print "Testing connection with webserver..."
-    out=System("links -dump '%s/index.php?action=testconnection&station_id=%s'"%(conf.WEBSERVER,station.station_id))
+    out=System("links -dump '%s/action.php?action=testconnection&station_id=%s'"%(conf.WEBSERVER,station.station_id))
     if 'Not Found' in out:
         print "\tConnection failed.".upper()
         qfail=1
@@ -44,7 +44,7 @@ if not qfail:
 # ##################################################
 if not qfail:
     print "Testing database connection..."
-    out=System("links -dump '%s/index.php?action=testdb&station_id=%s'"%(conf.WEBSERVER,station.station_id))
+    out=System("links -dump '%s/action.php?action=testdb&station_id=%s'"%(conf.WEBSERVER,station.station_id))
     try:
         if int(out)>0:
             print "\tDatabase query working."
@@ -57,7 +57,7 @@ if not qfail:
 # ##################################################
 if not qfail:
     print "Testing database connection..."
-    out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
+    out=System("links -dump '%s/action.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
     if int(out)>0:
         print "\tServer is receiving from this station."
         qrec=1

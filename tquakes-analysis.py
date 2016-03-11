@@ -29,7 +29,7 @@ else:
     print "\t%d calculated quakes found..."%nquakes
 
 # SETTING STATION STATUS
-System("links -dump '%s/index.php?action=status&station_id=%s&station_status=4'"%(conf.WEBSERVER,station.station_id))
+System("links -dump '%s/action.php?action=status&station_id=%s&station_status=4'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # LOOP OVER QUAKES
@@ -86,7 +86,7 @@ for quake in qlist:
 
     # REPORT END OF ANALYSIS
     print "\tReporting calculations..."
-    out=System("links -dump '%s/index.php?action=analysis&station_id=%s&quakeid=%s&qsignal=%s&qphases=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,
+    out=System("links -dump '%s/action.php?action=analysis&station_id=%s&quakeid=%s&qsignal=%s&qphases=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,
                                                                                                                         quakeid,
                                                                                                                         quake.qsignal,
                                                                                                                         quake.qphases,

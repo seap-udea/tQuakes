@@ -19,7 +19,7 @@ station=loadConf(".stationrc")
 # CHECK STATION
 # ##################################################
 qdisabled=False
-out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
+out=System("links -dump '%s/action.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
 
 if int(out)>0:
     print "Station enabled."
@@ -36,7 +36,7 @@ if qdisabled:exit(0)
 # ##################################################
 # FETCHING EVENTS
 # ##################################################
-cmd="links -dump '%s/index.php?action=fetch&station_id=%s&numquakes=%d'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES)
+cmd="links -dump '%s/action.php?action=fetch&station_id=%s&numquakes=%d'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES)
 out=System(cmd)
 if 'No quakes' in out:
     print "No quakes available for fetching."
@@ -45,7 +45,7 @@ print "Done."
 print out
 
 # SETTING STATION STATUS
-System("links -dump '%s/index.php?action=status&station_id=%s&station_status=1'"%(conf.WEBSERVER,station.station_id))
+System("links -dump '%s/action.php?action=status&station_id=%s&station_status=1'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # CREATE QUAKES

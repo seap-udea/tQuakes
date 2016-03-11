@@ -19,7 +19,7 @@ station=loadConf(".stationrc")
 # CHECK IF STATION CAN SUBMIT
 # ##################################################
 qdisabled=False
-out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
+out=System("links -dump '%s/action.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
 
 if int(out)>0:
     print "Station enabled."
@@ -33,7 +33,7 @@ elif int(out)==-1:
 # IF STATION IS DISABLED STOP
 if qdisabled:exit(0)
 
-System("links -dump '%s/index.php?action=status&station_id=%s&station_status=5'"%(conf.WEBSERVER,station.station_id))
+System("links -dump '%s/action.php?action=status&station_id=%s&station_status=5'"%(conf.WEBSERVER,station.station_id))
 # ##################################################
 # GET UNSUBMITED QUAKES
 # ##################################################
@@ -80,7 +80,7 @@ for quake in qlist:
     # SUBMIT DATA
     system("scp -o 'StrictHostKeyChecking no' -r %s/%s.conf %s/*.7z tquakes@%s:. 2> scratch/%s.err"%(quakedir,quakeid,quakedir,conf.DATASERVER,quakeid))
     err=System("cat scratch/%s.err"%quakeid)
-    if err!="" and "differs" not in err:
+    if err!="" and ("differs" not in err) and ("WARNING" not in err):
         print "\tConnection failed to data server."
         System("rm "+lockfile)
         continue
@@ -97,7 +97,7 @@ for quake in qlist:
 
     # REPORT END OF ANALYSIS
     print "\tReporting submission..."
-    out=System("links -dump '%s/index.php?action=submit&station_id=%s&quakeid=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,quakeid,deltat))
+    out=System("links -dump '%s/action.php?action=submit&station_id=%s&quakeid=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,quakeid,deltat))
     if 'Not Found' in out:
         print "\tConnection failed to webserver."
         System("rm "+lockfile)

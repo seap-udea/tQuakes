@@ -28,7 +28,7 @@ else:
     print "\t%d quakes found..."%nquakes
 
 # SETTING STATUS
-System("links -dump '%s/index.php?action=status&station_id=%s&station_status=2'"%(conf.WEBSERVER,station.station_id))
+System("links -dump '%s/action.php?action=status&station_id=%s&station_status=2'"%(conf.WEBSERVER,station.station_id))
 
 # ##################################################
 # LOOP OVER QUAKES

@@ -28,7 +28,7 @@ System("rm scratch/*.err &> /dev/null")
 
 # CHECK STATION
 qdisabled=False
-out=System("links -dump '%s/index.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
+out=System("links -dump '%s/action.php?action=checkstation&station_id=%s'"%(conf.WEBSERVER,station.station_id))
 
 if int(out)>0:
     print "Station enabled."
@@ -70,4 +70,4 @@ system("python tquakes-submit.py")
 # ##################################################
 # STATUS
 # ##################################################
-out=System("links -dump '%s/index.php?action=status&station_id=%s&station_status=0'"%(conf.WEBSERVER,station.station_id))
+out=System("links -dump '%s/action.php?action=status&station_id=%s&station_status=0'"%(conf.WEBSERVER,station.station_id))
