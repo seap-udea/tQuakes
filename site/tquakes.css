@@ -160,3 +160,9 @@ div.admin{
     background:lightgray;
     padding:5px;
 }
+blockquote.cmd
+{
+    background:lightgray;
+    padding:10px;
+    font-family:courier;
+}

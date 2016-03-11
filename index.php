@@ -27,12 +27,12 @@ if(!isBlank($action)){
   ////////////////////////////////////////////////////////////////////////
   if($action=="remove"){
     if(is_dir("stations/$station_id")){
-      echo "<i>Station $station_id removed.</i>";
       // REMOVE FROM DATABASE
       $sql="delete from Stations where station_id='$station_id';";
       mysqlCmd($sql);
       // REMOVE STATION INFORMATION
       shell_exec("mv stations/$station_id stations/.trash");
+      statusMsg("Station $station_id removed.");
     }
     $if="activity";
   }
@@ -40,13 +40,14 @@ if(!isBlank($action)){
   //REGISTER STATION
   ////////////////////////////////////////////////////////////////////////
   else if($action=="register"){
+
     //CHECK IF MACHINE IS REGISTERED OR PREREGISTERED
     $station_dir="stations/$station_id";
     $station_predir="stations/.preregister/$station_id";
     if(is_dir($station_dir)){
-      $STATUS="Station already registered. Updating.";
+      $status="Station $station_id already registered. Updating.";
     }else if(is_dir($station_predir)){
-      $STATUS="Station registered.";
+      $status="Station $station_id registered.";
       shell_exec("mv $station_predir $station_dir");
     }else{
       $ERROR="Station not installed (preregistered) yet.";
@@ -57,14 +58,45 @@ if(!isBlank($action)){
     fwrite($fl,"no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,command=\"scp -r -d -t ~/tQuakes/\" $station_key");
     fclose($fl);
     
+    //SEND A MESSAGE TO ADMINISTRATOR
+    if(!mysqlCmd("select * from Stations where station_id='$station_id'")){
+      $urlstring="station_id=$station_id&station_name=$station_name&station_email=$station_email";
+$message=<<<M
+<p>
+  Dear administrator,
+</p>
+<p>
+  A user has registered a new calculation station in this $tQuakes
+  server.  The station is not yet activated.  Please use the link
+  below to activate the station and start sending data to that
+  station.
+</p>
+<p>
+  <a href="$WEBSERVER/index.php?if=register&$urlstring">Click to activate station</a>
+</p>
+<p>
+  Please remember that you have to be logged in as the administrator
+  in order to activate the station.
+</p>
+<p>Best wishes,</p>
+<p>
+  <b>$tQuakes Administrator</b>
+</p>
+M;
+       $subject="[tQuakes] New tQuakes computing station";
+       sendMail($EMAIL_USERNAME,$subject,$message,$EHEADERS);
+    }
+
+
     //UPDATING STATION IN DATABASE
-    $station_receiving=0;
+    if(isBlank($station_receiving)){$station_receiving=0;}
     $conf=parse_ini_file("$station_dir/${station_id}rc");
     foreach(array_keys($conf) as $key){
       $GLOBALS["$key"]=$conf["$key"];
     }
     $sql="insert into Stations (station_id,station_name,station_email,station_arch,station_nproc,station_mem,station_mac,station_receiving) values ('$station_id','$station_name','$station_email','$station_arch','$station_nproc','$station_mem','$station_mac','$station_receiving') on duplicate key update station_name=VALUES(station_name),station_email=VALUES(station_email),station_arch=VALUES(station_arch),station_nproc=VALUES(station_nproc),station_mem=VALUES(station_mem),station_mac=VALUES(station_mac),station_receiving=VALUES(station_receiving);";
     mysqlCmd($sql);
+    header("Refresh:0;url=$WEBSERVER/?status=$status");
   }
   ////////////////////////////////////////////////////////////////////////
   //NEW USER
@@ -579,8 +611,8 @@ $phasetxt=<<<P
 <table border=1px cellspacing=0px>
 <tr>
 <td>Component</td>
-<td>Diurnal</td>
 <td>Semi diurnal</td>
+<td>Diurnal</td>
 <td>Fornightly</td>
 <td>Monthly</td>
 </tr>
@@ -829,29 +861,52 @@ C;
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 else if($if=="download"){
 $CONTENT.=<<<C
-$tQuakes can be downloaded in different forms:
-<ul>
-<li>
-  <b>Calculation station</b>: Install a calculation station and help
-  us to analyse a huge database of Earthquakes.  
+<h2>Download tQuakes</h2>
+
+<p>
+  $tQuakes is an open source project.  You can download it directly
+  from its <a href="$GITREPO" target="_blank">GitHub repository</a>.
+</p>
+
+<p>
+  There are two branches:
   <ul>
     <li>
-      Installation script for Linux
-      clients: <a href="site/install-station.sh">install-station.sh</a>
+      The <b>master branch</b> which contains all the required
+      "machinery" to run a $tQuakes server (serve a local database,
+      compute own dataproducts, etc.) This branck comes with a
+      preloaded earthquakes database (the database in
+      the <a href="$MAINSERVER">main server</a>).  In
+      order to download it you must have <b>~450 Mb</b> available.<br/><br/>
+
+      To install this branch run:
+      <blockquote class="cmd">
+	git clone $GITREPO
+      </blockquote>
+
+    </li>
+    <li>
+      The <b>station branch</b> which contains all the required
+      "machinery" to run individual processes sent by a $tQuakes
+      server.  In order to download it you must have <b>~40 Mb</b>
+      available.
+
+      To install this branch run:
+      <blockquote class="cmd">
+	git clone --branch station --single-branch $GITREPO
+      </blockquote>
+
     </li>
   </ul>
-</li>
 
-<li>
-  <b>Calculation server</b>: create your own calculation server to run
-  custom analysis on custom earthquakes database.  This site is
-  running on the server $WEBSERVER.
-  <ul>
-    <li><a href="$GITREPO">Github repositorty</a>.</li>
-  </ul>
-</li>
+<p>
+  In order to simplify the download and installation of a computation
+  station you can also download and run this installation script: 
 
-</ul>
+  <a href="site/install-station.sh">install-station.sh</a>.  The
+  installation script is intended for clients running <b>Linux
+  Debian</b> and has been extensively tested in <b>Ubuntu boxes</b>.
+</p>
 C;
 }
 
@@ -882,6 +937,12 @@ $CONTENT.=<<<C
   affecting the places where those Earthquakes happened.
 
   Here are some of the available data products from $tQuakes.
+</p>
+
+<p>
+  The plots shown here are just a sample of the analysis that have
+  been performed on the database.  To see other results see the
+  "history" of each plot.
 </p>
 
 <div class="level2 admin">
@@ -919,7 +980,7 @@ C;
      //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
      //LOOK FOR ALL PLOTS
      //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-     $output=shell_exec("find -L $STATSDIR -name '${plotbase}__*.png'");
+     $output=shell_exec("find $STATSDIR -name '${plotbase}__*.png'");
      if(isBlank($output)){
        $plotlist.="";
      }else{
@@ -939,9 +1000,9 @@ C;
 	 if(isset($plot["description"])){$deschist=$plot["description"];}
 	 else{$deschist="No description";}
 
-	 $plotfigure=generateFigure($STATSDIR,$plotbase,$histmd5);
-	 $plotlist.="$plotfigure";
-
+	 $plotfigure=generateFigure($STATSDIR,$plotbase,$histmd5,"","width:40vw;text-align:center;");
+	 $plotlist.="<center>$plotfigure</center>";
+	 break;
        }
        $plotlist.="</div>";
      }
@@ -1177,7 +1238,6 @@ else if($if=="search"){
   $CONTENT.="<h2><a name='search'>Search database</a></h2>";
   $SUBMENU.="<a href='#search'>Search</a> | ";
 
-
 $CONTENT.=<<<C
 <p>
   Use the following form to search on the earthquakes database.
@@ -1214,6 +1274,13 @@ C;
   if($limit>$numquakes){$limitdb=$numquakes;}
   else{$limitdb=$limit;}
   $quakes=mysqlCmd("select * from Quakes where $searchdb limit $offset,$limitdb;",$qout=1);
+  $extra=array();
+  if(!isBlank($extracol)){
+    $sql="select $extracol from Quakes where $searchdb";
+    //echo "SQL=$sql<br/>";
+    $extra=mysqlCmd($sql,$qout=1);
+    //print_r($extra);
+  }
 
   // GET NEXT
   $offset_prev=$offset-$limit;
@@ -1231,10 +1298,10 @@ C;
   // CONTROL BUTTONS
   $control=<<<CONTROL
 <div style="font-size:10px;padding:10px;">
-<a href="?if=search&search=$search_url&offset=0&limit=$limit#quakes"><<</a> 
-<a href="?if=search&search=$search_url&offset=$offset_prev&limit=$limit_prev#quakes">Prev</a> ...
-<a href="?if=search&search=$search_url&offset=$offset_next&limit=$limit_next#quakes">Next</a>
-<a href="?if=search&search=$search_url&offset=$offset_all&limit=$limit#quakes">>></a> 
+<a href="?if=search&search=$search_url&offset=0&limit=$limit&extracol=$extracol#quakes"><<</a> 
+<a href="?if=search&search=$search_url&offset=$offset_prev&limit=$limit_prev&extracol=$extracol#quakes">Prev</a> ...
+<a href="?if=search&search=$search_url&offset=$offset_next&limit=$limit_next&extracol=$extracol#quakes">Next</a>
+<a href="?if=search&search=$search_url&offset=$offset_all&limit=$limit&extracol=$extracol#quakes">>></a> 
 </div>
 CONTROL;
 
@@ -1287,6 +1354,10 @@ $FORM
     <td valign="top"><input type="text" name="search" size="60" style="line-height:30px;font-size:20px" value="$search" placeholder="Your sql query"></td>
   </tr>
   <tr>
+    <td valign="top">Extra columns:</td>
+    <td valign="top"><input type="text" name="extracol" size="80" value="$extracol" placeholder="Additional columns"></td>
+  </tr>
+  <tr>
     <td valign="top">Description of search:</td>
     <td valign="top"><input type="text" name="searchtxt" size="80" value="$searchtxt" placeholder="Description of your query"></td>
   </tr>
@@ -1321,6 +1392,7 @@ $control
   <td class="level0">Stations<sup>1</sup></td>
   <td class="level0">Cluster 1<sup>2</sup></td>
   <td class="level0">Location</td>
+  <td class="level0">Extra.Col.</td>
   <td class="level2">Status</td>
   <td class="level2">Date status</td>
 </tr>
@@ -1335,6 +1407,7 @@ $control
   <td class="level0 txt">--</td>
   <td class="level0 txt">--</td>
   <td class="level0 txt">City,Province,Country</td>
+  <td class="level0 txt">--</td>
   <td class="level2 txt">--</td>
   <td class="level2 txt">--</td>
 </tr>
@@ -1343,7 +1416,19 @@ TABLE;
   $fl=fopen("$SCRATCHDIR/subset.csv","w");
   $qh=1;
   $i=$offset;
+
+  $extrafield=$extra[0];
+  $extraval=sqlout2String($extrafield);
+  if(isBlank($extraval)){$extraval="-";}
+
   foreach($quakes as $quake){
+
+    if(isset($extra[$i])){
+      //echo "$i defined...<br/>";
+      $extrafield=$extra[$i];
+      $extraval=sqlout2String($extrafield);
+    }
+
     $fields="";
     $values="";
     foreach(array_keys($quake) as $key){
@@ -1380,6 +1465,7 @@ $CONTENT.=<<<TABLE
     <td class="level0 txt">$numstations</td>
     <td class="level0 txt">$cluster1</td>
     <td class="level0 txt">$municipio, $departamento, $country</td>
+    <td class="level0 txt">$extraval</td>
     <td class="level2 txt">$quake_status_txt</td>
     <td class="level2 txt">$adatetime</td>
   </tr>
@@ -1454,8 +1540,7 @@ TABLE;
     $quakeid=$parts[0];
     if(mysqlCmd("select * from Quakes where quakeid='$quakeid'")){continue;}
     statusMsg("Quake $quakeid...");
-    $quake=parse_ini_file("$SCRATCHDIR/$quakeid/$quakeid.conf");
-
+    $quake=parse_ini_file("$SCRATCHDIR/$quakeid/quake.conf");
     $quakeid=$quake["quakeid"];
     $qlat=$quake["qlat"];
     $qlon=$quake["qlon"];
@@ -1877,15 +1962,22 @@ else if($if=="register"){
 	$station_key=shell_exec("cat stations/$station_id/key.pub");
 	$delete="<input type=submit name=action value=remove>";
   }
+  if(!isset($station_receiving)){$station_receiving="0";}
+  if(!isset($station_status)){$station_status="0";}
+  
 $CONTENT.=<<<C
-$STATUS
-$ERROR
+<h2>Register a new station</h2>
+<p>
+  Use the following form to register or remove a calculation station.
+  In order to register your station you need to download and install
+  it (see <a href=?if=download>download</a> section).
+</p>
 <form action="index.php" method="post" enctype="multipart/form-data" accept-charset="utf-8">
   <input type=hidden name=if value=register>
   <table border=0px>
     <tr>
       <td valign=top>Station ID:</td>
-      <td><input type=text name=station_id maxlength=14 size=8 value=$station_id></td>
+      <td><input type=text name=station_id maxlength=14 size=20 value="$station_id" placeholder="Alphanumerical code"></td>
     </tr>
     <tr>
       <td valign=top>Name:</td>
@@ -1899,6 +1991,14 @@ $ERROR
       <td valign=top>Upload key:</td>
       <td><textarea name=station_key cols=60 rows=10>$station_key</textarea></td>
     </tr>
+    <tr class="level3">
+      <td valign=top>Receiving:</td>
+      <td><input type=text name=station_receiving value="$station_receiving"></td>
+    </tr>
+    <tr class="level3">
+      <td valign=top>Status:</td>
+      <td><input type=text name=station_status value="$station_status"></td>
+    </tr>
     <tr>
       <td valign=top colspan=2>
 	<input type=submit name=action value=register> $delete
@@ -1906,6 +2006,51 @@ $ERROR
     </tr>
   </table>
 </form>
+C;
+
+  //LIST OF STATIONS
+  $stations=mysqlCmd("select * from Stations",$qout=1);
+
+$stationstxt=<<<T
+<table border=1px cellspacing=0px>
+<tr>
+  <td class="level0">#</td>
+  <td class="level0">Station ID</td>
+  <td class="level0">Name</td>
+  <td class="level3">E-mail</td>
+  <td class="level3">Receiving</td>
+  <td class="level3">Links</td>
+</tr>
+T;
+  $i=1;
+  foreach($stations as $station){
+    $urlstring="";
+    foreach(array_keys($station) as $key){
+      $$key=$station["$key"];
+      $urlstring.="$key=".$$key."&";
+    }
+$stationstxt.=<<<T
+<tr>
+  <td class="level0">$i</td>
+  <td class="level0">$station_id</td>
+  <td class="level0 txt">$station_name</td>
+  <td class="level3 txt">$station_email</td>
+  <td class="level3 txt">$station_receiving</td>
+  <td class="level3 txt">
+    <a href="?if=register&$urlstring">Edit</a>
+  </td>
+</tr>
+T;
+    $i++;
+  }
+  $stationstxt.="</table>";
+
+$CONTENT.=<<<C
+<h3>Available stations</h3>
+<p>
+  These are the available calculation stations for this server:
+</p>
+$stationstxt
 C;
 }
 
@@ -2007,29 +2152,7 @@ $CONTENT.=<<<C
     </li>
   </ul>
 </p>
-
-<p>
-  When you intend to use the information and tools of $tQuakes for
-  research purposes please citate the following bibliography:
-
-  <ul>
-    
-    <li>
-      <b>[Moncayo et al., 2016]</b> Gloria A. Moncayo, Jorge
-      I. Zuluaga and Gaspar M. Monsalve.  <i>A search for a correlation
-      between tides and seismicity in the equatorial west coast of
-      South America</i>. In preparation (2016).
-    </li>
-
-    <li>
-      <b>[Zuluaga et al., 2016]</b> Jorge I. Zuluaga, Gloria
-      A. Moncayo and Gaspar M. Monsalve. <i>tQuakes: an information
-      system of eartquakes and lunisolar tides</i>.  In preparation
-      (2016).
-    </li>
-  </ul>
-    
-</p>
+$CITATE
 C;
 }
 

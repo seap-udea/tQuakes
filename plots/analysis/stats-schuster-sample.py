@@ -49,7 +49,8 @@ qdepth+0>=%.2f and qdepth+0<%.2f and
 qlat+0>=%.2f and qlat+0<%.2f and 
 qlon+0>=%.2f and qlon+0<%.2f and
 qjd+0>=%.5f and qjd+0<=%.5f and
-(cluster1='0' or cluster1 like '-%%') 
+(cluster1='0' or cluster1 like '-%%') and
+astatus+0=4 
 limit %d"""%(Mlmin,Mlmax,
              depthmin,depthmax,
              latb,latu,
@@ -67,10 +68,27 @@ print "Search:",search
 print "Number of quakes found: ",nquakes
 phs=phases[:,4+phasenum]
 
+"""
+i=0
+f=open("nocalc.sql","w")
+for qid in qids:
+    if phs[i]>1:
+        print qid,phs[i]
+        f.write("update Quakes set astatus='0' where quakeid='%s';\n"%qid)
+    i+=1
+f.close()
+exit(0)
+"""
+
 if random:
     phs=360*numpy.random.random(nquakes)
 else:
-    if 'fourier' not in phase:phs*=360
+    if 'fourier' not in phase:
+        phs=phs[phs<=1]
+        nquakes=len(phs)
+        phs*=360
+
+print "Number of earthquakes with true phases: ",nquakes
 
 # ############################################################
 # HISTOGRAM
@@ -110,7 +128,7 @@ print "Schuster p-value: log(p) = %.2f +/- %.2f, p = %.2f%%"%(logp,dlogp,p*100)
 scatter=0.2
 axs[-2].plot(phs,
             numpy.cos(phs*DEG)+scatter*(2*numpy.random.random(len(phs))-1),
-            'ko',markersize=5,
+            'ko',markersize=1,
             markeredgecolor='none',alpha=0.2)
 thetas=numpy.linspace(0.0,360.0,100)
 axs[-2].plot(thetas,numpy.cos(thetas*DEG)+scatter,'k-')
@@ -173,6 +191,7 @@ axs[-2].set_xlim((0.0,360.0))
 axs[-2].set_ylim((-1.0-scatter,1.0+scatter))
 
 hmean=1.0/360.0
+
 axs[-2].set_xlabel("Phase (degrees)",fontsize=14)
 ax.set_ylabel("Frequency",fontsize=14)
 ax.set_title("%s, %s"%(compname,phasename))

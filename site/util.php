@@ -26,10 +26,35 @@ foreach(array_keys($_GET) as $field){$$field=$_GET[$field];}
 foreach(array_keys($_POST) as $field){$$field=$_POST[$field];}
 $tQuakes="<a href='http://github.com/seap-udea/tQuakes'>tQuakes</a>";
 $GITREPO="http://github.com/seap-udea/tQuakes";
+$MAINSERVER="http://urania.udea.edu.co/tQuakes";
 $FORM="<form method='post' enctype='multipart/form-data' accept-charset='utf-8'>";
 $STATUS="$status";
 $ERRORS="$errors";
 $URLPAGE=$_SERVER["REQUEST_URI"];
+
+$CITATE=<<<C
+<p>
+  When you intend to use the information and tools of $tQuakes for
+  research purposes please citate the following bibliography:
+
+  <ul>
+    <li>
+      <b>[Moncayo et al., 2016]</b> Gloria A. Moncayo, Jorge
+      I. Zuluaga and Gaspar M. Monsalve.  <i>A search for a correlation
+      between tides and seismicity in the equatorial west coast of
+      South America</i>. In preparation (2016).
+    </li>
+
+    <li>
+      <b>[Zuluaga et al., 2016]</b> Jorge I. Zuluaga, Gloria
+      A. Moncayo and Gaspar M. Monsalve. <i>tQuakes: an information
+      system of eartquakes and lunisolar tides</i>.  In preparation
+      (2016).
+    </li>
+  </ul>
+    
+</p>
+C;
 
 ////////////////////////////////////////////////////////////////////////
 //VERIFY IDENTITY
@@ -108,6 +133,19 @@ function mysqlCmd($sql,$qout=0)
   }
   return $result;
 }
+
+function sqlout2String($out)
+{
+  $string="";
+  foreach(array_keys($out) as $key){
+    if(preg_match("/^\d+$/",$key)){continue;}
+    $val=$out["$key"];
+    $string.="$val,";
+  }
+  $string=rtrim($string,",");
+  return $string;
+}
+
 function isBlank($string)
 {
   if(!preg_match("/\w+/",$string)){return 1;}

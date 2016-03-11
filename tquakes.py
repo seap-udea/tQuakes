@@ -83,7 +83,7 @@ PHASES_DICT=dict(sd_fourier=[1,"Semidiurnal (Fourier)"],
                  fn_fourier=[3,"Fornightly (Fourier)"],
                  mn_fourier=[4,"Monthly (Fourier)"],
                  sd=[5,"Semidiurnal"],
-                 dn=[6,"Semidiurnal"],
+                 dn=[6,"Diurnal"],
                  fn=[7,"Fornightly"],
                  mn=[8,"Monthly"])
 NUM_PHASES=len(PHASES_DICT)
@@ -890,12 +890,14 @@ def saveFigure(confile,fig):
     # SAVE FIGURE
     figname="%s/%s__%s.png"%(DIRNAME,BASENAME,md5sum[0:5])
     print "Saving figure ",figname
+
     # WATER MARK
     ax=fig.gca()
-    ax.text(-0.05,1.0,"tQuakes",
-            horizontalalignment='right',verticalalignment='top',
-            rotation=90,fontsize=10,color='b',alpha=0.2,
-            transform=ax.transAxes)
+    ax.text(1.01,1.0,"tQuakes",
+            horizontalalignment='left',verticalalignment='top',
+            rotation=-90,fontsize=10,color='b',alpha=0.3,
+            transform=ax.transAxes,zorder=1000)
+
     fig.savefig(figname)
 
 def plotSignal(quakeid,component,plt):

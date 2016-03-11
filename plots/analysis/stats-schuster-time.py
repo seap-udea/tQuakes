@@ -59,7 +59,15 @@ limit %d"""%(Mlmin,Mlmax,
 qids,quakes=getPhases(search,component,db)
 nquakes=len(qids)
 if random:phases=360*numpy.random.random(nquakes)
-else:phases=360*quakes[:,4+phasenum]
+else:
+    phs=quakes[:,4+phasenum]
+    cond=phs<=1
+    phs=phs[cond]
+    quakes=quakes[cond]
+    nquakes=len(phs)
+    phases=numpy.array(360*phs)
+
+print "Number of earthquakes with true phases: ",nquakes
 
 # ############################################################
 # GLOBAL
