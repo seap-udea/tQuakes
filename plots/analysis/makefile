@@ -22,7 +22,13 @@ repeat:
 	@for conf in $(shell find . -name "$(SCRIPT)__*.conf");do python $(SCRIPT).py $$conf;done
 
 clean:
-	@echo "Cleaning..."
+	@echo "Cleaning temporary files..."
+	@find . -name "*~" -exec rm {} \;
+	@find . -name "*.pyc" -exec rm {} \;
+	@find . -name "#*#" -exec rm {} \;
+
+cleandeep:clean
+	@echo "Cleaning deep..."
 	@find . -name "*~" -exec rm {} \;
 	@find . -name "*.pyc" -exec rm {} \;
 	@find . -name "#*#" -exec rm {} \;

@@ -13,6 +13,7 @@ sleep=timing.sleep
 timeit=timing.time
 DEG=PI/180
 RAD=180/PI
+norm=numpy.linalg.norm
 
 # ######################################################################
 # GLOBAL
