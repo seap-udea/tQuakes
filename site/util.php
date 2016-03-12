@@ -24,7 +24,7 @@ session_start();
 $SESSID=session_id();
 foreach(array_keys($_GET) as $field){$$field=$_GET[$field];}
 foreach(array_keys($_POST) as $field){$$field=$_POST[$field];}
-$tQuakes="<a href='http://github.com/seap-udea/tQuakes'>tQuakes</a>";
+$tQuakes="<a href='$WEBSERVER' target=_blank>tQuakes</a>";
 $GITREPO="http://github.com/seap-udea/tQuakes";
 $MAINSERVER="http://urania.udea.edu.co/tQuakes";
 $FORM="<form method='post' enctype='multipart/form-data' accept-charset='utf-8'>";

@@ -872,41 +872,47 @@ $CONTENT.=<<<C
   There are two branches:
   <ul>
     <li>
+      The <b>station branch</b> which contains all the required
+      "machinery" to run individual processes sent by a $tQuakes
+      server.  In order to download it you must have <b>~40 Mb</b>
+      available.<br/><br/>
+
+      To <b>install station branch</b> run:
+      <blockquote class="cmd">
+	git clone --branch station --single-branch $GITREPO
+      </blockquote>
+      
+      <p>
+	In order to simplify the download and installation of a computation
+	station you can also download and run this installation script: 
+	
+	<a href="site/install-station.sh">install-station.sh</a>.  The
+	installation script is intended for clients running <b>Linux
+	  Debian</b> and has been extensively tested in <b>Ubuntu boxes</b>.
+      </p>
+
+    </li>
+
+    <li>
       The <b>master branch</b> which contains all the required
       "machinery" to run a $tQuakes server (serve a local database,
       compute own dataproducts, etc.) This branck comes with a
       preloaded earthquakes database (the database in
-      the <a href="$MAINSERVER">main server</a>).  In
-      order to download it you must have <b>~450 Mb</b> available.<br/><br/>
+      the <a href="$MAINSERVER">main server</a>).  In order to
+      download it you must have <b>~450 Mb</b>
+      available.  <i style="color:red">Install this branch only if you
+      know what you are doing</i>.
 
-      To install this branch run:
+      <br/><br/>
+
+      To <b>install master branch</b> run:
       <blockquote class="cmd">
 	git clone $GITREPO
       </blockquote>
 
     </li>
-    <li>
-      The <b>station branch</b> which contains all the required
-      "machinery" to run individual processes sent by a $tQuakes
-      server.  In order to download it you must have <b>~40 Mb</b>
-      available.
-
-      To install this branch run:
-      <blockquote class="cmd">
-	git clone --branch station --single-branch $GITREPO
-      </blockquote>
-
-    </li>
   </ul>
 
-<p>
-  In order to simplify the download and installation of a computation
-  station you can also download and run this installation script: 
-
-  <a href="site/install-station.sh">install-station.sh</a>.  The
-  installation script is intended for clients running <b>Linux
-  Debian</b> and has been extensively tested in <b>Ubuntu boxes</b>.
-</p>
 C;
 }
 
@@ -1380,7 +1386,7 @@ $history
 <center>
   <h4><a name="quakes">Quakes $offset-$end ($limit/$numquakes)</a></h4>
 $control
-<table border=1px style="font-size:12px" cellspacing="0px">
+<table border=1px style="font-size:10px" cellspacing="0px">
 <tr class="header">
   <td class="level0">Num.</td>
   <td class="level0">Quake id.</td>
@@ -1575,11 +1581,13 @@ C;
   ////////////////////////////////////////////////////////////////////////
   //UPLOAD EARTHQUAKES
   ////////////////////////////////////////////////////////////////////////
+  $CONTENT.="<div class='level3'>";
   $CONTENT.="<h2><a name='upload'>Upload earthquakes</a></h2>";
-  $SUBMENU.="<a href='#upload'>Upload</a> | ";
+  $SUBMENU.="<span class='level3'><a href='#upload'>Upload</a> | </span>";
 
 $CONTENT.=<<<C
 <center><img src="img/menatwork.png" width="10%"/></center>
+</div>
 C;
 
 }
@@ -2012,6 +2020,7 @@ C;
   $stations=mysqlCmd("select * from Stations",$qout=1);
 
 $stationstxt=<<<T
+<center>
 <table border=1px cellspacing=0px>
 <tr>
   <td class="level0">#</td>
@@ -2043,7 +2052,7 @@ $stationstxt.=<<<T
 T;
     $i++;
   }
-  $stationstxt.="</table>";
+  $stationstxt.="</table></center>";
 
 $CONTENT.=<<<C
 <h3>Available stations</h3>
