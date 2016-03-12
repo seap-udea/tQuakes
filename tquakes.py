@@ -260,7 +260,7 @@ def customdate2jd(mydate):
 
     # GET CENTURY AND MJD
     century,mjd=gcal2jd(int(year),int(month),int(day))
-    jd=century+mjd+(int(hours)+int(minutes)/60.+float(seconds)/3600.+float(lag))/24
+    jd=century+mjd+(int(hours)+int(minutes)/60.+float(seconds)/3600.+float(lag))/24.
     return jd
 
 def date2jd(mydatetime):
@@ -1155,3 +1155,62 @@ def plotBoundaries(quakeid,component,plt):
     print "Saving figure ",figname
     fig.savefig(figname)
     return fig
+
+def quake2str(qlat,qlon,qdep,qjd):
+    quakestr="QUAKE-lat_%+08.4f-lon_%+09.4f-dep_%+010.4f-JD_%.6f"%\
+        (qlat,qlon,qdep,qjd)
+    return quakestr
+
+# ######################################################################
+# SPICE RELATED ROUTINES
+# ######################################################################
+# Magnitude of a Spice state vector
+def normX(state):
+    x=state[0]
+    d=norm(x[:3])
+    v=norm(x[3:])
+    return d,v
+
+# Convert from JD to ET
+# MM/DD/YYYY HH:MM:SS.DCM UTC-L
+# Ephemeris time: et=sp.str2et("01/01/2015 00:00:00.000 UTC")
+def jd2et(jd):
+
+    import spiceypy as sp
+
+    # Convert from JD to UTC seconds (seconds since J2000)
+    utc=(jd-sp.j2000())/365.25*sp.jyear()
+
+    # Compute deltat = ET - UTC
+    deltat=sp.deltet(utc,"UTC");
+
+    # Compute ET
+    et=utc+deltat
+
+    return et
+
+# Convert from ET to JD
+def et2jd(et):
+    import spiceypy as sp
+
+    # Convert et to jed
+    jed=sp.unitim(et,"ET","JED")
+
+    # Calculate the deltat at et
+    deltat=sp.deltet(et,"ET");
+
+    # Add deltat to et
+    jd=jed-deltat/86400.0
+
+    return jd
+
+def dtime2etjd(dtime):
+    import spiceypy as sp
+
+    # dtime in DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
+    dtime=datetime.datetime.strptime(dtime,DATETIME_FORMAT)
+    dtime=dtime.strftime("%m/%d/%Y %H:%M:%S.%f")
+    qet=sp.str2et(dtime)
+    qjd=et2jd(qet)
+
+    return qet,qjd

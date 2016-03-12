@@ -355,7 +355,7 @@ M;
     //========================================
     //GENERATE NEW QUAKEID
     //========================================
-    $quakestr=sprintf("QUAKE-lat_%+08.4f-lon_%+09.4f-dep_%+010.4f-JD_%.5f",$qlat,$qlon,$qdepth,$qjd);
+    $quakestr=sprintf("QUAKE-lat_%+08.4f-lon_%+09.4f-dep_%+010.4f-JD_%.6f",$qlat,$qlon,$qdepth,$qjd);
     statusMsg("Quake string: $quakestr");
     $md5str=md5($quakestr);
     $tquakeid=strtoupper(substr($md5str,0,7));
@@ -367,7 +367,7 @@ M;
     //========================================
     //CHECK IF QUAKEID IS IN DB
     //========================================
-    $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid' and qjd='$qjd'");
+    $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid'");
     if(!$quakeindb){
       statusMsg("Quakeid $quakeid not in database...");
       $qpreserve=0;
@@ -427,7 +427,7 @@ M;
     //TYPE BY DEFAULT
     $qdb=0;$qdone=0;
 
-    $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid' and qjd='$qjd'");
+    $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid'");
     if($quakeindb){
       statusMsg("Quake in db");
       $qdb=1;
@@ -548,7 +548,10 @@ C;
 	    $symbol=$component[0];
 	    $componentname=$component[2];
 	    foreach($QUAKE_PLOTS as $plot){
-	      foreach(array("py","conf","html","history") as $ext){
+	      $ext="py";
+	      $cmd="cd $quakedir;ln -s ../../../plots/analysis/quake-$plot.$ext quake-$plot-$symbol.$ext";
+	      shell_exec($cmd);
+	      foreach(array("conf","html","history") as $ext){
 		$cmd="cp -r plots/analysis/quake-$plot.$ext $quakedir/quake-$plot-$symbol.$ext";
 		shell_exec($cmd);
 	      }
@@ -562,6 +565,7 @@ C;
 	  if($qcopy){
 	    statusMsg("Linking $tquakeid with $quakeid...");
 	    shell_exec("cd $SCRATCHDIR/;ln -s $quakeid $tquakeid");
+	    shell_exec("cd $SCRATCHDIR/$quakeid;ln -s $quakeid.data $tquakeid.data");
 	    shell_exec("cd $SCRATCHDIR/;ln -s $quakeid.tar $tquakeid.tar");
 	  }
 

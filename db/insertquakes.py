@@ -34,19 +34,24 @@ for quake in content:
     quake["quakeid"]=quakeid
     print "\tQuake id: ",quakeid
 
-    # CALCULATE JULIAN DAY
+    # CALCULATE JULIAN DAY AND EPHEMERIS TIME
     quake["qdatetime"]=quake["Fecha"]+" "+quake["Hora UTC"];
+    """
     qdate=datetime.datetime.strptime(quake["qdatetime"],DATETIME_FORMAT)
     quake["qjd"]=date2jd(qdate)
+    """
+    dtime=qdate.strftime("%m/%d/%Y %H:%M:%S.%f")
+    qet=sp.str2et(dtime)
+    qjd=et2jd(et)
+    quake["qet"]="%.3f"%et
+    quake["qjd"]="%.6f"%qjd
+
     print "\tDate: ",quake["qdatetime"]
     print "\tJD: ",quake["qjd"]
+    print "\tET: ",quake["qet"]
 
     # CALCULATE QUAKE STRING
-    quake["quakestr"]="QUAKE-lat_%+.4f-lon_%+.4f-dep_%+.4f-JD_%.5f"%\
-        (float(quake["Latitud"]),
-         float(quake["Longitud"]),
-         float(quake["Profundidad"]),
-         quake["qjd"])
+    quake["quakestr"]=quake2str(float(quake["Latitud"]),float(quake["Longitud"]),float(quake["Profundidad"]),float(quake["qjd"]))
     print "\tString: ",quake["quakestr"]
 
     itot+=1

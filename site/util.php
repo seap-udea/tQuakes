@@ -337,7 +337,7 @@ $COMPONENTS_DICT=array(array("pot",-1,"Tidal potential","m<sup>2</sup>/s<sup>2</
 		       array("volume",8,"Volume strain","nstr"),
 		       array("hst",9,"Horizontal strain (Az = 90)","nstr")
 		       );
-$QUAKE_PLOTS=array("tidal-boundaries","tidal-signal");
+$QUAKE_PLOTS=array("tidal-boundaries","tidal-signal","astronomy");
 
 ////////////////////////////////////////////////////////////////////////
 //DIRECTORIES

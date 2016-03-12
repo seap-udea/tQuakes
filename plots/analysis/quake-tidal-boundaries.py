@@ -32,12 +32,10 @@ def plotBoundaries(quakeid,component,plt):
     # QUAKE PROPERTIES
     # ############################################################
     quake=loadConf(DIRNAME+"/quake.conf")
-    quakestr="QUAKE-lat_%+.2f-lon_%+.2f-dep_%+.2f-JD_%.5f"%\
-        (float(quake.qlat),
-         float(quake.qlon),
-         float(quake.qdepth),
-         float(quake.qjd))
-    quakestr=quake2str(quake.qlat,quake.qlon,quake.qdepth,quake.qjd)
+    quakestr=quake2str(float(quake.qlat),
+                       float(quake.qlon),
+                       float(quake.qdepth),
+                       float(quake.qjd))
 
     # ############################################################
     # PREPARE FIGURE
