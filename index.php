@@ -54,9 +54,12 @@ if(!isBlank($action)){
     }
 
     //CREATING PUBLIC KEY
-    $fl=fopen("$station_dir/key.pub","w");
-    fwrite($fl,"no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,command=\"scp -r -d -t ~/tQuakes/\" $station_key");
-    fclose($fl);
+    if(!preg_match("/no-port-forwarding/",$station_key)){
+      echo "Saving $station_key...";
+      $fl=fopen("$station_dir/key.pub","w");
+      fwrite($fl,"no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty,command=\"scp -r -d -t ~/tQuakes/\" $station_key");
+      fclose($fl);
+    }
     
     //SEND A MESSAGE TO ADMINISTRATOR
     if(!mysqlCmd("select * from Stations where station_id='$station_id'")){

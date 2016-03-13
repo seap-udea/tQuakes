@@ -15,6 +15,12 @@ DEG=PI/180
 RAD=180/PI
 norm=numpy.linalg.norm
 
+ONE=1.0
+MIN=60.0
+HOUR=60*MIN
+DAY=24*HOUR # seconds
+YEAR=365.25*DAY # seconds
+
 # ######################################################################
 # GLOBAL
 # ######################################################################
@@ -88,6 +94,19 @@ PHASES_DICT=dict(sd_fourier=[1,"Semidiurnal (Fourier)"],
                  fn=[7,"Fornightly"],
                  mn=[8,"Monthly"])
 NUM_PHASES=len(PHASES_DICT)
+
+"""
+Components are: 
+   1 - Apogea, 2 - Perigea
+   3 - Max.Apogee, 4 - Min.Perigee
+   5 - Aphelia, 6 - Perihelia
+"""
+EXTREMES=[[1,"Apogea"],
+          [2,"Perigea"],
+          [3,"Max.Apogee"],
+          [4,"Min.Perigee"],
+          [5,"Aphelia"],
+          [6,"Perihelia"]]
 
 # ######################################################################
 # CORE ROUTINES
