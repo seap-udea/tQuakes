@@ -13,6 +13,7 @@ quake=loadConf("quake.conf")
 # CONNECT TO DATABASE
 # ############################################################
 connection=connectDatabase()
+tQuakes,connection=loadDatabase()
 db=connection.cursor()
 
 # ############################################################
@@ -36,6 +37,7 @@ def plotBoundaries(quakeid,component,plt):
                        float(quake.qlon),
                        float(quake.qdepth),
                        float(quake.qjd))
+    quakedb=tQuakes['Quakes']['rows'][quakeid]
 
     # ############################################################
     # PREPARE FIGURE
@@ -122,9 +124,24 @@ def plotBoundaries(quakeid,component,plt):
     tminm=tMF[ipeak];tmaxm=tMF[ipeak+2]
 
     # ############################################################
+    # ASTRONOMY TIMES
+    # ############################################################
+    table=numpy.loadtxt("astronomy-extremes-1970_2030.data")
+    astro=loadExtremesTable(EXTREMES,table)
+    qjd=float(quake.qjd)
+    
+    # GET THE PERIGEA POSITION
+    ps=astro["Perigea"][1:,0]
+    ps=ps-qjd
+    cond=(ps>-CONF.TIMEWIDTH)*(ps<+CONF.TIMEWIDTH)
+
+    # PLOT THE PERIGEA
+    for tp in ps[cond]:ax.axvline(tp,color='k',zorder=-1000,alpha=0.1,linewidth=3)
+
+    # ############################################################
     # DECORATION
     # ############################################################
-    ax.set_xlim((-CONF.TIMEWIDTH,+CONF.TIMEWIDTH))
+    ax.set_xlim((-CONF.TIMEWIDTH/1,+CONF.TIMEWIDTH/1))
     ax.set_ylim((smin,smax+(smax-smin)/2))
 
     ax.set_title(r"%s for quake %s"%(name,quakeid))

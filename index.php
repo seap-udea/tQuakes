@@ -546,6 +546,8 @@ C;
 	  shell_exec("cd $quakedir;ln -s ../../../plots/analysis/makefile");
 
 	  //COPY PLOTTING SCRIPTS
+	  $cmd="cd $quakedir;ln -s ../../../plots/analysis/astronomy-extremes-1970_2030.data";
+	  shell_exec($cmd);
 	  foreach($COMPONENTS as $ncomp){
 	    $component=$COMPONENTS_DICT[$ncomp+1];
 	    $symbol=$component[0];

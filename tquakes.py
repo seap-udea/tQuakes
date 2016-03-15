@@ -21,6 +21,17 @@ HOUR=60*MIN
 DAY=24*HOUR # seconds
 YEAR=365.25*DAY # seconds
 
+SIDFAC=1.002737909
+
+# EARTH'S EQUATORIAL RADIUS
+REARTH=6378.1366 #km
+
+# EARTH'S FLATTENING
+FEARTH=0.00335281310846
+
+# MOON ANGULAR RATE
+MOONRATE=(360.0-360.0/27.32166) # Degrees per day
+
 # ######################################################################
 # GLOBAL
 # ######################################################################
@@ -40,7 +51,7 @@ for field in FIELDS_CSV:
     FIELDS_DB+=[dbfield]
     FIELDS_DB2CSV[dbfield]=field
 FIELDS_DB+=["quakeid","quakestr",
-            "qdatetime","qjd",
+            "qdatetime","qjd","qet","hmoon","hsun",
             "astatus","adatetime","stationid"]
 
 FIELDSTXT="("
@@ -107,6 +118,8 @@ EXTREMES=[[1,"Apogea"],
           [4,"Min.Perigee"],
           [5,"Aphelia"],
           [6,"Perihelia"]]
+
+# ASTRONOMY PHASES
 
 # ######################################################################
 # CORE ROUTINES
@@ -1180,6 +1193,28 @@ def quake2str(qlat,qlon,qdep,qjd):
         (qlat,qlon,qdep,qjd)
     return quakestr
 
+def loadExtremesTable(extremes,table):
+    """
+    extremes is an array of the form:
+
+    [[1,"Component1"],
+     [2,"Component2"],
+     ...
+    ]
+    """
+    n=table.shape[0]
+    data=dict()
+    for i in xrange(n):
+        if i==0:continue
+        line=table[i]
+        if line[1]>1E8:
+            ncomp=int(line[0])
+            name=extremes[ncomp-1][1]
+            data[name]=numpy.array([0,0])
+            continue
+        data[name]=numpy.vstack((data[name],line))
+    return data
+
 # ######################################################################
 # SPICE RELATED ROUTINES
 # ######################################################################
@@ -1233,3 +1268,52 @@ def dtime2etjd(dtime):
     qjd=et2jd(qet)
 
     return qet,qjd
+
+def bodyPosition(body,et):
+    import spiceypy as sp
+
+    x,tl=sp.spkezr(body,et,"J2000","NONE","EARTH")
+    R,alpha,dec=sp.recrad(x[:3])
+
+    return R,alpha,dec
+
+def localST(et,lon):
+    """
+    Local Solar time and hour angle of the sun
+
+    et: Ephemeris time
+    lon: Longitude (in degrees)
+    """
+    import spiceypy as sp
+
+    # Local solar time
+    lst=sp.et2lst(et,399,lon*DEG,"PLANETOGRAPHIC",51,51)
+
+    # Hour angle
+    hsun=numpy.mod((s2d(lst[0],lst[1],lst[2])-12.0)/SIDFAC*15,360)
+
+    return lst,hsun
+
+def bodyHA(body,et,qlon):
+    import spiceypy as sp
+
+    # SUB POINT POSITION
+    pos=sp.subpnt("Intercept:  ellipsoid",
+                  "EARTH",et,"IAU_EARTH","NONE",
+                  body)
+    lpos=sp.recpgr("EARTH",pos[0],REARTH,FEARTH);
+
+    # LATITUDE AND LONGITUDE
+    lon=lpos[0]*RAD
+    lat=lpos[1]*RAD
+
+    # print d2s(lon),d2s(lat)
+    
+    # DIFFERENCE IN LONGITUDE
+    dlon=numpy.mod(qlon-lon,360)
+
+    # HOUR ANGLE
+    # H = LST - ALPHA
+    ha=dlon
+
+    return ha

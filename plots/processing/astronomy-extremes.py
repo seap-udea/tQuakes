@@ -22,20 +22,6 @@ sp.furnsh("util/kernels/kernels.mk")
 # ############################################################
 # LOAD DATA
 # ############################################################
-def loadExtremesTable(extremes,table):
-    n=table.shape[0]
-    data=dict()
-    for i in xrange(n):
-        if i==0:continue
-        line=table[i]
-        if line[1]>1E8:
-            ncomp=int(line[0])
-            name=extremes[ncomp-1][1]
-            data[name]=numpy.array([0,0])
-            continue
-        data[name]=numpy.vstack((data[name],line))
-    return data
-
 table=numpy.loadtxt(fname+".data")
 data=loadExtremesTable(EXTREMES,table)
 

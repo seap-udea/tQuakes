@@ -46,6 +46,13 @@ for quake in content:
     quake["qet"]="%.3f"%et
     quake["qjd"]="%.6f"%qjd
 
+    # CALCULATE HOUR ANGLE OF THE MOON AND THE SUN
+    qlon=float(quake["Longitud"])
+    hmoon=bodyHA("MOON",qet,qlon)
+    hsun=bodyHA("SUN",qet,qlon)
+    quake["hmoon"]="%.5f"%(hmoon)
+    quake["hsun"]="%.5f"%(hsun)
+
     print "\tDate: ",quake["qdatetime"]
     print "\tJD: ",quake["qjd"]
     print "\tET: ",quake["qet"]

@@ -70,4 +70,7 @@ create table Users (
 /*insert ignore into Users (email,uname,password,ulevel) values ('jorge.zuluaga@udea.edu.co','Jorge Zuluaga',MD5('zuluaga03'),'1');*/
 /*insert ignore into Users (email,uname,password,ulevel,activate) values ('gloria.moncayo@udea.edu.co','Gloria Moncayo',MD5('moncayo'),'2','1');*/
 /*insert ignore into Users (email,uname,password,ulevel,activate) values ('gmonsalvem@unal.edu.co','Gaspar Monsalve',MD5('monsalve'),'1','1');*/
-alter table Quakes add column qet varchar(255) after qjd;
+/*alter table Quakes add column qet varchar(255) after qjd;*/
+/*alter table Quakes add column hmoon varchar(50) after qdeptherr;*/
+/*alter table Quakes add column hsun varchar(50) after qdeptherr;*/
+alter table Quakes add column aphases varchar(500) after qphases;
