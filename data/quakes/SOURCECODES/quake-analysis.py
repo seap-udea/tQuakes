@@ -162,6 +162,8 @@ for component in COMPONENTS:
     ipeaks=numpy.arange(npeaks)
     ipeak=ipeaks[tMb<0][-1]
     dtmean=tMb[ipeak+1]-tMb[ipeak]
+    if dtmean>0.55:dtmean=0.5
+
     dt=-tMb[tMb<0][-1]
     dtphase=dt/dtmean;
     qphases+="%.4f:%.4f;"%(dt,dtphase)
@@ -170,7 +172,7 @@ for component in COMPONENTS:
     # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     # DIURNAL COMPONENT
     # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-    vvv=0
+    vvv=1
     psgn=PHASESGN[ic-1]
 
     if vvv:print "Hmoon: ",hmoon
@@ -193,6 +195,8 @@ for component in COMPONENTS:
         iso+=1
 
     dtmean=tp[iprev+1]-tp[iprev-1]
+    if dtmean>1.1:dtmean=1.0
+
     dtphase=dt/dtmean
     qphases+="%.4f:%.4f;"%(dt,dtphase)
     print "\t\tDiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
@@ -224,6 +228,7 @@ for component in COMPONENTS:
     ipeaks=numpy.arange(npeaks)
     ipeak=ipeaks[tMF<0][-1]
     dtmean=tMF[ipeak+1]-tMF[ipeak]
+    if dtmean>16:dtmean=14.0
     dt=-tMF[tMF<0][-1]
     dtphase=dt/dtmean;
     qphases+="%.4f:%.4f;"%(dt,dtphase)
@@ -235,9 +240,9 @@ for component in COMPONENTS:
     # FIND THE PEAK CLOSEST TO PERIGEA
     if psgn>0:tcF=tMF
     else:tcF=tmf
-    
     cond=(tcF>-40)*(tcF<+40)
     tpF=tcF[cond]
+    numpeak=len(tpF)
     ds=[]
     for tf in tpF:ds+=[min(abs(ps-tf))]
     iM=numpy.array(ds).argsort()[0]
@@ -246,8 +251,16 @@ for component in COMPONENTS:
     ipeak=ipeaks[tpF<0][-1]
     if vvv:print "Previous:",ipeak
     if abs(ipeak-iM)%2!=0:ipeak-=1
-    dtmean=tpF[ipeak+2]-tpF[ipeak]
     if vvv:print "Choosen iPeak = ",ipeak
+
+    if (ipeak+2)>=numpeak:npeak=ipeak-2
+    else:npeak=ipeak+2
+
+    if vvv:print "Number of peaks = ",numpeak
+    if vvv:print "Next Peak = ",npeak
+    dtmean=abs(tpF[npeak]-tpF[ipeak])
+    if dtmean>35:dtmean=30.0
+
     dt=-tpF[ipeak]
     dtphase=dt/dtmean
     qphases+="%.4f:%.4f;"%(dt,dtphase)
