@@ -13,6 +13,15 @@ timeit=timing.time
 DEG=PI/180
 RAD=180/PI
 
+# MOON ANGULAR RATE
+MOONRATE=(360.0-360.0/27.32166) # Degrees per day
+
+ONE=1.0
+MIN=60.0
+HOUR=60*MIN
+DAY=24*HOUR # seconds
+YEAR=365.25*DAY # seconds
+
 # ######################################################################
 # GLOBAL
 # ######################################################################
@@ -63,6 +72,8 @@ ETERNA COMPONENTS:
 # NAME    :  g  tilt  vd vs hs0 hs90   areal shear volume
 # IN FILE :  1  2     3  4  5   6      7     8     9
 COMPONENTS=[ 0, 1,    2, 4, 5,  9]#,     6,    7,    8]
+PHASESGN=  [-1,+1,   +1,-1,+1, +1]   
+
 COMPONENTS_LONGTERM=[0]
 COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      grav=[0,"Tidal gravity",r"nm/s$^2$"],
@@ -76,6 +87,19 @@ COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      volume=[8,"Volume strain","nstr"],
                      hsn=[9,"Horizontal strain (Az = 90)","nstr"]
                  )
+
+"""
+Components are: 
+   1 - Apogea, 2 - Perigea
+   3 - Max.Apogee, 4 - Min.Perigee
+   5 - Aphelia, 6 - Perihelia
+"""
+EXTREMES=[[1,"Apogea"],
+          [2,"Perigea"],
+          [3,"Max.Apogee"],
+          [4,"Min.Perigee"],
+          [5,"Aphelia"],
+          [6,"Perihelia"]]
 
 # ######################################################################
 # CORE ROUTINES
@@ -391,6 +415,28 @@ TIDALPARAM=  3.381379  4.347615   1.16000    0.0000 M4     #tidal param.
     
     content=content.replace("\n","\r\n")
     return content
+
+def loadExtremesTable(extremes,table):
+    """
+    extremes is an array of the form:
+
+    [[1,"Component1"],
+     [2,"Component2"],
+     ...
+    ]
+    """
+    n=table.shape[0]
+    data=dict()
+    for i in xrange(n):
+        if i==0:continue
+        line=table[i]
+        if line[1]>1E8:
+            ncomp=int(line[0])
+            name=extremes[ncomp-1][1]
+            data[name]=numpy.array([0,0])
+            continue
+        data[name]=numpy.vstack((data[name],line))
+    return data
 
 # ######################################################################
 # FOURIER ANALYSIS
