@@ -12,6 +12,10 @@ print "\tAnalysing quake '%s'..."%quakeid
 conf=loadConf("configuration")
 periods=[0.5,1.0,13.8,27.6]
 
+# ASTRONOMY EXTREMES 
+table=numpy.loadtxt("util/astronomy-extremes-1970_2030.data")
+astro=loadExtremesTable(EXTREMES,table)
+
 # ##################################################
 # LOAD STATION INFORMATION
 # ##################################################
