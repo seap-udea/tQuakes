@@ -62,7 +62,7 @@ for quake in qlist:
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # RUN JOB
-    out=System("cd %s;python quake-analysis.py %s >> quake.log"%(quakedir,quakeid))
+    out=System("cd %s;PYTHONPATH=. python quake-analysis.py %s >> quake.log"%(quakedir,quakeid))
     quake=loadConf(quakedir+"quake.conf")
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

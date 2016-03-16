@@ -69,7 +69,7 @@ for quake in qlist:
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # RUN JOB
-    out=System("cd %s;python quake-eterna.py %s >> quake.log"%(quakedir,quakeid))
+    out=System("cd %s;PYTHONPATH=. python quake-eterna.py %s >> quake.log"%(quakedir,quakeid))
     print out
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
