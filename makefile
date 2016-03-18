@@ -99,7 +99,7 @@ station:
 
 resetquakes:
 	@echo "Resetting quakes..."
-	@mysql -u root -p tQuakes -e "update Quakes set astatus='0',stationid='',adatetime='',qsignal='',qphases='';"
+	@mysql -u root -p tQuakes -e "update Quakes set astatus='0',stationid='',adatetime='',calctime1='',calctime2='',calctime3='',qsignal='',qphases='',aphases=''"
 
 plotdata:
 	@echo "Generating website plots..."

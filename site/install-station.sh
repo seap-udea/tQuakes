@@ -29,7 +29,9 @@ fi
 # ##################################################
 echo "Cloning tQuakes station package..."
 if [ ! -d tQuakes ];then
-    git clone --branch station --single-branch http://github.com/seap-udea/tQuakes.git
+    if ! git clone --branch station --single-branch http://github.com/seap-udea/tQuakes.git;then
+	git clone --branch station http://github.com/seap-udea/tQuakes.git
+    fi
     rm tQuakes/.git
 else
     echo -e "\ttQuakes already downloaded.  Updating."

@@ -31,6 +31,7 @@ $FORM="<form method='post' enctype='multipart/form-data' accept-charset='utf-8'>
 $STATUS="$status";
 $ERRORS="$errors";
 $URLPAGE=$_SERVER["REQUEST_URI"];
+$REFRESHRATE="300";
 
 $CITATE=<<<C
 <p>

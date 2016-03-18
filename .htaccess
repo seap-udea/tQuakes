@@ -8,6 +8,4 @@ Options -Indexes
 <Files "*.py">
        Deny from all
 </Files>
-<Files "*.sh">
-       Deny from all
-</Files>
+

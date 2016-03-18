@@ -612,7 +612,7 @@ C;
     $tideresults.=$signaltxt;
 
     //COMPONENT PHASES
-    $SUBMENU.="<a href='#phases'>Phases</a> | ";
+    $SUBMENU.="<a href='#phases'>Tidal Phases</a> | ";
 
     $phases=preg_split("/;/",$quake["qphases"]);
 $phasetxt=<<<P
@@ -646,6 +646,35 @@ P;
     
     $phasetxt.="</table>";
     $tideresults.=$phasetxt;
+
+    //////////////////////////////////////////////////////////////
+    //ASTRONOMY PHASES
+    //////////////////////////////////////////////////////////////
+    $SUBMENU.="<a href='#download'>Astronomy Phases</a> | ";
+    $aphases=$quake["aphases"];
+    $phases=preg_split("/;/",$aphases);
+
+$tideresults.=<<<A
+  <h3><a name=download>Astronomy Phases</a></h3>
+  <table border=1px cellspacing=0px>
+  <tr>
+    <td>Component</td>
+    <td>Time (days)</td>
+    <td>Period (days)</td>
+    <td>Phase</td>
+  </tr>
+A;
+    $table="";
+    $components=array("Perigea","Closest Perigea","Perihelia");
+    for($i=0;$i<3;$i++){
+      $parts=preg_split("/:/",$phases[$i]);
+      $table.="<tr><td>$components[$i]</td><td>$parts[0]</td><td>$parts[1]</td><td>$parts[2]</td></tr>";
+    }
+    $table.="</table>";
+    $tideresults.=$table;
+    //////////////////////////////////////////////////////////////
+    //DOWNLOAD
+    //////////////////////////////////////////////////////////////
     $SUBMENU.="<a href='#download'>Download</a> | ";
     
 $tideresults.=<<<T
@@ -1039,15 +1068,16 @@ else if($if=="stations"){
   
   $statlog="$SCRATCHDIR/stats.log";
   if(file_exists($statlog)){shell_exec("cp $statlog $statlog.prev");}
+
   $numquakes=mysqlCmd("select count(quakeid) from Quakes");
   $numfetched=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0;");
   $perfetched=round($numfetched[0]/(1.0*$numquakes[0])*100,2);
   $numanalysed=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0 and astatus+0<4;");
   $numsubmit=mysqlCmd("select count(quakeid) from Quakes where astatus+0=4;");
   $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,2);
-  $firstquake=mysqlCmd("select adatetime from Quakes limit 1;");
+  $firstquake=mysqlCmd("select adatetime from Quakes where adatetime<>'' order by UNIX_TIMESTAMP(adatetime)+0 asc limit 1;");
   $tfirst=$firstquake[0];
-  $lastquake=mysqlCmd("select max(adatetime) from Quakes where adatetime<>'';");
+  $lastquake=mysqlCmd("select adatetime from Quakes where adatetime<>'' order by UNIX_TIMESTAMP(adatetime)+0 desc limit 1;");
   $elapsed=mysqlCmd("select TIMEDIFF(max(adatetime),'$tfirst') from Quakes where adatetime<>'';");
   $elapsedsecs=mysqlCmd("select TIME_TO_SEC(TIMEDIFF(max(adatetime),'$tfirst')) from Quakes where adatetime<>'';");
   $perquake=round($elapsedsecs[0]/$numsubmit[0],2);
@@ -1059,7 +1089,7 @@ else if($if=="stations"){
   $avgtot=$avgcalc1+$avgcalc2+$avgcalc3;
   $speedup=round($avgtot/$perquake,3);
   $singlespeedup=round(($avgcalc1+$avgcalc2)/$perquake,3);
-									    
+
 $CONTENT.=<<<STAT
 <p>
   <ul>
@@ -1113,7 +1143,14 @@ STAT;
    fwrite($fl,"<html><body>$DATE<br/>$stats</body></html>");
    fclose($fl);
 
+   if(!isset($details)){
+     $CONTENT.="<p><a href=$URLPAGE&details>Show stations details</a></p>";
+   }
+
    //$CONTENT.="<a href=$SCRATCHDIR/stats.log.prev target=_blank>Previous</a> | <a href=$SCRATCHDIR/stats.log target=_blank>Present</a>";
+
+   else{
+   $CONTENT.="<p><a href=?if=stations>Hide stations details</a></p>";
 
    //////////////////////////////////////////////////////////////
    //STATIONS ACTIVITY
@@ -1125,11 +1162,12 @@ STAT;
   if(file_exists($stationlog)){shell_exec("cp $stationlog $stationlog.prev");}
   $stations=mysqlCmd("select * from Stations",$qout=1);
 
-$CONTENT.=<<<TABLE
-<table border=1px>
+$table.=<<<TABLE
+<table border=1px cellspacing=0>
 <tr>
   <td>Name</td>
   <td>Station Id.</td>
+  <td>N.Procs.</td>
   <td>Fetched<br/>(time ETERNA)</td>
   <td>Analysing<br/>(time analysis)</td>
   <td>Completed<br/>(time submit)</td>
@@ -1150,6 +1188,8 @@ TABLE;
  $avgcalctime=0;
  $avgscore=0;
  $iavg=0;
+ $numnodis=0;
+ $lateststatus="";
   foreach($stations as $station){
     foreach(array_keys($station) as $key){
       $$key=$station["$key"];
@@ -1163,9 +1203,12 @@ TABLE;
     $sqlnumquakes="$sqlbase$urlnumquakes";
 
     $station_status_txt=$STATION_STATUS[$station_status];
+    if($station_status_txt!="Disabled"){$numnodis++;}
     $calctime1=mysqlCmd("select avg(calctime1) from Quakes where stationid='$station_id' and calctime1<>'';");
     $calctime2=mysqlCmd("select avg(calctime2) from Quakes where stationid='$station_id' and calctime2<>'';");
     $calctime3=mysqlCmd("select avg(calctime3) from Quakes where stationid='$station_id' and calctime3<>'';");
+    $lateststatus=mysqlCmd("select max(station_statusdate) from Stations;");
+    $lateststatus=$lateststatus[0];
 
     $numquakes=mysqlCmd("select count(quakeid),avg(calctime3) from Quakes where stationid='$station_id' and astatus='4';");
     $fetched=mysqlCmd("select count(quakeid),avg(calctime1) from Quakes where stationid='$station_id' and astatus+0>0;");
@@ -1191,10 +1234,11 @@ TABLE;
     
     if($score<1){$scorecolor="red";}
 
-$CONTENT.=<<<TABLE
+$table.=<<<TABLE
   <tr>
     <td><a href="?if=station&station_id=$station_id">$station_name</a></td>
     <td><a href="?if=register&station_id=$station_id&station_name=$station_name&station_email=$station_email">$station_id</td>
+    <td>$station_nproc</td>
     <td><a href="$sqlfetched">$fetched[0]</a>  ($timeeterna)</td>
     <td><a href="$sqlanalysing">$analysing[0]</a> ($timeanalysis)</td>
     <td><a href="$sqlnumquakes">$numquakes[0]</a> ($timesubmission)</td>
@@ -1214,23 +1258,24 @@ TABLE;
   $fracanalysing=round($totanalysing/$totquakes*100,2);
   $fracnumquakes=round($totnumquakes/$totquakes*100,2);
 
-$CONTENT.=<<<TABLE
+$table.=<<<TABLE
    <tr>
      <td>Num. stations : $numstations</td>
-     <td style=text-align:right>TOTALS</td>
+     <td style=text-align:right colspan=2>TOTALS</td>
      <td>$totfetched</td>
      <td>$totanalysing</td>
      <td>$totnumquakes</td>
      <td>$avgcalctime</td>
      <td>$avgscore</td>
-     <td colspan=2></td>
+     <td>$numnodis</td>
+     <td>$lateststatus</td>
    </tr>
    <tr>
-     <td colspan=2 style=text-align:right>TOTALS (%)</td>
+     <td colspan=3 style=text-align:right>TOTALS (%)</td>
      <td>$fracfetched%</td>
      <td>$fracanalysing%</td>
      <td>$fracnumquakes%</td>
-     <td colspan=4></td>
+     <td colspan=4>--</td>
    </tr>
 </table>
 TABLE;
@@ -1238,8 +1283,12 @@ TABLE;
    $fl=fopen($stationlog,"w");
    fwrite($fl,"<html><body>$DATE<br/>$table</body></html>");
    fclose($fl);
+   $CONTENT.=$table;
 
-   //$CONTENT.="<a href=$stationlog.prev target=_blank>Previous</a> | <a href=$stationlog target=_blank>Present</a>";
+   }
+   $CONTENT.="<a href=$stationlog.prev target=_blank>Previous</a> | <a href=$stationlog target=_blank>Present</a>"; 
+   $CONTENT.="<p style=font-style:italic>Page will automatically refresh every $REFRESHRATE seconds</p>"; 
+   header("Refresh:300;url=$URLPAGE");
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

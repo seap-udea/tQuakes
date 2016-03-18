@@ -54,7 +54,7 @@ if($action=="fetch"){
     echo "No quakes available for fecthing.";
     return 0;
   }
-  $disprops=array("quakeid","qjd","qlat","qlon","qdepth","qdate","qtime");
+  $disprops=array("quakeid","qjd","qlat","qlon","qdepth","qdate","qtime","hmoon","hsun");
   foreach($quakes as $quake){
     foreach($disprops as $prop){
       $$prop=$quake["$prop"];
@@ -80,7 +80,7 @@ else if($action=="report"){
 //REPORTING END OF ANALYSIS
 ////////////////////////////////////////////////////////////////////////
 else if($action=="analysis"){
-  $sql="update Quakes set astatus='3',stationid='$station_id',calctime2='$deltat',adatetime=now(),qsignal='$qsignal',qphases='$qphases' where quakeid='$quakeid';";
+  $sql="update Quakes set astatus='3',stationid='$station_id',calctime2='$deltat',adatetime=now(),qsignal='$qsignal',qphases='$qphases',aphases='$aphases' where quakeid='$quakeid';";
   mysqlCmd($sql);
   return 0;
 }
