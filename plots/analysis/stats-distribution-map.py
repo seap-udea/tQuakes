@@ -29,7 +29,8 @@ dt=dlon/10.0
 latb=center[0]-dlat/2;latu=center[0]+dlat/2
 lonl=center[1]-dlon/2;lonr=center[1]+dlon/2
 
-search=search+"and (cluster1='0' or cluster1 like '-%%') and qlat+0>=%.2f and qlat+0<%.2f and qlon+0>=%.2f and qlon+0<%.2f limit %d"%(latb,latu,lonl,lonr,limit)
+# and (cluster1='0' or cluster1 like '-%%') 
+search=search+"and qlat+0>=%.2f and qlat+0<%.2f and qlon+0>=%.2f and qlon+0<%.2f limit %d"%(latb,latu,lonl,lonr,limit)
 qids,quakes=getQuakes(search,db)
 nquakes=len(qids)
 

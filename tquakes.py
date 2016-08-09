@@ -82,6 +82,7 @@ ETERNA COMPONENTS:
 # NAME    :  g  tilt  vd vs hs0 hs90   areal shear volume
 # IN FILE :  1  2     3  4  5   6      7     8     9
 COMPONENTS=[ 0, 1,    2, 4, 5,  9]#,     6,    7,    8]
+PHASESGN=  [-1,+1,   +1,-1,+1, +1]   
 COMPONENTS_LONGTERM=[0]
 COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      grav=[0,"Tidal gravity",r"nm/s$^2$"],

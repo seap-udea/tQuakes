@@ -16,10 +16,18 @@ connection=connectDatabase()
 tQuakes,connection=loadDatabase()
 db=connection.cursor()
 
+
 # ############################################################
 # ROUTINE
 # ############################################################
 def plotBoundaries(quakeid,component,plt):
+
+    # ############################################################
+    # ASTRONOMY EXTREMES 
+    # ############################################################
+    table=numpy.loadtxt("util/astronomy-extremes-1970_2030.data")
+    astro=loadExtremesTable(EXTREMES,table)
+
     # ############################################################
     # COMPONENT
     # ############################################################
@@ -38,6 +46,13 @@ def plotBoundaries(quakeid,component,plt):
                        float(quake.qdepth),
                        float(quake.qjd))
     quakedb=tQuakes['Quakes']['rows'][quakeid]
+    hmoon=float(quakedb["hmoon"])
+    qjd=float(quakedb["qjd"])
+
+    # PERIGEA
+    ps=astro["Perigea"][1:,0]-qjd
+    cond=(ps>-40)*(ps<+40)
+    ps=ps[cond]
 
     # ############################################################
     # PREPARE FIGURE
@@ -90,18 +105,33 @@ def plotBoundaries(quakeid,component,plt):
     # FORTNIGHTLY LEVEL PEAKS (MINIMA)
     tmf,smf,tMf,sMf=signalBoundary(tms,sms)
 
+    # SIGN OF PHASES
+    psgn=PHASESGN[nc-1]
+
     # PEAKS SEMIDIURNAL
-    npeaks=len(tMb)
+    if psgn>0:tb=tMb
+    else:tb=tmb
+
+    npeaks=len(tb)
     ipeaks=numpy.arange(npeaks)
-    ipeak=ipeaks[tMb<0][-1]
-    tminb=tMb[ipeak];tmaxb=tMb[ipeak+1]
+    ipeak=ipeaks[tb<0][-1]
+    tminb=tb[ipeak];tmaxb=tb[ipeak+1]
 
     # PEAKS DIURNAL
-    dpeak1=sMb[ipeak]-smb[ipeak]
-    dpeak2=sMb[ipeak+1]-smb[ipeak+1]
-    if dpeak1<dpeak2:ipeak=ipeak-1
-    tmind=tMb[ipeak];tmaxd=tMb[ipeak+2]
+    if psgn>0:tp=tMb
+    else:tp=tmb
+    dprev=hmoon/MOONRATE
+    tshift=tp+dprev
+    isorts=abs(tshift).argsort()
+    iso=0;dt=-1
+    while dt<0:
+        iprev=isorts[iso]
+        dt=-tp[iprev]
+        iso+=1
+    ipeak=iprev
+    tmind=tp[ipeak];tmaxd=tp[ipeak+2]
 
+    # CREATE ARRAY OF MINIMUM AND MAXIMA
     tMd=numpy.concatenate((tMb[ipeak::-2],tMb[ipeak::+2]))
     sMd=numpy.concatenate((sMb[ipeak::-2],sMb[ipeak::+2]))
 
@@ -115,13 +145,26 @@ def plotBoundaries(quakeid,component,plt):
     tminf=tMF[ipeak];tmaxf=tMF[ipeak+1]
 
     # PEAKS MONTHLY
-    npeaks=len(tMF)
+    if psgn>0:tcF=tMF
+    else:tcF=tmf
+    cond=(tcF>-40)*(tcF<+40)
+    tpF=tcF[cond]
+    
+    #DETECT INITIAL INDEX OF PEAK
+    ipeaks=numpy.arange(len(tcF))
+    cond=tcF<=-40
+    inipeak=ipeaks[cond][-1]+1
+
+    numpeak=len(tpF)
+    ds=[]
+    for tf in tpF:ds+=[min(abs(ps-tf))]
+    iM=numpy.array(ds).argsort()[0]
     ipeaks=numpy.arange(npeaks)
-    ipeak=ipeaks[tMF<0][-1]
-    dpeak1=sMF[ipeak]-smf[ipeak]
-    dpeak2=sMF[ipeak+1]-smf[ipeak+1]
-    if dpeak1<dpeak2:ipeak=ipeak-1
-    tminm=tMF[ipeak];tmaxm=tMF[ipeak+2]
+    ipeak=ipeaks[tpF<0][-1]
+    if abs(ipeak-iM)%2!=0:ipeak-=1
+    if (ipeak+2)>=numpeak:npeak=ipeak-2
+    else:npeak=ipeak+2
+    tminm=tcF[inipeak+ipeak];tmaxm=tcF[inipeak+ipeak+2]
 
     # ############################################################
     # ASTRONOMY TIMES

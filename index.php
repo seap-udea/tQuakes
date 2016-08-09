@@ -554,7 +554,7 @@ C;
 	    $componentname=$component[2];
 	    foreach($QUAKE_PLOTS as $plot){
 	      $ext="py";
-	      $cmd="cd $quakedir;ln -s ../../../plots/analysis/quake-$plot.$ext quake-$plot-$symbol.$ext";
+	      $cmd="cd $quakedir;cp -f ../../../plots/analysis/quake-$plot.$ext quake-$plot-$symbol.$ext";
 	      shell_exec($cmd);
 	      foreach(array("conf","html","history") as $ext){
 		$cmd="cp -r plots/analysis/quake-$plot.$ext $quakedir/quake-$plot-$symbol.$ext";
@@ -1946,7 +1946,7 @@ BASIC;
 
       // COPY AND PLOTTING SCRIPTS
       shell_exec("cd $quakedir;rm -rf *.py");
-      shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.py;do ln -s \$plot;done");
+      shell_exec("cd $quakedir;for plot in ../../../plots/quakes/*.py;do cp -f \$plot .;done");
       shell_exec("for plot in $quakedir/*.py;do PYTHONPATH=. MPLCONFIGDIR=/tmp python \$plot;done");
     }
     $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);

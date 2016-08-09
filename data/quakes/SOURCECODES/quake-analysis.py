@@ -155,16 +155,21 @@ for component in COMPONENTS:
     # FORTNIGHTLY LEVEL PEAKS (MINIMA)
     tmf,smf,tMf,sMf=signalBoundary(tms,sms)
 
+    psgn=PHASESGN[ic-1]
+
     # ==============================
     # SEMI-DIURNAL FREQUENCY
     # ==============================
-    npeaks=len(tMb)
+    if psgn>0:tb=tMb
+    else:tb=tmb
+
+    npeaks=len(tb)
     ipeaks=numpy.arange(npeaks)
-    ipeak=ipeaks[tMb<0][-1]
-    dtmean=tMb[ipeak+1]-tMb[ipeak]
+    ipeak=ipeaks[tb<0][-1]
+    dtmean=tb[ipeak+1]-tb[ipeak]
     if dtmean>0.55:dtmean=0.5
 
-    dt=-tMb[tMb<0][-1]
+    dt=-tb[tb<0][-1]
     dtphase=dt/dtmean;
     qphases+="%.4f:%.4f;"%(dt,dtphase)
     print "\t\tSemidiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
