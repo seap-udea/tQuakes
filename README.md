@@ -93,14 +93,28 @@ After installation, the server will have:
 
 - And the **tQuakes** server website running and up.
 
+Before starting any computing station you should be sure that all the
+earth quakes in the database are reset and ready to be analysed:
+
+```
+# make resetquakes
+```
+
+This operation may take a while.  Be patient.
+
 Starting with a calculation station
 -----------------------------------
 
-Normally you will start by installing a calculation station.  
+Once a server is installed and configured you may start installing and
+running calculation stations.
 
 After obtaining a copy of the ``station`` branch (see previous
 section) you need to install all the required packages to run the
 analytical tools of **tQuakes**.
+
+Before proceeding with the installation you will need to copy the file
+``configuration.in`` as ``configuration`` and set up the server to
+which the station will be providing computing time.
 
 The station only works on Linux Debian machines:
 
@@ -130,8 +144,102 @@ STATION PUBLIC KEY:
 ssh-rsa AAAAB3NzaC1yc2sdafasfAASDASDDU/l1vmEJM5O43I7P2FEgluRl8fGKZ7RUJZGMRYtQkF/mD8qGjGvUQxze49U8/m7b3IjJXzcLjJRbpRffWzEQWLuedeD5YCx6fO1Pj5ldw1m9WQtk3TaHqhoVp37v3WCbMNYbPAm43j4wrkfKGs+HGmXiRnAAO3lWZpw9HO1pWPI99glX3Vs324ovweKfgwXO12DUP0Pb5jYpFNi/uOvOtg4x8ygTevMaUxAhp1pxP6LJi+03v/fIDfeR93YaAexhCvxkzfRfR16t17DhT7ozEimPCkFoD9jH8wIVFf2O9foik2XMxcw5tluYTh+Tx6mgSmrBezCi7pllR6bg6s5K7 root@urania
 ```
 
-Once the machine is registered in the **tQuakes** server
+The Station ID and the PUBLIC KEY will be required for registering the
+machine in the tQuakes server.
 
+Once a station is registered the manager of the corresponding
+**tQuakes** server needs to enable the station by setting the
+``Receiving`` parameter in the Station section of the **tQuakes**
+website.
+
+To test if the station is properly working run:
+
+
+```
+$ python tquakes-teststation.py
+**************************************************
+RUNNING tquakes-test
+**************************************************
+Testing Eterna...
+        Eterna is running.
+Testing connection with webserver...
+        Connection established with server.
+Testing database connection...
+        Database query working.
+Testing database connection...
+        Server is receiving from this station.
+Testing ssh connection...
+        Succesful connection.
+ALL TEST PASSED.
+```
+
+If all the tests are passed you may be interested on testing if the
+whole analysis pipeline is working.  This is done by running:
+
+```
+$ cp common common.save && echo "NUMQUAKES=1;" >> common
+$ python tquakes-pipeline.py
+```
+
+If the pipeline is working you will see how the earthquake is analysed
+and the products submitted to the server:
+
+```
+**************************************************
+RUNNING tquakes-prepare
+**************************************************
+Searching fetched quakes...
+        1 quakes found...
+Preparing quake 1 '0017TFZ'
+        Locking quake
+        Starting date:  2014-06-27 11:53:28
+        Eterna files generated...
+**************************************************
+RUNNING tquakes-eterna
+**************************************************
+Searching prepared quakes...
+        1 prepared quakes found...
+Running Eterna for quake 1 '0017TFZ'
+        Locking quake
+        Starting time:  1470784199.89
+
+        End time:  1470784205.25
+        Time elapsed:  5.3681871891
+        Reporting calculations...
+        Quake done.
+**************************************************
+RUNNING tquakes-analysis
+**************************************************
+Searching calculated quakes...
+        1 calculated quakes found...
+Analysing quake 1 '0017TFZ'
+        Starting time:  1470784205.38
+        End time:  1470784207.84
+        Time elapsed:  2.45757603645
+        Reporting calculations...
+**************************************************
+RUNNING tquakes-submit
+**************************************************
+Station enabled.
+Searching calculated quakes...
+        1 analysed quakes found...
+Submitting quake 1 '0017TFZ'
+        Locking quake
+        Starting time:  1470784207.97
+0017TFZ.conf                                                                                                                                                                                                                                                                                                                            100%  884     0.9KB/s   00:00
+0017TFZ-analysis.tar.7z                                                                                                                                                                                                                                                                                                                 100% 1076KB   1.1MB/s   00:00
+0017TFZ-eterna.tar.7z                                                                                                                                                                                                                                                                                                                   100%  679KB 678.7KB/s   00:00
+        End time:  1470784208.16
+        Time elapsed:  0.186028003693
+        Reporting submission...
+        Quake done.
+```
+
+After leaving the test recall to recover the common file to the original:
+
+```
+$ cp common.save common
+```
 
 Instructions for the contributor
 --------------------------------
