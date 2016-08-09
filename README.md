@@ -31,32 +31,6 @@ by an scalable scavenging grid of Linux servers, able to speed-up the
 complex analysis required to study the potential relationship between
 tides and seismicity.
 
-In this site you will find or be able to:
-
-- **Browse the Earthquakes database**. Detailed information about each
-  earthquake is provided (location by coordinates, location by city,
-  province and country, magnitude, depth date and time, etc.). You
-  will be able to perform simple and advanced queries on the database
-  and download subsets.
-
-- **Information on tides at earthquakes location and time**. Get
-  information about tides at the times when the earthquakes in
-  database happen. Here you will find precalculated values and phases
-  of tides for most of the earthquakes in our database. tQuakes
-  provide values and phases for the most important phase components
-  (vertical displacement, gravitational acceleration, horizontal and
-  vertical strain, etc.)
-
-- **Calculate tides at any location and time**. We provide a simple web
-  interface to ETERNA, a software to calculate solid tides provided
-  location, depth and tiem.
-
-Access to analytical products. Database administrators perform analysis on the database to study the statistical correlation between seismicity and tides. Here you will find some analytical products for the database.
-Download tQuakes. tQuakes is an open source project. You may download the full tQuakes server, including a previously feed database or the tQuakes working station if you want to provide computing time to the project.
-Get a complete list of references in the field. We provide here the most complete list of peer reviewed papers, books, thesis and other documents related directly or indirectly to the investigation on the possible connection between tides and seismic activity.
-
-tQuakes.
-
 Getting a copy
 --------------
 
