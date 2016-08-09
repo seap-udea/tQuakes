@@ -92,7 +92,7 @@ This project must be used and distributed under the [GPL License
 Version 2] (http://www.gnu.org/licenses/gpl-2.0.html).
 
 **tQuakes** has been developed under the principles of the [copyleft
-philosophy](http://en.wikipedia.org/wiki/Copyleft).
+philosophy](http://en.wikipedia.org/wiki/Copyleft) `[)]`.
 
 All wrongs reserved to [Jorge
 I. Zuluaga](mailto:jorge.zuluaga@udea.edu.co), [Gloria
