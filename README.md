@@ -2,9 +2,9 @@
 Earthquakes and Tides
 
 Developed by [Jorge
-I. Zuluaga](mailto:jorge.zuluaga@udea.edu.co),[Gloria
+I. Zuluaga](mailto:jorge.zuluaga@udea.edu.co), [Gloria
 Moncayo](mailto:gloria.moncayo@udea.edu.co), [Gaspar
-Monsalve](mailto:gmonsalvem@unal.edu.co)
+Monsalve](mailto:gmonsalvem@unal.edu.co) [)] 2016.
 
 Presentation
 ------------
@@ -19,10 +19,10 @@ intended to explore the relationship between the lunisolar tides and
 the triggering of earthquakes.
 
 It combines a huge (and growing) database of Earthquakes around the
-globe, with a specialized set of analytical tools able to calculate
-the amplitude of the lunisolar tide at the time and place where the
-earthquakes happened and to filter, analyse and perform advanced
-graphical representations of the earthquake dataset and other
+globe, with a specialized set of analytical tools able to: 1)
+calculate the amplitude of the lunisolar tide at the time and place
+where the earthquakes happened and 2) filter, analyse and perform
+advanced graphical representations of the earthquake dataset and other
 analytical products obtained from them.
 
 **tQuakes** is not only a databased with some related analytical
@@ -91,8 +91,8 @@ Licensing
 This project must be used and distributed under the [GPL License
 Version 2] (http://www.gnu.org/licenses/gpl-2.0.html).
 
-The symbol `[)]` means that it has been developed under the principles
-of the [copyleft philosophy](http://en.wikipedia.org/wiki/Copyleft).
+**tQuakes** has been developed under the principles of the [copyleft
+philosophy](http://en.wikipedia.org/wiki/Copyleft).
 
 All wrongs reserved to [Jorge
 I. Zuluaga](mailto:jorge.zuluaga@udea.edu.co), [Gloria
