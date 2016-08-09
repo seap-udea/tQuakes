@@ -48,6 +48,7 @@ for quake in qlist:
         continue
 
     # ONLY PREPARE QUAKES NOT LOCKED
+    """
     lockfile=quakedir+".lock"
     if os.path.lexists(lockfile):
         print "\tQuake locked by another process"
@@ -55,6 +56,7 @@ for quake in qlist:
     else:
         print "\tLocking quake"
         System("touch "+lockfile)
+    """
 
     # TIME
     time_start=timeit()
@@ -92,7 +94,8 @@ for quake in qlist:
                                                                                                                                     quake.qphases,
                                                                                                                                     quake.aphases,
                                                                                                                                     deltat))
-    
+    exit(0)
+
     # DELETE LOCKFILE
     System("rm "+lockfile)
 

@@ -36,7 +36,7 @@ cleandata:
 	@rm -r data/quakes/???????
 
 cleanall:clean cleandata
-	@rm log/*
+	@-rm log/*
 
 unlock:
 	@echo "Unlocking all quakes..."
