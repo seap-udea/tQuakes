@@ -34,17 +34,22 @@ tides and seismicity.
 Getting a copy
 --------------
 
-To get a copy of the newest version of this project just execute:
+There are two type of **tQuakes** repositories: ``master`` and
+``station``. ``master`` is the repository containing all the files
+required to install a database server. A ``master`` repository should
+be installed in the apache root directory:
 
 ```
+$ cd /var/www/html
 $ git clone --branch master http://github.com/seap-udea/tQuakes.git
 ```
 
-If you want to get a different branch of the project just change
-"master" by the name of the branch.
+The ``station`` repository is that containing the required files for a
+calculation station.
 
-This is the developer copy.  You may also obtain the latest release of
-the installable package, available in the `dist` folder.
+Getting a station
+-----------------
+
 
 Instructions for the contributor
 --------------------------------
