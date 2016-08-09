@@ -35,9 +35,11 @@ Getting a copy
 --------------
 
 There are two type of **tQuakes** repositories: ``master`` and
-``station``. ``master`` is the repository containing all the files
-required to install a database server. A ``master`` repository should
-be installed in the apache root directory:
+``station``. 
+
+``master`` is the repository containing all the files required to
+install a database server. A ``master`` repository should be installed
+in the apache root directory:
 
 ```
 $ cd /var/www/html
@@ -45,10 +47,90 @@ $ git clone --branch master http://github.com/seap-udea/tQuakes.git
 ```
 
 The ``station`` repository is that containing the required files for a
-calculation station.
+calculation station.  It could be installed on any directory on the machine:
 
-Getting a station
------------------
+```
+$ git clone --branch station --single-branch http://github.com/seap-udea/tQuakes.git
+```
+
+tQuakes server
+--------------
+
+After obtaining a copy of the ``master`` branch (see previous
+section) you need to install all the required packages to run the
+analytical tools of **tQuakes**.
+
+Before installing the master, copy the file ``configuration.in`` as
+``configuration`` and set the variables: HOMEDIR (it should have more
+than 200GB available), DBPASSWORD (password for the tquakes user, see
+db/user.sql file), EMAIL_USERNAME, EMAIL_PASSWORD (this the google
+account information required to send e-mail notifications), WEBSERVER,
+DATASERVER.
+
+Once the previous variables are set run the installation script (the
+master only works on Linux Debian machines):
+
+```
+# cd /var/www/html/tQuakes
+# ./install-full.sh
+```
+
+After installation, the server will have:
+
+- All the third-party packages required for the operation of the
+  **tQuakes** server (e.g. mysql-server python-mysqldb python-setuptools
+  gnuplot-x11 apache2 php5 php5-mysql wget links p7zip
+  python-mpltoolkits.basemap python-setuptools). You should pay
+  particular attention to mysql server root password.
+
+- ``ETERNA33`` installed at the root directory.
+
+- Package ``SpiceyPy`` installed (see ``python -c "import spiceypy"``).
+
+- A new user ``tquakes`` created in the home directory. 
+
+- Database ``tQuakes`` created in the mysql server.
+
+- And the **tQuakes** server website running and up.
+
+Starting with a calculation station
+-----------------------------------
+
+Normally you will start by installing a calculation station.  
+
+After obtaining a copy of the ``station`` branch (see previous
+section) you need to install all the required packages to run the
+analytical tools of **tQuakes**.
+
+The station only works on Linux Debian machines:
+
+```
+$ cd tQuakes
+$ ./install.sh
+```
+
+Once the software is installed you should pre register your station running:
+
+```
+$ python tquakes-sation.py
+
+Station properties:
+        Station ID: 007F0100B4317B
+        Architecture: Linux urania 4.2.0-35-generic 40~14.04.1-Ubuntu SMP Fri Mar 18 16:37:35 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+        Number of processors: 3
+        RAM memory: 16003
+        Mac Address: a4:6d:32:c5:82:45
+
+Your station has been preregistered.  Please go to 'http://urania.udea.edu.co/tQuakes/index.php?if=register' to finish the regsitration of the calculation station.
+
+STATION ID: 007F0100B2124124
+
+STATION PUBLIC KEY:
+
+ssh-rsa AAAAB3NzaC1yc2sdafasfAASDASDDU/l1vmEJM5O43I7P2FEgluRl8fGKZ7RUJZGMRYtQkF/mD8qGjGvUQxze49U8/m7b3IjJXzcLjJRbpRffWzEQWLuedeD5YCx6fO1Pj5ldw1m9WQtk3TaHqhoVp37v3WCbMNYbPAm43j4wrkfKGs+HGmXiRnAAO3lWZpw9HO1pWPI99glX3Vs324ovweKfgwXO12DUP0Pb5jYpFNi/uOvOtg4x8ygTevMaUxAhp1pxP6LJi+03v/fIDfeR93YaAexhCvxkzfRfR16t17DhT7ozEimPCkFoD9jH8wIVFf2O9foik2XMxcw5tluYTh+Tx6mgSmrBezCi7pllR6bg6s5K7 root@urania
+```
+
+Once the machine is registered in the **tQuakes** server
 
 
 Instructions for the contributor
@@ -84,7 +166,7 @@ Instructions for the contributor
    $ git checkout -b <branch> origin/<branch>
    ```
 
-6. Checkout back into the master:
+6. Checkout back into the ``master``:
 
    ```
    $ git checkout master

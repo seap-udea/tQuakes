@@ -48,6 +48,7 @@ if ! python -c "import spiceypy" 2> /dev/null
 then
     cd util/SpiceyPy
     python setup.py install
+    cd -
 else
     echo -e "\tSpiceyPy already installed."
 fi
@@ -72,12 +73,14 @@ chown -R $TQUSER.$TQUSER $HOMEDIR/$TQUSER/
 # CREATING DATABASE
 # ##################################################
 echo "Installing database..."
-echo -e "\tWhen prompted please use root mysql password."
 if [ ! -e db/.inidb ];then
+    echo -e "\tWhen prompted please use root mysql password."
     mysql -u root -p < db/user.sql
     mysql -u root -p < db/initialize.sql
     make restore
     touch db/.inidb
+else
+    echo "Database already installed."
 fi
 
 # ##################################################
