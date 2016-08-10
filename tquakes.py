@@ -1,7 +1,7 @@
 import MySQLdb as mdb
 import csv,datetime,commands,re,os,numpy,cmath,time as timing
 from scipy import signal
-from sys import exit,argv
+from sys import exit,argv,stderr
 from util.jdcal import *
 
 # ######################################################################
@@ -54,7 +54,7 @@ for field in FIELDS_CSV:
     FIELDS_DB+=[dbfield]
     FIELDS_DB2CSV[dbfield]=field
 FIELDS_DB+=["quakeid","quakestr",
-            "qdatetime","qjd",
+            "qdatetime","qjd","qet","hmoon","hsun",
             "astatus","adatetime","stationid"]
 
 FIELDSTXT="("
@@ -174,7 +174,7 @@ def loadConf(filename):
 
 def fileBase(filename):
     dirs=filename.split("/")
-    search=re.search("([^\/]+)\.[^\/]+",filename)
+    search=re.search("([^\/]+)\.[^\/]+$",filename)
     basename=search.group(1)
     dirname="/".join(dirs[:-1])
     return dirname,basename
@@ -296,7 +296,7 @@ def customdate2jd(mydate):
 
     # GET CENTURY AND MJD
     century,mjd=gcal2jd(int(year),int(month),int(day))
-    jd=century+mjd+(int(hours)+int(minutes)/60.+float(seconds)/3600.+float(lag))/24
+    jd=century+mjd+(int(hours)+int(minutes)/60.+float(seconds)/3600.+float(lag))/24.
     return jd
 
 def date2jd(mydatetime):
@@ -578,7 +578,7 @@ def numComponent(namecomponent):
     numcol=COMPONENTS.index(component)+1
 
     # PHASES IN QPHASES
-    numphases=7*(numcol-1)
+    numphases=NUM_PHASES*(numcol-1)
     
     return numcol,numphases
 
