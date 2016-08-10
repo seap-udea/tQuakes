@@ -188,7 +188,7 @@ def plotBoundaries(quakeid,component,plt):
     ax.set_ylim((smin,smax+(smax-smin)/2))
 
     ax.set_title(r"%s for quake %s"%(name,quakeid))
-    ax.set_xlabel(r"Days to/since earthquake")
+    ax.set_xlabel(r"Days to /since earthquake")
     ax.set_ylabel(r"%s (%s)"%(name,units))
 
     # ############################################################

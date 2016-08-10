@@ -178,7 +178,6 @@ for component in COMPONENTS:
     # DIURNAL COMPONENT
     # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     vvv=1
-    psgn=PHASESGN[ic-1]
 
     if vvv:print "Hmoon: ",hmoon
 

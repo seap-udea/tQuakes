@@ -226,9 +226,9 @@ Searching calculated quakes...
 Submitting quake 1 '0017TFZ'
         Locking quake
         Starting time:  1470784207.97
-0017TFZ.conf                                                                                                                                                                                                                                                                                                                            100%  884     0.9KB/s   00:00
-0017TFZ-analysis.tar.7z                                                                                                                                                                                                                                                                                                                 100% 1076KB   1.1MB/s   00:00
-0017TFZ-eterna.tar.7z                                                                                                                                                                                                                                                                                                                   100%  679KB 678.7KB/s   00:00
+0017TFZ.conf
+0017TFZ-analysis.tar.7z
+0017TFZ-eterna.tar.7z
         End time:  1470784208.16
         Time elapsed:  0.186028003693
         Reporting submission...
@@ -239,6 +239,12 @@ After leaving the test recall to recover the common file to the original:
 
 ```
 $ cp common.save common
+```
+
+If everything is working properly you may start the **tQuakes** daemon:
+
+```
+$ make start
 ```
 
 Instructions for the contributor

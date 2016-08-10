@@ -490,6 +490,8 @@ qdate='$date'
 qlon='$qlon'
 qtime='$time'
 qjd='$qjd'
+hmoon='$hmoon'
+hsun='$hsun'
 
 C;
          fwrite($fl,$conf);
@@ -744,7 +746,7 @@ T;
   endcalculate:
     if(!$qdone){
       $tideresults.="Processing request...<br/><img src=img/loader.gif>";
-      header("Refresh:3;url=$URLPAGE&action=$action&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd");
+      header("Refresh:3;url=index.php?if=quaketide&action=$action&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun");
     }
 
   }//End action=calculate
@@ -1519,7 +1521,7 @@ $CONTENT.=<<<TABLE
     <td class="level0 num">$i</td>
     <td class="level0 txt">
       <a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a><br/>
-      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd">tides</a>
+      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun">tides</a>
     </td>
     <td class="level0 num">$qlat, $qlon</td>
     <td class="level0 num">&pm;$qlaterr,&pm;$qlonerr</td>
@@ -1616,7 +1618,7 @@ $tablesynth.=<<<TABLE
   <tr>
     <td class="level0 txt">
       <a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a><br/>
-      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd">tides</a>
+      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun">tides</a>
     </td>
     <td class="level0 num">$qlat, $qlon</td>
     <td class="level0 txt">$qdepth</td>
@@ -1738,7 +1740,7 @@ BASIC;
 $SUBMENU.=<<<QUAKE
 <a href="$referer">Back</a> | 
 QUAKE;
-  $SUBMENU.="<a href='$WEBSERVER/?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd'>Tides</a>";
+  $SUBMENU.="<a href='$WEBSERVER/?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun'>Tides</a>";
   
   preg_match("/__([^\.]+).png/",$img,$matches);
   $plotmd5=$matches[1];
@@ -1855,6 +1857,18 @@ $FORM
   <td>Depth (km):</td>
   <td>
     <input type="text" name="qdepth" value="$qdepth">
+  </td>
+</tr>
+<tr>
+  <td>Hour angle of the Moon (degrees):</td>
+  <td>
+    <input type="text" name="hmoon" value="$hmoon">
+  </td>
+</tr>
+<tr>
+  <td>Hour angle of the Sun (degrees):</td>
+  <td>
+    <input type="text" name="hsun" value="$hsun">
   </td>
 </tr>
 <tr>

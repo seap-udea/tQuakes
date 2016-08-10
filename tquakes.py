@@ -15,6 +15,9 @@ DEG=PI/180
 RAD=180/PI
 norm=numpy.linalg.norm
 
+# MOON ANGULAR RATE
+MOONRATE=(360.0-360.0/27.32166) # Degrees per day
+
 ONE=1.0
 MIN=60.0
 HOUR=60*MIN
@@ -76,7 +79,7 @@ ETERNA COMPONENTS:
 6: for tidal areal  strain in 10**-9 = nstr.
 7: for tidal shear  strain in 10**-9 = nstr.
 8: for tidal volume strain in 10**-9 = nstr.
-9: for tidal horizontal displacement in mm at azimuth 90 deg.
+9: for tidal horizontal strain at azimuth 90 deg.
 """
 
 # NAME    :  g  tilt  vd vs hs0 hs90   areal shear volume
@@ -463,6 +466,28 @@ TIDALPARAM=  3.381379  4.347615   1.16000    0.0000 M4     #tidal param.
     content=content.replace("\n","\r\n")
     return content
 
+def loadExtremesTable(extremes,table):
+    """
+    extremes is an array of the form:
+
+    [[1,"Component1"],
+     [2,"Component2"],
+     ...
+    ]
+    """
+    n=table.shape[0]
+    data=dict()
+    for i in xrange(n):
+        if i==0:continue
+        line=table[i]
+        if line[1]>1E8:
+            ncomp=int(line[0])
+            name=extremes[ncomp-1][1]
+            data[name]=numpy.array([0,0])
+            continue
+        data[name]=numpy.vstack((data[name],line))
+    return data
+
 # ######################################################################
 # FOURIER ANALYSIS
 # ######################################################################
@@ -526,13 +551,17 @@ def signalBoundary(t,s):
     
     tM=[];sM=[]
     tm=[];sm=[]
+    imax=100
     for i in xrange(1,n):
+        #if i<imax:print i,t[i],s[i],ds[i],ds[i-1]
         if ds[i]<ds[i-1]:
             tM+=[t[i]]
             sM+=[s[i]]
+            #if i<imax:print "Maximum:",t[i],s[i]
         if ds[i]>ds[i-1]:
             tm+=[t[i]]
             sm+=[s[i]]
+            #if i<imax:print "Minimum:",t[i],s[i]
 
     tM=numpy.array(tM);sM=numpy.array(sM)
     tm=numpy.array(tm);sm=numpy.array(sm)
@@ -1194,28 +1223,6 @@ def quake2str(qlat,qlon,qdep,qjd):
         (qlat,qlon,qdep,qjd)
     return quakestr
 
-def loadExtremesTable(extremes,table):
-    """
-    extremes is an array of the form:
-
-    [[1,"Component1"],
-     [2,"Component2"],
-     ...
-    ]
-    """
-    n=table.shape[0]
-    data=dict()
-    for i in xrange(n):
-        if i==0:continue
-        line=table[i]
-        if line[1]>1E8:
-            ncomp=int(line[0])
-            name=extremes[ncomp-1][1]
-            data[name]=numpy.array([0,0])
-            continue
-        data[name]=numpy.vstack((data[name],line))
-    return data
-
 # ######################################################################
 # SPICE RELATED ROUTINES
 # ######################################################################
@@ -1318,3 +1325,4 @@ def bodyHA(body,et,qlon):
     ha=dlon
 
     return ha
+
