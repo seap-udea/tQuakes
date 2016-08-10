@@ -1,5 +1,6 @@
 import MySQLdb as mdb
 import csv,datetime,commands,re,os,numpy,cmath,time as timing
+from scipy import signal
 from sys import exit,argv
 from util.jdcal import *
 
@@ -12,6 +13,7 @@ sleep=timing.sleep
 timeit=timing.time
 DEG=PI/180
 RAD=180/PI
+norm=numpy.linalg.norm
 
 # MOON ANGULAR RATE
 MOONRATE=(360.0-360.0/27.32166) # Degrees per day
@@ -21,6 +23,17 @@ MIN=60.0
 HOUR=60*MIN
 DAY=24*HOUR # seconds
 YEAR=365.25*DAY # seconds
+
+SIDFAC=1.002737909
+
+# EARTH'S EQUATORIAL RADIUS
+REARTH=6378.1366 #km
+
+# EARTH'S FLATTENING
+FEARTH=0.00335281310846
+
+# MOON ANGULAR RATE
+MOONRATE=(360.0-360.0/27.32166) # Degrees per day
 
 # ######################################################################
 # GLOBAL
@@ -73,7 +86,6 @@ ETERNA COMPONENTS:
 # IN FILE :  1  2     3  4  5   6      7     8     9
 COMPONENTS=[ 0, 1,    2, 4, 5,  9]#,     6,    7,    8]
 PHASESGN=  [-1,+1,   +1,-1,+1, +1]   
-
 COMPONENTS_LONGTERM=[0]
 COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      grav=[0,"Tidal gravity",r"nm/s$^2$"],
@@ -85,8 +97,18 @@ COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      areal=[6,"Areal strain","nstr"],
                      shear=[7,"Shear","nstr"],
                      volume=[8,"Volume strain","nstr"],
-                     hsn=[9,"Horizontal strain (Az = 90)","nstr"]
+                     hst=[9,"Horizontal strain (Az = 90)","nstr"]
                  )
+
+PHASES_DICT=dict(sd_fourier=[1,"Semidiurnal (Fourier)"],
+                 dn_fourier=[2,"Diurnal (Fourier)"],
+                 fn_fourier=[3,"Fornightly (Fourier)"],
+                 mn_fourier=[4,"Monthly (Fourier)"],
+                 sd=[5,"Semidiurnal"],
+                 dn=[6,"Diurnal"],
+                 fn=[7,"Fornightly"],
+                 mn=[8,"Monthly"])
+NUM_PHASES=len(PHASES_DICT)
 
 """
 Components are: 
@@ -100,6 +122,8 @@ EXTREMES=[[1,"Apogea"],
           [4,"Min.Perigee"],
           [5,"Aphelia"],
           [6,"Perihelia"]]
+
+# ASTRONOMY PHASES
 
 # ######################################################################
 # CORE ROUTINES
@@ -228,9 +252,12 @@ def updateDatabase(dbdict,con):
                 db.execute(sql);
     con.commit()
 
-def randomStr(N):
+def randomStr(N,numbers=True,letters=True):
     import string,random
-    string=''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(N))
+    characters=""
+    if numbers:characters+=string.digits
+    if letters:characters+=string.ascii_uppercase
+    string=''.join(random.SystemRandom().choice(characters) for _ in range(N))
     return string
 
 def mysqlSimple(sql,db):
@@ -289,6 +316,29 @@ def date2jd(mydatetime):
     jd=century+mjd+(mydatetime.hour+mydatetime.minute/60.+\
                     (mydatetime.second+mydatetime.microsecond/1e6)/3600.)/24
     return jd
+
+def d2s(d,fac=1):
+    d*=fac
+    hd=int(d)
+    m=(d-hd)*60
+    md=int(m)
+    s=(m-md)*60
+    sd=int(s)
+    return hd,md,sd
+
+def s2d(h,m,s,fac=1):
+    d=numpy.sign(h)*(abs(h)+abs(m)/60.0+abs(s)/3600.0)
+    return d
+
+def jd2date(jd):
+    d=jd2gcal(0,jd)
+    h,m,s=d2s(d[3],fac=24)
+    datetq=datetime.datetime.strptime("%02d/%02d/%s %02d:%02d:%02d"%(d[2],
+                                                                     d[1],
+                                                                     str(d[0])[2:],
+                                                                     h,m,s),
+                                      DATETIME_FORMAT)
+    return datetq
 
 def System(cmd,out=True):
     """
@@ -540,44 +590,57 @@ def lon2str(lon):
     return "%g"%lon
 
 def scatterMap(ax,qlat,qlon,
+               m=None,
+               resolution='c',
+               limits=None,
                pardict=dict(),
                merdict=dict(),
+               zoom=1,
                **formats):
     """
     Create a scatter 
     """
-
     from mpl_toolkits.basemap import Basemap as map
-    qlatmin=min(qlat)
-    qlatmax=max(qlat)
-    qlonmin=min(qlon)
-    qlonmax=max(qlon)
-    qlonmean=(qlonmax+qlonmin)/2
-    qlatmean=(qlatmax+qlatmin)/2
-    dlat=abs(qlatmax-qlatmin)*PI/180*6780.0e3
-    dlon=abs(qlonmax-qlonmin)*PI/180*6780.0e3
 
-    # ############################################################
-    # MAP OPTIONS
-    # ############################################################
-    fpardict=dict(labels=[True,True,False,False],
-                  fontsize=10,zorder=10,linewidth=0.5,fmt=lat2str)
-    fmerdict=dict(labels=[False,False,True,True],
-                  fontsize=10,zorder=10,linewidth=0.5,fmt=lon2str)
+    if m is None:
+        if limits is None:
+            qlatmin=min(qlat)
+            qlatmax=max(qlat)
+            qlonmin=min(qlon)
+            qlonmax=max(qlon)
+            qlonmean=(qlonmax+qlonmin)/2
+            qlatmean=(qlatmax+qlatmin)/2
+            dlat=zoom*abs(qlatmax-qlatmin)*PI/180*6371.0e3
+            dlon=zoom*abs(qlonmax-qlonmin)*PI/180*6371.0e3
+            if dlat==0:dlat=1E5
+            if dlon==0:dlon=1E5
+        else:
+            qlatmean=limits[0]
+            qlonmean=limits[1]
+            dlat=limits[2]*PI/180*6371.0e3
+            dlon=limits[3]*PI/180*6371.0e3
 
-    fpardict.update(pardict)
-    fmerdict.update(merdict)
+        # ############################################################
+        # MAP OPTIONS
+        # ############################################################
+        fpardict=dict(labels=[True,True,False,False],
+                      fontsize=10,zorder=10,linewidth=0.5,fmt=lat2str)
+        fmerdict=dict(labels=[False,False,True,True],
+                      fontsize=10,zorder=10,linewidth=0.5,fmt=lon2str)
 
-    # ############################################################
-    # PREPARE FIGURE
-    # ############################################################
-    m=map(projection="aea",resolution='c',width=dlon,height=dlat,
-          lat_0=qlatmean,lon_0=qlonmean,ax=ax)
+        fpardict.update(pardict)
+        fmerdict.update(merdict)
 
-    m.drawlsmask(alpha=0.5)
-    m.etopo(zorder=-10)
-    m.drawparallels(numpy.arange(-45,45,1),**fpardict)
-    m.drawmeridians(numpy.arange(-90,90,1),**fmerdict)
+        # ############################################################
+        # PREPARE FIGURE
+        # ############################################################
+        m=map(projection="aea",resolution=resolution,width=dlon,height=dlat,
+              lat_0=qlatmean,lon_0=qlonmean,ax=ax)
+
+        m.drawlsmask(alpha=0.5)
+        m.etopo(zorder=-10)
+        m.drawparallels(numpy.arange(-45,45,1),**fpardict)
+        m.drawmeridians(numpy.arange(-90,90,1),**fmerdict)
 
     # ############################################################
     # PLOT
@@ -586,3 +649,680 @@ def scatterMap(ax,qlat,qlon,
     ax.plot(x,y,**formats)
 
     return m
+
+QJD=0
+QLAT=1
+QLON=2
+QDEP=3
+ML=4
+def getQuakes(search,db,vvv=True):
+    # ############################################################
+    # GET BASIC INFO EARTHQUAKES
+    # ############################################################
+    i=0
+    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(search)
+    if vvv:print "Searching quakes with the criterium:\n\t%s"%sql
+    results=mysqlArray(sql,db)
+    nquakes=len(results)
+    table=numpy.zeros((nquakes,5))
+    qids=[]
+    for i in xrange(nquakes):
+        qids+=[results[i][0]]
+        for j in xrange(5):
+            table[i,j]=float(results[i][j+1])
+    if vvv:print "%s quakes found."%len(qids)
+    return qids,table
+
+SDF=5
+DNF=6
+FNF=7
+MNF=8
+SD=9
+FN=10
+MN=11
+PERIODS=[0]*5+[0.5,1.0,14.8,29.6,0.5,14.8,29.6]
+PHASES=[0]*5+["Semidiurnal Fourier","Diurnal Fourier",
+              "Fornightly Fourier","Monthly Fourier",
+              "Semidiurnal","Fornightly","Monthly"]
+
+def getPhases(search,component,db,vvv=True):
+    # COLUMNS: 
+    """
+    0:qjd,1:qlat,2:qlon,3:qdepth,4:Mlq
+    Fourier: 5:sd, 6:dn, 7:fn, 8:mn
+    Boundaries: 9:sd, 10:dn, 11:fn, 12:mn
+    """
+    # ############################################################
+    # COMPONENT INFORMATION
+    # ############################################################
+    info=COMPONENTS_DICT[component]
+    compnum=info[0]
+    name=info[1]
+    nc,np=numComponent(component)
+
+    # ############################################################
+    # GET BASIC INFO EARTHQUAKES
+    # ############################################################
+    i=0
+    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(search)
+    if vvv:print "Searching quakes' phases with the criterium:\n\t%s"%sql
+    results=mysqlArray(sql,db)
+    nquakes=len(results)
+    table=numpy.zeros((nquakes,5))
+    qids=[]
+    for i in xrange(nquakes):
+        qids+=[results[i][0]]
+        for j in xrange(5):
+            table[i,j]=float(results[i][j+1])
+
+    for ip in xrange(1,NUM_PHASES+1):
+        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes %s"%(np+ip,search)
+        results=mysqlArray(sql,db)
+        phases=[]
+        for ph in results:
+            try:
+                phtime=ph[0].split(":")
+                phases+=[float(phtime[1])]
+            except:
+                phases+=[float(phtime[0])]
+        phases=numpy.array(phases)
+        table=numpy.column_stack((table,phases))
+        
+    if vvv:print "%s quakes found."%len(qids)
+    return qids,table
+
+def schusterValue(phases,qbootstrap=False,
+                  facbootstrap=0.5,bootcycles=50,
+                  qsteps=0):
+    if len(phases)<int(1/facbootstrap):return 0,0
+    if qbootstrap:
+        nbootstrap=facbootstrap*len(phases)
+        logps=[]
+        i=0
+        while i<bootcycles:
+            bphases=numpy.random.choice(phases,nbootstrap)
+            N=len(bphases)
+            D2=numpy.cos(bphases).sum()**2+numpy.sin(bphases).sum()**2
+            ilogp=-D2/N
+            logps+=[ilogp]
+            i+=1
+        logp=numpy.mean(logps)
+        dlogp=numpy.std(logps)
+    else:
+        N=len(phases)
+        D2=numpy.cos(phases).sum()**2+numpy.sin(phases).sum()**2
+        logp=-D2/N
+        dlogp=1E-17
+    return logp,dlogp
+
+def schusterSteps(phases,
+                  qbootstrap=0,
+                  facbootstrap=1):
+
+    if qbootstrap:
+        nbootstrap=facbootstrap*len(phases)
+        phases=numpy.random.choice(phases,nbootstrap)
+
+    xstep=[0.0];ystep=[0.0]
+    x=0;y=0
+    for phase in phases:
+        x=x+numpy.cos(phase)
+        y=y+numpy.sin(phase)
+        xstep+=[x]
+        ystep+=[y]
+    return xstep,ystep
+
+def tdWindow(M,fit="GK74"):
+    """
+    See: http://www.corssa.org/articles/themev/van_stiphout_et_al
+
+    Test:
+    # fit="U86"
+    # fit="G12"
+    fit="GK74"
+    for M in numpy.arange(2.5,8.5,0.5):
+        t,d=tdWindow(M,fit=fit)
+        print "M = %.2f, dt = %.2f days, d = %.2f km"%(M,t,d)
+    exit(0)
+    """
+    if fit=="GK74":
+        """Eq1"""
+        d=10**(0.1238*M+0.983)
+        if M<6.5:t=10**(0.5409*M-0.5407)
+        else:t=10**(0.032*M+2.7389)
+    elif fit=="G12":
+        """Eq2"""
+        d=numpy.exp(1.77+(0.037+1.02*M)**2)
+        if M<6.5:t=10**(2.8+0.024*M)
+        else:t=numpy.exp(-3.95+(0.62+17.32*M)**2)
+    elif fit=="U86":
+        """Eq3"""
+        d=numpy.exp(-1.024+0.804*M)
+        t=numpy.exp(-2.87+1.235*M)
+    
+    return t,d
+
+def distancePoints(latOrigin,lonOrigin,latDestination,lonDestination):
+    """
+    Adapted from:
+    http://www.corssa.org/articles/themev/van_stiphout_et_al
+    """
+    
+    a = 6378.137;
+    b = 6356.7523142;
+    f = (a - b) / a;
+    
+    latOrigin *= DEG
+    lonOrigin *= DEG
+    latDestination *= DEG
+    lonDestination *= DEG
+
+    L = lonOrigin - lonDestination;
+    U_1 = numpy.arctan((1 - f) * numpy.tan(latOrigin));
+    U_2 = numpy.arctan((1 - f) * numpy.tan(latDestination));
+
+    lamb = L;
+    lambPrime = 2 * PI;
+    cosSquaredAlpha = 0;
+    sinSigma = 0;
+    cosSigma = 0;
+    cos2Sigma_m = 0;
+    sigma = 0;
+    epsilon = 1e-7;
+
+    while (numpy.abs(lamb - lambPrime) > epsilon):
+        temp1 = numpy.cos(U_2) * numpy.sin(lamb);
+        temp2 = numpy.cos(U_1) * numpy.sin(U_2) - numpy.sin(U_1) * numpy.cos(U_2) * numpy.cos(lamb);
+        sinSigma = numpy.sqrt(temp1 * temp1 + temp2 * temp2);
+        cosSigma = numpy.sin(U_1) * numpy.sin(U_2) + numpy.cos(U_1) * numpy.cos(U_2) * numpy.cos(lamb);
+        sigma = numpy.arctan2(sinSigma, cosSigma);
+        sinAlpha = numpy.cos(U_1) * numpy.cos(U_2) * numpy.sin(lamb) / (sinSigma + 1e-16);
+        cosSquaredAlpha = 1 - sinAlpha * sinAlpha;
+        cos2Sigma_m = numpy.cos(sigma) - 2 * numpy.sin(U_1) * numpy.sin(U_2) / (cosSquaredAlpha + 1e-16);
+        C = f / 16 * cosSquaredAlpha * (4 + f * (4 - 3 * cosSquaredAlpha));
+        lambPrime = lamb;
+        lamb = L + (1 - C) * f * sinAlpha * (sigma + C * sinSigma * \
+                    (cos2Sigma_m + C * cosSigma * (-1 + 2 * cos2Sigma_m * \
+                                                   cos2Sigma_m)));
+
+    uSquared = cosSquaredAlpha * (a * a - b * b) / (b * b);
+    A = 1 + uSquared / 16384 * (4096 + uSquared * (-768 + uSquared * \
+                                                   (320 - 175 * uSquared)));
+    B = uSquared / 1024 * (256 + uSquared * (74 - 47 * uSquared));
+    deltaSigma = B * sinSigma * (cos2Sigma_m + B / 4 * (cosSigma * \
+                                                    (-1 + 2 * cos2Sigma_m * cos2Sigma_m - B / 6 * cos2Sigma_m * \
+                                                     (-3 + 4 * sinSigma * sinSigma * (-3 + 4 * cos2Sigma_m * \
+                                                                                      cos2Sigma_m)))));
+    
+    distance = (b * A * (sigma - deltaSigma));
+    return distance;
+
+if __name__=="__main__":
+    if len(argv)>1:
+        if argv[1]=="date2jd":
+            helptxt="""
+            Options: yyyy mm dd hh mm ss
+            Return: Julian date
+            """
+            args=tuple([int(d) for d in argv[2:]])
+            if len(args)==0:
+                print helptxt
+                exit(1)
+            try:
+                jd=date2jd(datetime.datetime(*args))
+            except:
+                print helptxt
+                exit(1)
+            print jd
+        elif argv[1]=="tdWindow":
+            helptxt="""
+            Options: M <method>
+            Where: <method>: GK72, GK74
+            Return: Time and Space Window (days, km)
+            """
+            try:
+                M=float(argv[2])
+                fit=argv[3]
+                t,d=tdWindow(M,fit=fit)
+            except:
+                print helptxt
+                exit(1)
+            print "M = %.2f, dt = %.2f days, d = %.2f km"%(M,t,d)
+        else:
+            print "This is tQuakes!"
+
+def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None,fac=2.0):
+    """
+    Subplots
+    """
+    npanels=len(panels)
+    spanels=sum(panels)
+
+    # GET SIZE OF PANELS
+    b=b/npanels
+    if dh is None:dh=[b/2]*npanels
+    elif type(dh) is not list:dh=[dh]*npanels
+    else:
+        dh+=[0]
+
+    # EFFECTIVE PLOTTING REGION
+    hall=(1-fac*b-sum(dh))
+    hs=(hall*numpy.array(panels))/spanels
+    fach=(1.0*max(panels))/spanels
+
+    # CREATE AXES
+    fig=plt.figure(figsize=(8,6/fach))
+    axs=[]
+    for i in xrange(npanels):
+        axs+=[fig.add_axes([l,b,w,hs[i]])]
+        b+=hs[i]+dh[i]
+    return fig,axs
+
+def md5sumFile(myfile):
+    md5sum=System("md5sum %s |cut -f 1 -d ' '"%myfile)
+    return md5sum
+
+def pOsc(phase,params):
+    P=params[0]+params[1]*numpy.cos(phase-params[2])
+    return P
+
+def chisq(params,function,xdata,ydata,dydata):
+    dymean=dydata.mean()
+    dydata[dydata==0]=dymean
+    return (ydata-function(xdata,params))/dydata
+
+def prepareScript():
+    # CONFIGURATION FILE
+    if len(argv)>1 and os.path.lexists(argv[1]):confile=argv[1]
+    else:confile="%s.conf"%BASENAME
+    # HISTORY DIR
+    dirname="%s.history"%BASENAME
+    if not os.path.lexists(dirname):
+        System("mkdir %s"%dirname)
+    # MOVE PREVIOUS COMPUTED FIGURES
+    System("mv %s__*.png %s.history/"%(BASENAME,BASENAME))
+    # SIGNATURE
+    md5sum=md5sumFile(confile)
+    # COPY CONFIGURATION FILE
+    System("cp %s %s/%s__%s.conf"%(confile,dirname,BASENAME,md5sum[0:5]))
+    return confile
+
+def saveFigure(confile,fig):
+    # MD5SUM FOR THIS REALIZATION
+    md5sum=md5sumFile(confile)
+    # SAVE FIGURE
+    figname="%s/%s__%s.png"%(DIRNAME,BASENAME,md5sum[0:5])
+    print "Saving figure ",figname
+
+    # WATER MARK
+    ax=fig.gca()
+    ax.text(1.01,1.0,"tQuakes",
+            horizontalalignment='left',verticalalignment='top',
+            rotation=-90,fontsize=10,color='b',alpha=0.3,
+            transform=ax.transAxes,zorder=1000)
+
+    fig.savefig(figname)
+
+def plotSignal(quakeid,component,plt):
+    # ############################################################
+    # COMPONENT
+    # ############################################################
+    info=COMPONENTS_DICT[component]
+    compnum=info[0]
+    name=info[1]
+    units=info[2]
+    nc,np=numComponent(component)
+    
+    # ############################################################
+    # QUAKE PROPERTIES
+    # ############################################################
+    quake=loadConf(DIRNAME+"/quake.conf")
+    quakestr="QUAKE-lat_%+.2f-lon_%+.2f-dep_%+.2f-JD_%.5f"%\
+        (float(quake.qlat),
+         float(quake.qlon),
+         float(quake.qdepth),
+         float(quake.qjd))
+
+    # ############################################################
+    # PREPARE FIGURE
+    # ############################################################
+    fig=plt.figure()
+    ax=plt.gca()
+
+    # ############################################################
+    # CREATE FIGURE
+    # ############################################################
+    qsignal=quake.qsignal.split(";")
+    value=float(qsignal[nc-1])
+
+    signal=numpy.loadtxt(DIRNAME+"/%s.data"%quakeid)
+    t=signal[:,0]-float(quake.qjd)
+    s=signal[:,nc]
+    smin=s.min();smax=s.max()
+    
+    ax.plot(t,s)
+    ax.plot([0],[value],marker='o',color='r',markersize=10,markeredgecolor="None")
+    ax.axvline(0,color='r')
+
+    # ############################################################
+    # DECORATION
+    # ############################################################
+    ax.set_xlim((-CONF.TIMEWIDTH,+CONF.TIMEWIDTH))
+    ax.set_ylim((smin,smax+(smax-smin)/2))
+
+    ax.set_title(r"%s for quake %s"%(name,quakeid))
+    ax.set_xlabel(r"Days to/since earthquake")
+    ax.set_ylabel(r"%s (%s)"%(name,units))
+
+    # ############################################################
+    # INSET PANEL
+    # ############################################################
+    axi=fig.add_axes([0.172,0.65,0.68,0.22])
+    axi.plot(t,s)
+    axi.plot([0],[value],marker='o',color='r',markersize=10,markeredgecolor="None")
+    axi.axvline(0,color='r')
+    axi.set_xlim((-10,10))
+    axi.text(0.1,0.93,r"%s = %.1f %s"%(component.upper(),value,units),transform=ax.transAxes,fontsize=8)
+    axi.set_yticklabels([])
+
+    # ############################################################
+    # SAVE FIGURE
+    # ############################################################
+    ax.text(1.02,0.5,quakestr,
+            horizontalalignment='center',verticalalignment='center',
+            rotation=90,fontsize=10,color='k',alpha=0.2,
+            transform=ax.transAxes)
+
+    figname="%s/%s.png"%(DIRNAME,BASENAME)
+    print "Saving figure ",figname
+    fig.savefig(figname)
+    return fig
+
+def quake2str(qlat,qlon,qdepth,qjd):
+    quakestr="QUAKE-lat_%+08.4f-lon_%+09.4f-dep_%+010.4f-JD_%.5f"%\
+        (float(qlat),
+         float(qlon),
+         float(qdepth),
+         float(qjd))
+    return quakestr
+
+def plotBoundaries(quakeid,component,plt):
+    # ############################################################
+    # COMPONENT
+    # ############################################################
+    info=COMPONENTS_DICT[component]
+    compnum=info[0]
+    name=info[1]
+    units=info[2]
+    nc,np=numComponent(component)
+
+    # ############################################################
+    # QUAKE PROPERTIES
+    # ############################################################
+    quake=loadConf(DIRNAME+"/quake.conf")
+    quakestr="QUAKE-lat_%+.2f-lon_%+.2f-dep_%+.2f-JD_%.5f"%\
+        (float(quake.qlat),
+         float(quake.qlon),
+         float(quake.qdepth),
+         float(quake.qjd))
+    quakestr=quake2str(quake.qlat,quake.qlon,quake.qdepth,quake.qjd)
+
+    # ############################################################
+    # PREPARE FIGURE
+    # ############################################################
+    fig=plt.figure()
+    ax=plt.gca()
+
+    # ############################################################
+    # CREATE FIGURE
+    # ############################################################
+    # GET SIGNAL VALUE
+    qsignal=quake.qsignal.split(";")
+    value=float(qsignal[nc-1])
+
+    # GET PHASES
+    qphases=quake.qphases.split(";")
+
+    phtime=qphases[np+3+1].split(":")
+    
+    phase_sd=float(phtime[1])
+    phtime=qphases[np+3+2].split(":")
+    phase_dn=float(phtime[1])
+    phtime=qphases[np+3+3].split(":")
+    phase_fn=float(phtime[1])
+    phtime=qphases[np+3+4].split(":")
+    phase_mn=float(phtime[1])
+
+    # READ SIGNAL
+    sign=numpy.loadtxt(DIRNAME+"/%s.data"%quakeid)
+    t=sign[:,0]-float(quake.qjd)
+    s=sign[:,nc]
+    smin=s.min();smax=s.max()
+
+    # ==============================
+    # FIND MAXIMA AND MINIMA
+    # ==============================
+    # SEMIDIURNAL LEVEL PEAKS
+    tmb,smb,tMb,sMb=signalBoundary(t,s)
+
+    # SMOOTH MAXIMA & MINIMA
+    b,a=signal.butter(8,0.125)
+    sMs=signal.filtfilt(b,a,sMb,padlen=100)
+    tMs=tMb
+    b,a=signal.butter(8,0.125)
+    sms=signal.filtfilt(b,a,smb,padlen=100)
+    tms=tmb
+
+    # FORTNIGHTLY LEVEL PEAKS (MAXIMA)
+    tmF,smF,tMF,sMF=signalBoundary(tMs,sMs)
+    # FORTNIGHTLY LEVEL PEAKS (MINIMA)
+    tmf,smf,tMf,sMf=signalBoundary(tms,sms)
+
+    # PEAKS SEMIDIURNAL
+    npeaks=len(tMb)
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tMb<0][-1]
+    tminb=tMb[ipeak];tmaxb=tMb[ipeak+1]
+
+    # PEAKS DIURNAL
+    dpeak1=sMb[ipeak]-smb[ipeak]
+    dpeak2=sMb[ipeak+1]-smb[ipeak+1]
+    if dpeak1<dpeak2:ipeak=ipeak-1
+    tmind=tMb[ipeak];tmaxd=tMb[ipeak+2]
+
+    tMd=numpy.concatenate((tMb[ipeak::-2],tMb[ipeak::+2]))
+    sMd=numpy.concatenate((sMb[ipeak::-2],sMb[ipeak::+2]))
+
+    tmd=numpy.concatenate((tmb[ipeak::-2],tmb[ipeak::+2]))
+    smd=numpy.concatenate((smb[ipeak::-2],smb[ipeak::+2]))
+
+    # PEAKS FORTNIGHTLY
+    npeaks=len(tMF)
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tMF<0][-1]
+    tminf=tMF[ipeak];tmaxf=tMF[ipeak+1]
+
+    # PEAKS MONTHLY
+    npeaks=len(tMF)
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tMF<0][-1]
+    dpeak1=sMF[ipeak]-smf[ipeak]
+    dpeak2=sMF[ipeak+1]-smf[ipeak+1]
+    if dpeak1<dpeak2:ipeak=ipeak-1
+    tminm=tMF[ipeak];tmaxm=tMF[ipeak+2]
+
+    # ############################################################
+    # DECORATION
+    # ############################################################
+    ax.set_xlim((-CONF.TIMEWIDTH,+CONF.TIMEWIDTH))
+    ax.set_ylim((smin,smax+(smax-smin)/2))
+
+    ax.set_title(r"%s for quake %s"%(name,quakeid))
+    ax.set_xlabel(r"Days to/since earthquake")
+    ax.set_ylabel(r"%s (%s)"%(name,units))
+
+    # ############################################################
+    # INSET PANEL
+    # ############################################################
+    axi=fig.add_axes([0.172,0.65,0.68,0.22])
+
+    for axp in ax,axi:
+
+        # SIGNAL
+        axp.plot(t,s,'k-',alpha=0.2)
+        # TIME OF EARTHQUAKE
+        axp.axvline(0,color='k')
+        # VALUE OF SIGNAL
+        axp.plot([0],[value],marker='s',color='w',
+                 markersize=10,markeredgecolor='k')
+        # MAXIMA AND MINIMA
+        axp.plot(tMb,sMb,'ro',markersize=3,markeredgecolor='none',label='Semidiurnal:%.4f'%float(phase_sd))
+        axp.plot(tmb,smb,'ro',markersize=3,markeredgecolor='none')
+        
+        axp.plot(tMd,sMd,marker='s',markersize=5,markerfacecolor='none',markeredgecolor='b',linewidth=0,
+                 label='Diurnal:%.4f'%float(phase_dn))
+        axp.plot(tmd,smd,marker='s',markersize=5,markerfacecolor='none',markeredgecolor='b',linewidth=0)
+
+        # SOFTED SIGNAL
+        axp.plot(tMs,sMs,'b-',)
+        axp.plot(tms,sms,'b-',)
+        # MAXIMA AND MINIMA LONGTERM
+        axp.plot(tMF,sMF,'g^',markersize=8,markeredgecolor='none',label='Fortnightly:%.4f'%float(phase_fn))
+        axp.plot(tmf,smf,'gv',markersize=8,markeredgecolor='none')
+        # PEAKS
+        axp.plot(tMF[ipeak::2],sMF[ipeak::2],'cs',markersize=10,markeredgecolor='none',label='Monthly:%.4f'%float(phase_mn))
+        axp.plot(tMF[ipeak::-2],sMF[ipeak::-2],'cs',markersize=10,markeredgecolor='none')
+        axp.plot(tmf[ipeak::2],smf[ipeak::2],'cs',markersize=10,markeredgecolor='none')
+        axp.plot(tmf[ipeak::-2],smf[ipeak::-2],'cs',markersize=10,markeredgecolor='none')
+
+
+    axi.axvspan(tminb,tmaxb,color='r',alpha=0.2)
+    axi.axvspan(tmind,tmaxd,color='k',alpha=0.2)
+    ax.axvspan(tminf,tmaxf,color='g',alpha=0.2)
+    ax.axvspan(tminm,tmaxm,color='c',fill=False,hatch="/")
+
+    ax.legend(loc='lower right',prop=dict(size=10))
+    axi.set_xlim((-10,10))
+    axi.set_yticklabels([])
+
+    # ############################################################
+    # SAVE FIGURE
+    # ############################################################
+    ax.text(1.02,0.5,quakestr,
+            horizontalalignment='center',verticalalignment='center',
+            rotation=90,fontsize=8,color='k',alpha=0.2,
+            transform=ax.transAxes)
+    
+    figname="%s/%s.png"%(DIRNAME,BASENAME)
+    print "Saving figure ",figname
+    fig.savefig(figname)
+    return fig
+
+def quake2str(qlat,qlon,qdep,qjd):
+    quakestr="QUAKE-lat_%+08.4f-lon_%+09.4f-dep_%+010.4f-JD_%.6f"%\
+        (qlat,qlon,qdep,qjd)
+    return quakestr
+
+# ######################################################################
+# SPICE RELATED ROUTINES
+# ######################################################################
+# Magnitude of a Spice state vector
+def normX(state):
+    x=state[0]
+    d=norm(x[:3])
+    v=norm(x[3:])
+    return d,v
+
+# Convert from JD to ET
+# MM/DD/YYYY HH:MM:SS.DCM UTC-L
+# Ephemeris time: et=sp.str2et("01/01/2015 00:00:00.000 UTC")
+def jd2et(jd):
+
+    import spiceypy as sp
+
+    # Convert from JD to UTC seconds (seconds since J2000)
+    utc=(jd-sp.j2000())/365.25*sp.jyear()
+
+    # Compute deltat = ET - UTC
+    deltat=sp.deltet(utc,"UTC");
+
+    # Compute ET
+    et=utc+deltat
+
+    return et
+
+# Convert from ET to JD
+def et2jd(et):
+    import spiceypy as sp
+
+    # Convert et to jed
+    jed=sp.unitim(et,"ET","JED")
+
+    # Calculate the deltat at et
+    deltat=sp.deltet(et,"ET");
+
+    # Add deltat to et
+    jd=jed-deltat/86400.0
+
+    return jd
+
+def dtime2etjd(dtime):
+    import spiceypy as sp
+
+    # dtime in DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
+    dtime=datetime.datetime.strptime(dtime,DATETIME_FORMAT)
+    dtime=dtime.strftime("%m/%d/%Y %H:%M:%S.%f")
+    qet=sp.str2et(dtime)
+    qjd=et2jd(qet)
+
+    return qet,qjd
+
+def bodyPosition(body,et):
+    import spiceypy as sp
+
+    x,tl=sp.spkezr(body,et,"J2000","NONE","EARTH")
+    R,alpha,dec=sp.recrad(x[:3])
+
+    return R,alpha,dec
+
+def localST(et,lon):
+    """
+    Local Solar time and hour angle of the sun
+
+    et: Ephemeris time
+    lon: Longitude (in degrees)
+    """
+    import spiceypy as sp
+
+    # Local solar time
+    lst=sp.et2lst(et,399,lon*DEG,"PLANETOGRAPHIC",51,51)
+
+    # Hour angle
+    hsun=numpy.mod((s2d(lst[0],lst[1],lst[2])-12.0)/SIDFAC*15,360)
+
+    return lst,hsun
+
+def bodyHA(body,et,qlon):
+    import spiceypy as sp
+
+    # SUB POINT POSITION
+    pos=sp.subpnt("Intercept:  ellipsoid",
+                  "EARTH",et,"IAU_EARTH","NONE",
+                  body)
+    lpos=sp.recpgr("EARTH",pos[0],REARTH,FEARTH);
+
+    # LATITUDE AND LONGITUDE
+    lon=lpos[0]*RAD
+    lat=lpos[1]*RAD
+
+    # print d2s(lon),d2s(lat)
+    
+    # DIFFERENCE IN LONGITUDE
+    dlon=numpy.mod(qlon-lon,360)
+
+    # HOUR ANGLE
+    # H = LST - ALPHA
+    ha=dlon
+
+    return ha
+
