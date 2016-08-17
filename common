@@ -4,3 +4,6 @@ DATASERVER=""
 NUMQUAKES=100;
 SAMPLERATE=1800;
 TIMEWIDTH=-1;
+
+# Comment if you want to prevent submission
+QSUBMIT=0;

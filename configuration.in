@@ -6,8 +6,8 @@ DBUSER="tquakes";
 DBPASSWORD="quakes2015";
 DBNAME="tQuakes";
 
-WEBSERVER="http://urania.udea.edu.co/tQuakes"
-DATASERVER="urania.udea.edu.co"
+WEBSERVER="http://urania.udea.edu.co/tQuakes";
+DATASERVER="urania.udea.edu.co";
 
 NUMQUAKES=50;
 SAMPLERATE=3600;
