@@ -73,4 +73,4 @@ create table Users (
 /*alter table Quakes add column qet varchar(255) after qjd;*/
 /*alter table Quakes add column hmoon varchar(50) after qdeptherr;*/
 /*alter table Quakes add column hsun varchar(50) after qdeptherr;*/
-alter table Quakes add column aphases varchar(500) after qphases;
+/*alter table Quakes add column aphases varchar(500) after qphases;*/

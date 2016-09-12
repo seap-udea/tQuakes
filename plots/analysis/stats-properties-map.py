@@ -55,8 +55,9 @@ for i in xrange(nlons-1):
     for j in xrange(nlats-1):
         cond=(qlons>=lons[i])*(qlons<lons[i+1])*(qlats>=lats[j])*(qlats<=lats[j+1])
         if len(Mls[cond]):
-            Mlval=eval("Mls[cond].%s()"%property)
-            qdepval=eval("qdeps[cond].%s()"%property)
+            #Mlval=eval("Mls[cond].%s()"%property)
+            Mlval=numpy.median(Mls[cond])
+            qdepval=numpy.median(qdeps[cond])
             if qdepval==0:qdepval=1E-3
         else:
             Mlval=0

@@ -1,4 +1,6 @@
 from tquakes import *
+import spiceypy as sp
+sp.furnsh("util/kernels/kernels.mk")
 
 # ############################################################
 # LOAD DATABASE

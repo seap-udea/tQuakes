@@ -363,14 +363,14 @@ M;
     $md5str=md5($quakestr);
     $tquakeid=strtoupper(substr($md5str,0,7));
     statusMsg("New quakeid $tquakeid");
-    while(mysqlCmd("select quakeid from Quakes where quakeid='$tquakeid';")){
+    while(mysqlCmd("select quakeid from $QUAKES where quakeid='$tquakeid';")){
       $tquakeid=str_shuffle($tquakeid);
     }
 
     //========================================
     //CHECK IF QUAKEID IS IN DB
     //========================================
-    $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid'");
+    $quakeindb=mysqlCmd("select * from $QUAKES where quakeid='$quakeid'");
     if(!$quakeindb){
       statusMsg("Quakeid $quakeid not in database...");
       $qpreserve=0;
@@ -430,12 +430,12 @@ M;
     //TYPE BY DEFAULT
     $qdb=0;$qdone=0;
 
-    $quakeindb=mysqlCmd("select * from Quakes where quakeid='$quakeid'");
+    $quakeindb=mysqlCmd("select * from $QUAKES where quakeid='$quakeid'");
     if($quakeindb){
       statusMsg("Quake in db");
       $qdb=1;
       //CHECK IF IT'S DONE
-      if(mysqlCmd("select * from Quakes where quakeid='$quakeid' and astatus+0=4")){
+      if(mysqlCmd("select * from $QUAKES where quakeid='$quakeid' and astatus+0=4")){
 	statusMsg("Quake done");
 	$qdone=1;
       }else{
@@ -1065,29 +1065,29 @@ else if($if=="stations"){
   //////////////////////////////////////////////////////////////
   //BASIC STATISTICS
   //////////////////////////////////////////////////////////////
-  $CONTENT.="<h2><a name='stats'></a>Basic Statistics</h2>";
+  $CONTENT.="<h2><a name='stats'></a>Basic Statistics</h2><p><b>Database</b>: <span style=font-family:courier>$QUAKESRUN</span></p>";
   $SUBMENU.="<a href='#stats'>Basic Statistics</a> | ";
   
   $statlog="$SCRATCHDIR/stats.log";
   if(file_exists($statlog)){shell_exec("cp $statlog $statlog.prev");}
 
-  $numquakes=mysqlCmd("select count(quakeid) from Quakes");
-  $numfetched=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0;");
+  $numquakes=mysqlCmd("select count(quakeid) from $QUAKESRUN");
+  $numfetched=mysqlCmd("select count(quakeid) from $QUAKESRUN where astatus+0>0;");
   $perfetched=round($numfetched[0]/(1.0*$numquakes[0])*100,2);
-  $numanalysed=mysqlCmd("select count(quakeid) from Quakes where astatus+0>0 and astatus+0<4;");
-  $numsubmit=mysqlCmd("select count(quakeid) from Quakes where astatus+0=4;");
+  $numanalysed=mysqlCmd("select count(quakeid) from $QUAKESRUN where astatus+0>0 and astatus+0<4;");
+  $numsubmit=mysqlCmd("select count(quakeid) from $QUAKESRUN where astatus+0=4;");
   $persubmit=round($numsubmit[0]/(1.0*$numquakes[0])*100,2);
-  $firstquake=mysqlCmd("select adatetime from Quakes where adatetime<>'' order by UNIX_TIMESTAMP(adatetime)+0 asc limit 1;");
+  $firstquake=mysqlCmd("select adatetime from $QUAKESRUN where adatetime<>'' order by UNIX_TIMESTAMP(adatetime)+0 asc limit 1;");
   $tfirst=$firstquake[0];
-  $lastquake=mysqlCmd("select adatetime from Quakes where adatetime<>'' order by UNIX_TIMESTAMP(adatetime)+0 desc limit 1;");
-  $elapsed=mysqlCmd("select TIMEDIFF(max(adatetime),'$tfirst') from Quakes where adatetime<>'';");
-  $elapsedsecs=mysqlCmd("select TIME_TO_SEC(TIMEDIFF(max(adatetime),'$tfirst')) from Quakes where adatetime<>'';");
+  $lastquake=mysqlCmd("select adatetime from $QUAKESRUN where adatetime<>'' order by UNIX_TIMESTAMP(adatetime)+0 desc limit 1;");
+  $elapsed=mysqlCmd("select TIMEDIFF(max(adatetime),'$tfirst') from $QUAKESRUN where adatetime<>'';");
+  $elapsedsecs=mysqlCmd("select TIME_TO_SEC(TIMEDIFF(max(adatetime),'$tfirst')) from $QUAKESRUN where adatetime<>'';");
   $perquake=round($elapsedsecs[0]/$numsubmit[0],2);
   $pending=round(($numquakes[0]-$numsubmit[0])*$perquake,0);
-  $projectedend=mysqlCmd("select DATE_ADD(max(adatetime),INTERVAL $pending SECOND) from Quakes where adatetime<>''");
-  $results=mysqlCmd("select avg(calctime1) from Quakes where calctime1<>''");$avgcalc1=round($results[0],2);
-  $results=mysqlCmd("select avg(calctime2) from Quakes where calctime2<>''");$avgcalc2=round($results[0],2);
-  $results=mysqlCmd("select avg(calctime3) from Quakes where calctime3<>''");$avgcalc3=round($results[0],2);
+  $projectedend=mysqlCmd("select DATE_ADD(max(adatetime),INTERVAL $pending SECOND) from $QUAKESRUN where adatetime<>''");
+  $results=mysqlCmd("select avg(calctime1) from $QUAKESRUN where calctime1<>''");$avgcalc1=round($results[0],2);
+  $results=mysqlCmd("select avg(calctime2) from $QUAKESRUN where calctime2<>''");$avgcalc2=round($results[0],2);
+  $results=mysqlCmd("select avg(calctime3) from $QUAKESRUN where calctime3<>''");$avgcalc3=round($results[0],2);
   $avgtot=$avgcalc1+$avgcalc2+$avgcalc3;
   $speedup=round($avgtot/$perquake,3);
   $singlespeedup=round(($avgcalc1+$avgcalc2)/$perquake,3);
@@ -1146,7 +1146,7 @@ STAT;
    fclose($fl);
 
    if(!isset($details)){
-     $CONTENT.="<p><a href=$URLPAGE&details>Show stations details</a></p>";
+     $CONTENT.="<p><a href=$URLPAGE&details#activity>Show stations details</a></p>";
    }
 
    //$CONTENT.="<a href=$SCRATCHDIR/stats.log.prev target=_blank>Previous</a> | <a href=$SCRATCHDIR/stats.log target=_blank>Present</a>";
@@ -1157,7 +1157,7 @@ STAT;
    //////////////////////////////////////////////////////////////
    //STATIONS ACTIVITY
    //////////////////////////////////////////////////////////////
-   $CONTENT.="<h2><a name='activity'>Stations Activity</a></h2>";
+   $CONTENT.="<h2><a name='activity'>Stations Activity</a></h2><a href=$URLPAGE> Refresh now</a>";
    $SUBMENU.="<a href='#activity'>Activity</a> | ";
    
   $stationlog="$SCRATCHDIR/stations.log";
@@ -1180,18 +1180,19 @@ $table.=<<<TABLE
 </tr>
 TABLE;
 
- $results=mysqlCmd("select count(quakeid) from Quakes");
+ $results=mysqlCmd("select count(quakeid) from $QUAKESRUN");
  $totquakes=$results[0];
  $totanalysing=0;
  $totnumquakes=0;
  $totfetched=0;
  $numstations=0;
- $timetotavg=mysqlCmd("select avg(calctime1+calctime2+calctime3) from Quakes where calctime3<>'';");
+ $timetotavg=mysqlCmd("select avg(calctime1+calctime2+calctime3) from $QUAKESRUN where calctime3<>'';");
  $avgcalctime=0;
  $avgscore=0;
  $iavg=0;
  $numnodis=0;
  $lateststatus="";
+  $numrun=0;
   foreach($stations as $station){
     foreach(array_keys($station) as $key){
       $$key=$station["$key"];
@@ -1206,15 +1207,15 @@ TABLE;
 
     $station_status_txt=$STATION_STATUS[$station_status];
     if($station_status_txt!="Disabled"){$numnodis++;}
-    $calctime1=mysqlCmd("select avg(calctime1) from Quakes where stationid='$station_id' and calctime1<>'';");
-    $calctime2=mysqlCmd("select avg(calctime2) from Quakes where stationid='$station_id' and calctime2<>'';");
-    $calctime3=mysqlCmd("select avg(calctime3) from Quakes where stationid='$station_id' and calctime3<>'';");
+    $calctime1=mysqlCmd("select avg(calctime1) from $QUAKESRUN where stationid='$station_id' and calctime1<>'';");
+    $calctime2=mysqlCmd("select avg(calctime2) from $QUAKESRUN where stationid='$station_id' and calctime2<>'';");
+    $calctime3=mysqlCmd("select avg(calctime3) from $QUAKESRUN where stationid='$station_id' and calctime3<>'';");
     $lateststatus=mysqlCmd("select max(station_statusdate) from Stations;");
     $lateststatus=$lateststatus[0];
 
-    $numquakes=mysqlCmd("select count(quakeid),avg(calctime3) from Quakes where stationid='$station_id' and astatus='4';");
-    $fetched=mysqlCmd("select count(quakeid),avg(calctime1) from Quakes where stationid='$station_id' and astatus+0>0;");
-    $analysing=mysqlCmd("select count(quakeid),avg(calctime2) from Quakes where stationid='$station_id' and astatus+0>0 and astatus+0<4;");
+    $numquakes=mysqlCmd("select count(quakeid),avg(calctime3) from $QUAKESRUN where stationid='$station_id' and astatus='4';");
+    $fetched=mysqlCmd("select count(quakeid),avg(calctime1) from $QUAKESRUN where stationid='$station_id' and astatus+0>0;");
+    $analysing=mysqlCmd("select count(quakeid),avg(calctime2) from $QUAKESRUN where stationid='$station_id' and astatus+0>0 and astatus+0<4;");
     mysqlCmd("update Stations set station_numquakes='$numquakes[0]' where station_id='$station_id';");
 
     $totnumquakes+=$numquakes[0];
@@ -1235,19 +1236,25 @@ TABLE;
     }
     
     if($score<1){$scorecolor="red";}
+    $dif=strtotime($station_statusdate)-strtotime("now");
+    $updatecolor="lightgray";
+    if(abs($dif)<3600){
+      $updatecolor="black";
+      $numrun++;
+    }
 
 $table.=<<<TABLE
   <tr>
-    <td><a href="?if=station&station_id=$station_id">$station_name</a></td>
-    <td><a href="?if=register&station_id=$station_id&station_name=$station_name&station_email=$station_email">$station_id</td>
-    <td>$station_nproc</td>
-    <td><a href="$sqlfetched">$fetched[0]</a>  ($timeeterna)</td>
-    <td><a href="$sqlanalysing">$analysing[0]</a> ($timeanalysis)</td>
-    <td><a href="$sqlnumquakes">$numquakes[0]</a> ($timesubmission)</td>
-    <td>$timeavg</td>
-    <td><span style=color:$scorecolor>$score</span></td>
-    <td>$station_status_txt</td>
-    <td>$station_statusdate</td>
+    <td style="color:$updatecolor"><a href="?if=station&station_id=$station_id">$station_name</a></td>
+    <td style="color:$updatecolor"><a href="?if=register&station_id=$station_id&station_name=$station_name&station_email=$station_email">$station_id</td>
+    <td style="color:$updatecolor">$station_nproc</td>
+    <td style="color:$updatecolor"><a href="$sqlfetched">$fetched[0]</a>  ($timeeterna)</td>
+    <td style="color:$updatecolor"><a href="$sqlanalysing">$analysing[0]</a> ($timeanalysis)</td>
+    <td style="color:$updatecolor"><a href="$sqlnumquakes">$numquakes[0]</a> ($timesubmission)</td>
+    <td style="color:$updatecolor">$timeavg</td>
+    <td style="color:$updatecolor"><span style=color:$scorecolor>$score</span></td>
+    <td style="color:$updatecolor">$station_status_txt</td>
+    <td style="color:$updatecolor">$station_statusdate</td>
   </tr>
 TABLE;
  $numstations+=1;
@@ -1269,7 +1276,7 @@ $table.=<<<TABLE
      <td>$totnumquakes</td>
      <td>$avgcalctime</td>
      <td>$avgscore</td>
-     <td>$numnodis</td>
+     <td>$numrun</td>
      <td>$lateststatus</td>
    </tr>
    <tr>
@@ -1288,8 +1295,23 @@ TABLE;
    $CONTENT.=$table;
 
    }
-   $CONTENT.="<a href=$stationlog.prev target=_blank>Previous</a> | <a href=$stationlog target=_blank>Present</a>"; 
-   $CONTENT.="<p style=font-style:italic>Page will automatically refresh every $REFRESHRATE seconds</p>"; 
+$CONTENT.=<<<C
+<a href=$stationlog.prev target=_blank>Previous</a> | <a href=$stationlog target=_blank>Present</a>
+<p><b>Notes:</b></p>
+<ul>
+
+<li><b>Time avg.</b>: average time to finish the calculations
+associated to a given earthquake.</li>
+
+<li><b>Score</b>: ratio between the average time to complete one
+calculation in this station and the average over the whole stations.
+If the score is much larger than 1 the station is better than the
+other ones.  If the score is much smaller than 1 the station is worser
+than the other ones.</li>
+
+</ul>
+C;
+   $CONTENT.="<p style=font-style:italic>Page will automatically refresh every $REFRESHRATE seconds. <a href=$URLPAGE> Refresh now</a>.</p>"; 
    header("Refresh:300;url=$URLPAGE");
 }
 
@@ -1301,7 +1323,7 @@ else if($if=="search"){
   ////////////////////////////////////////////////////////////////////////
   //SEARCH DATABASE
   ////////////////////////////////////////////////////////////////////////
-  $CONTENT.="<h2><a name='search'>Search database</a></h2>";
+  $CONTENT.="<h2><a name='search'>Search database</a></h2><p><b>Database</b>: <span style=font-family:courier>$QUAKES</span></p>";
   $SUBMENU.="<a href='#search'>Search</a> | ";
 
 $CONTENT.=<<<C
@@ -1335,14 +1357,14 @@ C;
   }
 
   // SEARCH
-  $result=mysqlCmd("select count(quakeid) from Quakes where $searchdb;");
+  $result=mysqlCmd("select count(quakeid) from $QUAKES where $searchdb;");
   $numquakes=$result[0];
   if($limit>$numquakes){$limitdb=$numquakes;}
   else{$limitdb=$limit;}
-  $quakes=mysqlCmd("select * from Quakes where $searchdb limit $offset,$limitdb;",$qout=1);
+  $quakes=mysqlCmd("select * from $QUAKES where $searchdb limit $offset,$limitdb;",$qout=1);
   $extra=array();
   if(!isBlank($extracol)){
-    $sql="select $extracol from Quakes where $searchdb";
+    $sql="select $extracol from $QUAKES where $searchdb";
     //echo "SQL=$sql<br/>";
     $extra=mysqlCmd($sql,$qout=1);
     //print_r($extra);
@@ -1389,7 +1411,7 @@ EXAMPLES;
 
   //DATABASE FIELDS
   $dbfields="<div id='dbfields' class='explanation'><h2>Database fields</h2>";
-  $results=mysqlCmd("describe Quakes",$out=1);
+  $results=mysqlCmd("describe $QUAKES",$out=1);
   foreach($results as $field){
     $dbfields.=$field["Field"].", ";
   }
@@ -1446,36 +1468,37 @@ $history
 <center>
   <h4><a name="quakes">Quakes $offset-$end ($limit/$numquakes)</a></h4>
 $control
+
 <table border=1px style="font-size:10px" cellspacing="0px">
 <tr class="header">
-  <td class="level0">Num.</td>
-  <td class="level0">Quake id.</td>
-  <td class="level0">Lat.,Lon.</td>
-  <td class="level0">Pos. error</td>
-  <td class="level0">Depth</td>
-  <td class="level0">Date/Time</td>
-  <td class="level0">M<sub>l</sub></td>
-  <td class="level0">Stations<sup>1</sup></td>
-  <td class="level0">Cluster 1<sup>2</sup></td>
-  <td class="level0">Location</td>
-  <td class="level0">Extra.Col.</td>
-  <td class="level2">Status</td>
-  <td class="level2">Date status</td>
+  <td class="leveltab0">Num.</td>
+  <td class="leveltab0">Quake id.</td>
+  <td class="leveltab0">Lat.,Lon.</td>
+  <td class="leveltab0">Pos. error</td>
+  <td class="leveltab0">Depth</td>
+  <td class="leveltab0">Date/Time</td>
+  <td class="leveltab0">M<sub>l</sub></td>
+  <td class="leveltab0">Stations<sup>1</sup></td>
+  <td class="leveltab0">Cluster 1<sup>2</sup></td>
+  <td class="leveltab0">Location</td>
+  <td class="leveltab0">Extra.Col.</td>
+  <td class="leveltab2">Status</td>
+  <td class="leveltab2">Date status</td>
 </tr>
 <tr class="header">
-  <td class="level0 txt">--</td>
-  <td class="level0 txt">--</td>
-  <td class="level0 txt">deg.,deg.</td>
-  <td class="level0 txt">km, km</td>
-  <td class="level0 txt">km&pm;km</td>
-  <td class="level0 txt">D/M/YY H:M:S</td>
-  <td class="level0 txt">--</td>
-  <td class="level0 txt">--</td>
-  <td class="level0 txt">--</td>
-  <td class="level0 txt">City,Province,Country</td>
-  <td class="level0 txt">--</td>
-  <td class="level2 txt">--</td>
-  <td class="level2 txt">--</td>
+  <td class="leveltab0 txt">--</td>
+  <td class="leveltab0 txt">--</td>
+  <td class="leveltab0 txt">deg.,deg.</td>
+  <td class="leveltab0 txt">km, km</td>
+  <td class="leveltab0 txt">km&pm;km</td>
+  <td class="leveltab0 txt">D/M/YY H:M:S</td>
+  <td class="leveltab0 txt">--</td>
+  <td class="leveltab0 txt">--</td>
+  <td class="leveltab0 txt">--</td>
+  <td class="leveltab0 txt">City,Province,Country</td>
+  <td class="leveltab0 txt">--</td>
+  <td class="leveltab2 txt">--</td>
+  <td class="leveltab2 txt">--</td>
 </tr>
 TABLE;
 
@@ -1518,22 +1541,22 @@ TABLE;
 
 $CONTENT.=<<<TABLE
   <tr>
-    <td class="level0 num">$i</td>
-    <td class="level0 txt">
+    <td class="leveltab0 num">$i</td>
+    <td class="leveltab0 txt">
       <a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a><br/>
       <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun">tides</a>
     </td>
-    <td class="level0 num">$qlat, $qlon</td>
-    <td class="level0 num">&pm;$qlaterr,&pm;$qlonerr</td>
-    <td class="level0 txt">$qdepth&pm;$qdeptherr</td>
-    <td class="level0 num">$qdatetime</td>
-    <td class="level0 txt">$Ml</td>
-    <td class="level0 txt">$numstations</td>
-    <td class="level0 txt">$cluster1</td>
-    <td class="level0 txt">$municipio, $departamento, $country</td>
-    <td class="level0 txt">$extraval</td>
-    <td class="level2 txt">$quake_status_txt</td>
-    <td class="level2 txt">$adatetime</td>
+    <td class="leveltab0 num">$qlat, $qlon</td>
+    <td class="leveltab0 num">&pm;$qlaterr,&pm;$qlonerr</td>
+    <td class="leveltab0 txt">$qdepth&pm;$qdeptherr</td>
+    <td class="leveltab0 num">$qdatetime</td>
+    <td class="leveltab0 txt">$Ml</td>
+    <td class="leveltab0 txt">$numstations</td>
+    <td class="leveltab0 txt">$cluster1</td>
+    <td class="leveltab0 txt">$municipio, $departamento, $country</td>
+    <td class="leveltab0 txt">$extraval</td>
+    <td class="leveltab2 txt">$quake_status_txt</td>
+    <td class="leveltab2 txt">$adatetime</td>
   </tr>
 TABLE;
 
@@ -1586,16 +1609,16 @@ C;
 $tablesynth=<<<TABLE
 <table border=1px style="font-size:12px" cellspacing="0px">
 <tr class="header">
-  <td class="level0">Quake id.</td>
-  <td class="level0">Lat.,Lon.</td>
-  <td class="level0">Depth</td>
-  <td class="level0">Date/Time</td>
+  <td class="leveltab0">Quake id.</td>
+  <td class="leveltab0">Lat.,Lon.</td>
+  <td class="leveltab0">Depth</td>
+  <td class="leveltab0">Date/Time</td>
 </tr>
 <tr class="header">
-  <td class="level0 txt">--</td>
-  <td class="level0 txt">deg.,deg.</td>
-  <td class="level0 txt">km</td>
-  <td class="level0 txt">D/M/YY H:M:S</td>
+  <td class="leveltab0 txt">--</td>
+  <td class="leveltab0 txt">deg.,deg.</td>
+  <td class="leveltab0 txt">km</td>
+  <td class="leveltab0 txt">D/M/YY H:M:S</td>
 </tr>
 TABLE;
 
@@ -1604,7 +1627,7 @@ TABLE;
     if(isBlank($quake)){continue;}
     $parts=preg_split("/\./",$quake);
     $quakeid=$parts[0];
-    if(mysqlCmd("select * from Quakes where quakeid='$quakeid'")){continue;}
+    if(mysqlCmd("select * from $QUAKES where quakeid='$quakeid'")){continue;}
     statusMsg("Quake $quakeid...");
     $quake=parse_ini_file("$SCRATCHDIR/$quakeid/quake.conf");
     $quakeid=$quake["quakeid"];
@@ -1616,13 +1639,13 @@ TABLE;
 
 $tablesynth.=<<<TABLE
   <tr>
-    <td class="level0 txt">
+    <td class="leveltab0 txt">
       <a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a><br/>
       <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun">tides</a>
     </td>
-    <td class="level0 num">$qlat, $qlon</td>
-    <td class="level0 txt">$qdepth</td>
-    <td class="level0 num">$qdatetime</td>
+    <td class="leveltab0 num">$qlat, $qlon</td>
+    <td class="leveltab0 txt">$qdepth</td>
+    <td class="leveltab0 num">$qdatetime</td>
   </tr>
 TABLE;
     $i++;
@@ -1675,7 +1698,7 @@ else if($if=="quakesimple"){
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   // RECOVER QUAKE INFO
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  $result=mysqlCmd("select * from Quakes where quakeid='$quakeid'",$qout=1);
+  $result=mysqlCmd("select * from $QUAKES where quakeid='$quakeid'",$qout=1);
   $quake=$result[0];
   
   // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1799,7 +1822,7 @@ else if($if=="quaketide"){
   
   // RECOVER QUAKE INFO
   if(isset($quakeid)){
-    $result=mysqlCmd("select * from Quakes where quakeid='$quakeid'",$qout=1);
+    $result=mysqlCmd("select * from $QUAKES where quakeid='$quakeid'",$qout=1);
     $quake=$result[0];
     
     foreach(array_keys($quake) as $key){
@@ -1909,7 +1932,7 @@ QUAKE;
 else if($if=="quake"){
   
   // RECOVER QUAKE INFO
-  $result=mysqlCmd("select * from Quakes where quakeid='$quakeid'",$qout=1);
+  $result=mysqlCmd("select * from $QUAKES where quakeid='$quakeid'",$qout=1);
   $quake=$result[0];
   
   $fullinfo="";
@@ -2039,8 +2062,13 @@ else if($if=="register"){
   if(!isset($station_name)){$station_name="SEAP UdeA";}
   if(!isset($station_email)){$station_email="seapudea@gmail.com";}
   if(isset($station_id)){
-	$station_key=shell_exec("cat stations/$station_id/key.pub");
-	$delete="<input type=submit name=action value=remove>";
+    $station_key=shell_exec("cat stations/$station_id/key.pub");
+    $delete="<input type=submit name=action value=remove>";
+    $stations=mysqlCmd("select * from Stations where station_id='$station_id'");
+    foreach(array_keys($stations) as $key){
+      if(preg_match("[^\d+$/",$key)){continue;}
+      $$key=$stations["$key"];
+    }	
   }
   if(!isset($station_receiving)){$station_receiving="0";}
   if(!isset($station_status)){$station_status="0";}
@@ -2095,12 +2123,12 @@ $stationstxt=<<<T
 <center>
 <table border=1px cellspacing=0px>
 <tr>
-  <td class="level0">#</td>
-  <td class="level0">Station ID</td>
-  <td class="level0">Name</td>
-  <td class="level3">E-mail</td>
-  <td class="level3">Receiving</td>
-  <td class="level3">Links</td>
+  <td class="leveltab0">#</td>
+  <td class="leveltab0">Station ID</td>
+  <td class="leveltab0">Name</td>
+  <td class="leveltab3">E-mail</td>
+  <td class="leveltab3">Receiving</td>
+  <td class="leveltab3">Links</td>
 </tr>
 T;
   $i=1;
@@ -2112,12 +2140,12 @@ T;
     }
 $stationstxt.=<<<T
 <tr>
-  <td class="level0">$i</td>
-  <td class="level0">$station_id</td>
-  <td class="level0 txt">$station_name</td>
-  <td class="level3 txt">$station_email</td>
-  <td class="level3 txt">$station_receiving</td>
-  <td class="level3 txt">
+  <td class="leveltab0">$i</td>
+  <td class="leveltab0">$station_id</td>
+  <td class="leveltab0 txt">$station_name</td>
+  <td class="leveltab3 txt">$station_email</td>
+  <td class="leveltab3 txt">$station_receiving</td>
+  <td class="leveltab3 txt">
     <a href="?if=register&$urlstring">Edit</a>
   </td>
 </tr>
@@ -2294,6 +2322,7 @@ echo<<<CONTENT
     <link rel="stylesheet" type="text/css" href="site/tquakes.css"/>
     <style>
       $PERMCSS
+      $PERMCSSTABLE
     </style>
   </head>
 

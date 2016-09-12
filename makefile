@@ -1,4 +1,7 @@
 BRANCH=$(shell bash .getbranch)
+#TABLE=Quakes
+TABLE=QuakesMockTime
+#TABLE=QuakesMockSpace
 
 show:
 	@echo "Branch: $(BRANCH)"
@@ -99,7 +102,7 @@ station:
 
 resetquakes:
 	@echo "Resetting quakes..."
-	@mysql -u root -p tQuakes -e "update Quakes set astatus='0',stationid='',adatetime='',calctime1='',calctime2='',calctime3='',qsignal='',qphases='',aphases=''"
+	@mysql -u root -p tQuakes -e "update $(TABLE) set astatus='0',stationid='',adatetime='',calctime1='',calctime2='',calctime3='',qsignal='',qphases='',aphases=''"
 
 plotdata:
 	@echo "Generating website plots..."

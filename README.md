@@ -102,6 +102,13 @@ earth quakes in the database are reset and ready to be analysed:
 
 This operation may take a while.  Be patient.
 
+If you want to enable the server site to perform calculations of
+custom earthquakes you should start the calculation daemon:
+
+```
+# make start
+```
+
 Starting with a calculation station
 -----------------------------------
 

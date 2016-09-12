@@ -42,12 +42,12 @@ if($action=="fetch"){
   // ============================================================
   // FETCH QUAKES NOT FETCHED OR FETCHED TOO MUCH TIME AGO
   // ============================================================
-  $results=mysqlCmd("select max(calctime1+calctime2+calctime3) from Quakes");
+  $results=mysqlCmd("select max(calctime1+calctime2+calctime3) from $QUAKESRUN");
   $maxtime=$results[0];
   if(isBlank($maxtime)){$maxtime=0;}
   $maxtime=2*$NUMQUAKES*$maxtime;
 
-  $sql="select * from Quakes where astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>$maxtime) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
+  $sql="select * from $QUAKESRUN where astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>$maxtime) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
 
   $quakes=mysqlCmd($sql,$out=1);
   if($quakes==0){
@@ -61,7 +61,7 @@ if($action=="fetch"){
       echo "$prop='".$quake["$prop"]."',";
     }
     echo "<br/>";
-    $sql="update Quakes set astatus='1',stationid='$station_id',adatetime=now() where quakeid='$quakeid';";
+    $sql="update $QUAKESRUN set astatus='1',stationid='$station_id',adatetime=now() where quakeid='$quakeid';";
     mysqlCmd($sql);
   }
   return 0;
@@ -71,7 +71,7 @@ if($action=="fetch"){
 //REPORT END OF ETERNA CALCULATIONS
 ////////////////////////////////////////////////////////////////////////
 else if($action=="report"){
-  $sql="update Quakes set astatus='2',stationid='$station_id',calctime1='$deltat',adatetime=now() where quakeid='$quakeid';";
+  $sql="update $QUAKESRUN set astatus='2',stationid='$station_id',calctime1='$deltat',adatetime=now() where quakeid='$quakeid';";
   mysqlCmd($sql);
   return 0;
 }
@@ -80,7 +80,7 @@ else if($action=="report"){
 //REPORTING END OF ANALYSIS
 ////////////////////////////////////////////////////////////////////////
 else if($action=="analysis"){
-  $sql="update Quakes set astatus='3',stationid='$station_id',calctime2='$deltat',adatetime=now(),qsignal='$qsignal',qphases='$qphases',aphases='$aphases' where quakeid='$quakeid';";
+  $sql="update $QUAKESRUN set astatus='3',stationid='$station_id',calctime2='$deltat',adatetime=now(),qsignal='$qsignal',qphases='$qphases',aphases='$aphases' where quakeid='$quakeid';";
   mysqlCmd($sql);
   return 0;
 }
@@ -107,7 +107,7 @@ else if($action=="checkstation"){
 //TEST DB
 ////////////////////////////////////////////////////////////////////////
 else if($action=="testdb"){
-  $sql="select count(quakeid) from Quakes;";
+  $sql="select count(quakeid) from $QUAKESRUN;";
   $result=mysqlCmd($sql);
   echo $result[0];
   return 0;
@@ -117,7 +117,7 @@ else if($action=="testdb"){
 //CHECK STATION
 ////////////////////////////////////////////////////////////////////////
 else if($action=="submit"){
-  $sql="update Quakes set astatus='4',stationid='$station_id',adatetime=now(),calctime3='$deltat' where quakeid='$quakeid';";
+  $sql="update $QUAKESRUN set astatus='4',stationid='$station_id',adatetime=now(),calctime3='$deltat' where quakeid='$quakeid';";
   mysqlCmd($sql);
   return 0;
 }

@@ -17,6 +17,21 @@ foreach(array_keys($conf) as $key){
   $GLOBALS["$key"]=$conf["$key"];
 }
 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//TABLE WITH EARTHQUAKES
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//$QUAKES="QuakesMockTime";
+//$QUAKES="QuakesMockSpace";
+$QUAKES="Quakes";
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//TABLE FOR RUNNING PROCESS
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//$QUAKESRUN=$QUAKES;
+//$QUAKESRUN="QuakesMockTime";
+$QUAKESRUN="QuakesMockSpace";
+//$QUAKESRUN="Quakes";
+
 ////////////////////////////////////////////////////////////////////////
 //VARIABLES
 ////////////////////////////////////////////////////////////////////////
@@ -67,6 +82,7 @@ if(isset($_SESSION["ulevel"])){
   $NAME=$_SESSION["uname"];
   $EMAIL=$_SESSION["email"];
 }
+
 $PERMCSS="";
 $type="inline";
 $perm="$type";
@@ -83,6 +99,24 @@ for($i=1;$i<=4;$i++){
   $PERMCSS.=".level$i{display:$perm;}\n.nolevel$i{display:$nperm;}\n";
 }
 $PERMCSS.=".level5{display:none;}\n.nolevel5{display:$type;}\n";
+
+$PERMCSSTABLE="";
+$type="table-cell";
+$perm="$type";
+$nperm="none";
+if($QPERM>0){
+  $perm="$type";
+  $nperm="none";
+}
+$PERMCSSTABLE.=".leveltab0{display:$perm;}\n.noleveltab0{display:$nperm;}\n";
+for($i=1;$i<=4;$i++){
+  $perm="none";
+  $nperm="$type";
+  if($i<=$QPERM){$perm="$type";$nperm="none";}
+  $PERMCSSTABLE.=".leveltab$i{display:$perm;}\n.noleveltab$i{display:$nperm;}\n";
+}
+$PERMCSSTABLE.=".leveltab5{display:none;}\n.noleveltab5{display:$type;}\n";
+
 $PERM=array("0"=>"Anónimo",
 	    "1"=>"User",
 	    "2"=>"Administrator",
