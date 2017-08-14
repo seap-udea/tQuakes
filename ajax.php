@@ -28,7 +28,7 @@ else if($action=="insertquakes"){
   //$cmdinsert="echo '$cmdinsert' > /tmp/insert";
   $out2=shell_exec($cmdinsert);
 
-  echo "Valores outxls=<pre>$out1</pre>,outins=<pre>$out2</pre>";
+  echo "$out2";
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //UPDATE HISTORY
