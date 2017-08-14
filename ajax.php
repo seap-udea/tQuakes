@@ -16,6 +16,14 @@ if(0){}
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //UPDATE HISTORY
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+else if($action=="insertquakes"){
+  $ps=parseParams($params);
+  $xml2csv="cd data;LC_NUMERIC='sl' ssconvert data/"+$ps["input"]+" data/"+$ps["output"];
+  $cmdinsert="PYTHONPATH=. python db/insertquakes.sql "+$ps["output"];
+}
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//UPDATE HISTORY
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if($action=="updatehistory"){
   $ps=parseParams($params);
   $histfile="$SCRATCHDIR/history.log";
@@ -46,8 +54,9 @@ else if($action=="updatehistory"){
 else if($action=="updatejd"){
   $ps=parseParams($params);
   $date=$ps["date"];
+  $cmd="PYTHONPATH=. python util/date2jd.py '$date'";
   $qjd=rtrim(shell_exec("PYTHONPATH=. python util/date2jd.py '$date'"));
-  if(isBlank($qjd)){$html="Bad date";}
+  if(isBlank($qjd)){$html="Bad date, eg. 24/12/09 00:00:00";}
   else{$html=$qjd;}
 }
 

@@ -1423,9 +1423,6 @@ $history=<<<H
 </div>
 H;
 
-  //INSERT EVENTS
-  
-
   // TABLE HEADER
 $CONTENT.=<<<TABLE
 $FORM
@@ -1589,6 +1586,26 @@ $CONTENT.=<<<C
   </li>
 </ol>
 C;
+
+  ////////////////////////////////////////////////////////////////////////
+  //INSERT EVENTS INTO THE DATABASE
+  ////////////////////////////////////////////////////////////////////////
+  //INSERT EVENTS
+ if($QPERM){
+$CONTENT.=<<<I
+<h2><a name='insert'>Insert new events</a></h2> 
+
+<p>
+  In order to add new events to the database upload the list of new earthquakes using <a href="">this template</a>.
+</p>
+
+
+I;
+
+  $SUBMENU.="<a href='#insert'>Insert</a> | ";
+
+ }
+
 
   ////////////////////////////////////////////////////////////////////////
   //LIST OF CALCULATED EARTHQUAKES
