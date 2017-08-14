@@ -1423,6 +1423,9 @@ $history=<<<H
 </div>
 H;
 
+  //INSERT EVENTS
+  
+
   // TABLE HEADER
 $CONTENT.=<<<TABLE
 $FORM
@@ -1460,6 +1463,7 @@ $FORM
     </td>
   </tr>
 </table>
+$insert_events
 $examples_cont
 $dbfields
 $history
