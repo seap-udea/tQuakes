@@ -34,8 +34,8 @@ if(!isBlank($action)){
     shell_exec("cp $tmp $USERDIR/$name");
     statusMsg("Convirtiendo archivo $name ($tmp) a $target...");
 $insert_msg=<<<I
-<p id="message" style="background:pink;padding:10px">
-Insertando
+<p id="message" style="background:white;padding:10px">
+<img src="img/loader.gif">
 </p>
 <script>
   $(document).ready(function(){

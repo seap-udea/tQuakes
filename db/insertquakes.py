@@ -3,7 +3,7 @@ import spiceypy as sp
 sp.furnsh("util/kernels/kernels.mk")
 
 verbose=0
-freq=1
+freq=10
 
 # ############################################################
 # LOAD DATABASE
