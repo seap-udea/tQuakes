@@ -70,6 +70,7 @@ def decluster(inicent):
     """%(icent,inicent,Mc,Rf))
         fc.close()
         system("%s.out"%clprog)
+    exit(0)
 
     # ############################################################
     # UPDATE EARTHQUAKES
