@@ -3,6 +3,7 @@ import spiceypy as sp
 sp.furnsh("util/kernels/kernels.mk")
 
 verbose=0
+freq=1
 
 # ############################################################
 # LOAD DATABASE
@@ -41,7 +42,7 @@ for quake in content:
     # COUNTER
     itot+=1
     quake["qdatetime"]=quake["Fecha"]+" "+quake["Hora UTC"];
-    if (itot%1000)==0:
+    if (itot%freq)==0:
         print "Analizando sismo %d fecha = %s (insertados %d, saltados %d)"%(itot,quake["qdatetime"],iins,iskp)
 
     # CALCULATE JULIAN DAY AND EPHEMERIS TIME
