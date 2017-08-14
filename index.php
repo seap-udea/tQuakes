@@ -34,14 +34,17 @@ if(!isBlank($action)){
     shell_exec("cp $tmp $USERDIR/$name");
     statusMsg("Convirtiendo archivo $name ($tmp) a $target...");
 $insert_msg=<<<I
-<p id="message" style="background:white;padding:10px">
-<img src="img/loader.gif">
+<p id="insert_loader" style="background:white;padding:10px">
+  Loading <img src="img/loader.gif">
 </p>
 <script>
   $(document).ready(function(){
       alert("Hola");
       ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target.csv",
-	     function(e){alert("Hecho "+e);});
+	     function(e){
+	       alert("Hecho "+e);
+	       $("#insert_loader").hide();
+	     });
     });
 </script>
 I;

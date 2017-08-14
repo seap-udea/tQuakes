@@ -108,7 +108,7 @@ for quake in content:
     db.execute(sql)
     if(verbose):print sql
 
-if(verbose):print "Number of quakes read: ",itot
-if(verbose):print "Number of quakes inserted: ",iins
-if(verbose):print "Number of quakes skipped: ",iskp
+print "Number of quakes read: ",itot
+print "Number of quakes inserted: ",iins
+print "Number of quakes skipped: ",iskp
 connection.commit()
