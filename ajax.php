@@ -20,14 +20,15 @@ else if($action=="insertquakes"){
   $ps=parseParams($params);
 
   //CONVIRTIENDO A CSV
-  $xml2csv="LC_NUMERIC='sl' /usr/bin/ssconvert ".$ps["input"]." ".$ps["output"]." &> /tmp/ssconvert";
-  shell_exec($xml2csv);
+  $xls2csv="LC_NUMERIC='sl' /usr/bin/ssconvert ".$ps["input"]." ".$ps["output"]." &> /tmp/ssconvert";
+  $out1=shell_exec($xls2csv);
 
   //INSERTANDO SISMOS
   $cmdinsert="PYTHONPATH=. python db/insertquakes.py ".$ps["output"]." &> /tmp/insert";
-  shell_exec($cmdinsert);
+  $cmdinsert="echo '$cmdinsert' > /tmp/insert");
+  $out2=shell_exec($cmdinsert);
 
-  echo "Valores $xml2csv,$cmdinsert";
+  echo "Valores outxls=$out1,outins=$out2";
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //UPDATE HISTORY
