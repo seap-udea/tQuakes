@@ -24,7 +24,7 @@ else if($action=="insertquakes"){
   shell_exec($xml2csv);
 
   //INSERTANDO SISMOS
-  $cmdinsert="PYTHONPATH=. python db/insertquakes.py ".$ps["output"];
+  $cmdinsert="PYTHONPATH=. python db/insertquakes.py ".$ps["output"]." &> /tmp/insert";
   shell_exec($cmdinsert);
 
   echo "Valores $xml2csv,$cmdinsert";
