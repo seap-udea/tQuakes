@@ -18,8 +18,12 @@ if(0){}
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if($action=="insertquakes"){
   $ps=parseParams($params);
-  $xml2csv="cd data;LC_NUMERIC='sl' ssconvert data/"+$ps["input"]+" data/"+$ps["output"];
-  $cmdinsert="PYTHONPATH=. python db/insertquakes.sql "+$ps["output"];
+  $xml2csv="LC_NUMERIC='sl' /usr/sbin/ssconvert ".$ps["input"]." ".$ps["output"]." &> /tmp/ssconvert";
+  //$xml2csv="ssconvert &>/tmp/ls";
+  shell_exec($xml2csv);
+  $cmdinsert="PYTHONPATH=. python db/insertquakes.sql ".$ps["output"];
+  //shell_exec($cmdinsert);
+  echo "Valores $xml2csv,$cmdinsert";
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //UPDATE HISTORY

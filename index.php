@@ -22,10 +22,34 @@ if(!isset($if)){$if="";}
 ////////////////////////////////////////////////////////////////////////
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if(!isBlank($action)){
+  if(0){}
+  ////////////////////////////////////////////////////////////////////////
+  //UPLOAD EARTHQUAKES FILE
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="Upload"){
+    $file=$_FILES["file_insert"];
+    $name=$file["name"];
+    $target=preg_replace("/\.[^\.]+$/","",$name);
+    $tmp=$file["tmp_name"];
+    shell_exec("cp $tmp $USERDIR/$name");
+    statusMsg("Convirtiendo archivo $name ($tmp) a $target...");
+$insert_msg=<<<I
+<p id="message" style="background:pink;padding:10px">
+Insertando
+</p>
+<script>
+  $(document).ready(function(){
+      alert("Hola");
+      ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target.csv",
+	     function(e){alert("Hecho "+e);});
+    });
+</script>
+I;
+  }
   ////////////////////////////////////////////////////////////////////////
   //REMOVE STATION
   ////////////////////////////////////////////////////////////////////////
-  if($action=="remove"){
+  else if($action=="remove"){
     if(is_dir("stations/$station_id")){
       // REMOVE FROM DATABASE
       $sql="delete from Stations where station_id='$station_id';";
@@ -321,7 +345,7 @@ M;
   ////////////////////////////////////////////////////////////////////////
   //CALCULATE
   ////////////////////////////////////////////////////////////////////////
-  else if($action=="calculate" or $action="plot"){
+  else if($action=="calculate" or $action=="plot"){
 
     //========================================
     //CHECK INPUT FORM
@@ -1596,10 +1620,18 @@ $CONTENT.=<<<I
 <h2><a name='insert'>Insert new events</a></h2> 
 
 <p>
-  In order to add new events to the database upload the list of new earthquakes using <a href="">this template</a>.
+  In order to add new events to the database, please upload the list of new earthquakes using <a href="db/template.xls">this template</a>.
 </p>
 
+$insert_msg
 
+<p>
+  $FORM
+  <form method="get">
+  File with new events: <input type="file" name="file_insert">
+  <input type="submit" name="action" value="Upload">
+  </form>
+</p>
 I;
 
   $SUBMENU.="<a href='#insert'>Insert</a> | ";
