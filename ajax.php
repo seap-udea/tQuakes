@@ -25,7 +25,6 @@ else if($action=="insertquakes"){
 
   //INSERTANDO SISMOS
   $cmdinsert="PYTHONPATH=. python db/insertquakes.py ".$ps["output"]." 2> /tmp/insert";
-  //$cmdinsert="echo '$cmdinsert' > /tmp/insert";
   $out2=shell_exec($cmdinsert);
 
   echo "$out2";

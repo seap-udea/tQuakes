@@ -39,10 +39,9 @@ $insert_msg=<<<I
 </p>
 <script>
   $(document).ready(function(){
-      alert("Hola");
       ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target.csv",
 	     function(e){
-	       alert("Hecho "+e);
+	       alert(e);
 	       $("#insert_loader").hide();
 	     });
     });
