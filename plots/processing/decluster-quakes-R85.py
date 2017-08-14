@@ -21,7 +21,7 @@ def decluster(inicent):
     icent=int(icent[:2])
     jd1=date2jd(datetime.datetime(inicent,1,1,0,0,0))
     jd2=date2jd(datetime.datetime(inicent+100,1,1,0,0,0))
-    search="where Ml+0>%.1f and qjd+0>%.5f and qjd+0<%.5f order by qjd+0 asc, Ml+0 desc"%(Mc,jd1,jd2)
+    search="where Ml+0>%.1f and qjd+0>%.5f and qjd+0<%.5f and cluster1 is NULL order by qjd+0 asc, Ml+0 desc"%(Mc,jd1,jd2)
     qids,quakes=getQuakes(search,db)
     nquakes=len(qids)
     print "Declustering %d earthquakes from century %d..."%(nquakes,inicent)
@@ -70,7 +70,6 @@ def decluster(inicent):
     """%(icent,inicent,Mc,Rf))
         fc.close()
         system("%s.out"%clprog)
-    exit(0)
 
     # ############################################################
     # UPDATE EARTHQUAKES
@@ -112,8 +111,8 @@ def decluster(inicent):
                 clusters[icluster][1]+=1
         else:clusterid="0"
 
+        """
         if quakeid=='ZISO7IY' and 0:
-            #"""
             print "Quake ",i
             print "\tQuakeid: ",quakeid
             print "\tDate: ",qdatetime
@@ -124,8 +123,7 @@ def decluster(inicent):
             print "\tMl: ",Ml
             print "\tCluster: ",cluster
             print "\tClusterid: ",clusterid
-            # """
-
+        # """
 
         # SAVE QUAKE INFORMATION
         sql="update Quakes set cluster1='%s' where quakeid='%s'"%(clusterid,quakeid)

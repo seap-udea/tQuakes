@@ -55,7 +55,7 @@ for field in FIELDS_CSV:
     FIELDS_DB2CSV[dbfield]=field
 FIELDS_DB+=["quakeid","quakestr",
             "qdatetime","qjd","qet","hmoon","hsun",
-            "astatus","adatetime","stationid"]
+            "astatus","adatetime","stationid","country"]
 
 FIELDSTXT="("
 FIELDSUP=""

@@ -3,7 +3,24 @@ import spiceypy as sp
 sp.furnsh("util/kernels/kernels.mk")
 
 verbose=0
-freq=10
+freq=1000
+
+# ############################################################
+# CONVERT XLS TO CSV
+# ############################################################
+filexls=argv[1]
+country=argv[2]
+if not os.path.isfile("%s.csv"%filexls):
+    print "Converting excel file %s to csv..."%filexls
+    system("LC_NUMERIC='sl' /usr/bin/ssconvert %s %s.csv &> /dev/null"%(filexls,filexls))
+else:
+    print "File %s.csv already found..."%filexls
+
+# ############################################################
+# LOAD CSV FILE WITH PROFESORES
+# ############################################################
+csvfile=open("%s.csv"%filexls,"rU")
+content=csv.DictReader(csvfile,fieldnames=FIELDS_CSV,dialect="excel",delimiter=",")
 
 # ############################################################
 # LOAD DATABASE
@@ -16,13 +33,6 @@ db=connection.cursor()
 # ############################################################
 q=db.execute("select quakestr from Quakes;")
 qs=[s[0] for s in db.fetchall()]
-
-# ############################################################
-# LOAD CSV FILE WITH PROFESORES
-# ############################################################
-filecsv=argv[1]
-csvfile=open("%s"%filecsv,"rU")
-content=csv.DictReader(csvfile,fieldnames=FIELDS_CSV,dialect="excel",delimiter=",")
 
 # ############################################################
 # GET DATA FROM FILE
@@ -90,6 +100,7 @@ for quake in content:
     hsun=bodyHA("SUN",qet,qlon)
     quake["hmoon"]="%.5f"%(hmoon)
     quake["hsun"]="%.5f"%(hsun)
+    quake["country"]=country
 
     if(verbose):print "\tDate: ",quake["qdatetime"]
     if(verbose):print "\tJD: ",quake["qjd"]
@@ -107,6 +118,7 @@ for quake in content:
     sql+=") on duplicate key update %s;\n"%FIELDSUP
     db.execute(sql)
     if(verbose):print sql
+    break
 
 print "Number of quakes read: ",itot
 print "Number of quakes inserted: ",iins
