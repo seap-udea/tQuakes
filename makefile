@@ -54,7 +54,7 @@ unlock:
 
 backup:
 	@echo "Backuping Quakes data..."
-	@bash tquakes-backup.sh Quakes
+	@bash tquakes-backup.sh 
 
 backupall:
 	@echo "Backuping tQuakes database..."
