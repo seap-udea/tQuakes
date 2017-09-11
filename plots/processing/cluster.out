@@ -4,11 +4,11 @@
 
         SUMMARY OF CLUSTERS IN  catalogue.dat                           
 
-       5 EVENTS READ       5 EVENTS ACCEPTED       0 EVENTS WERE OUTSIDE TIME RANGE SPECIFIED
+       0 EVENTS READ       0 EVENTS ACCEPTED       0 EVENTS WERE OUTSIDE TIME RANGE SPECIFIED
        0 EVENTS WERE REJECTED AS QUARRY BLASTS
        0 EVENTS REJECTED FOR MAGNITUDE  (MINIMUM MAGNITUDE =  0.00)
 
-         5 earthquakes tested;       0 clusters identified          0 clustered events     Mon Sep 11 17:53:14 2017                                                                                                            
+         0 earthquakes tested;       0 clusters identified          0 clustered events     Mon Sep 11 18:05:22 2017                                                                                                            
    rfact=10.000   tau0=2880.000   taumin=   2880.00   taumax=  14400.00   p1= 0.990   xk= 0.50   ierradj= 1
 
 

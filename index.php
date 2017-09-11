@@ -39,7 +39,7 @@ $insert_msg_insert=<<<I
 </p>
 <script>
   $(document).ready(function(){
-      ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target;country=$country",
+      ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target;country=$country;label=$label",
 	     function(e){
 	       alert(e);
 	       $("#insert_loader_insert").hide();
@@ -1653,8 +1653,9 @@ $insert_msg_insert
 <p>
   $FORM
   <form method="get">
-  Country: <input type="text" name="country" value="COLOMBIA"><br/>
-  File with new events: <input type="file" name="file_insert">
+  <p>Country: <input type="text" name="country" value="COLOMBIA"></p>
+  <p>Label: <input type="text" name="label" value="upload"><br/><i style="font-size:0.8em;color:red">Use this label to find the quakes using the extra5 field.</i></p>
+  <p>File with new events: <input type="file" name="file_insert"></p>
   <input type="submit" name="action" value="Upload">
   </form>
 </p>
@@ -1687,7 +1688,7 @@ $insert_msg_decluster
   $FORM
   <form method="get">
   <input type="submit" name="action" value="Decluster">
-  <input type="submit" name="action" value="Decluster all">
+  <!--<input type="submit" name="action" value="Decluster all">-->
   </form>
 </p>
 </div>

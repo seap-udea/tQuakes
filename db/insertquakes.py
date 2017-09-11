@@ -10,10 +10,11 @@ freq=1000
 # ############################################################
 filexls=argv[1]
 country=argv[2]
+label=argv[3]
 if not os.path.isfile("%s.csv"%filexls):
     #print "Converting excel file %s to csv..."%filexls
     print "%s.xls..."%filexls
-    system("LC_NUMERIC='sl' /usr/bin/ssconvert %s.xls %s.csv 2> /tmp/convert"%(filexls,filexls))
+    system("LC_NUMERIC='en_US.UTF-8' LC_CURRENCY=' ' /usr/bin/ssconvert %s.xls %s.csv 2> /tmp/convert"%(filexls,filexls))
 else:
     print "File %s.csv already found..."%filexls
 
@@ -41,6 +42,7 @@ qs=[s[0] for s in db.fetchall()]
 itot=0
 iins=0
 iskp=0
+ibad=0
 print "Starting earthquake insertion..."
 for quake in content:
 
@@ -52,6 +54,14 @@ for quake in content:
 
     # COUNTER
     itot+=1
+
+    #Check longitude and latitude
+    qlon=float(quake["Longitud"])
+    qlat=float(quake["Latitud"])
+    if numpy.abs(qlon)>180 or numpy.abs(qlat)>90:
+        #print "Skipping earthquake..."
+        ibad+=1
+        continue
 
     # CONVERT DATE TO FORMAT
 
@@ -101,7 +111,6 @@ for quake in content:
     if(verbose):print "\tQuake id: ",quakeid
 
     # CALCULATE HOUR ANGLE OF THE MOON AND THE SUN
-    qlon=float(quake["Longitud"])
     hmoon=bodyHA("MOON",qet,qlon)
     hsun=bodyHA("SUN",qet,qlon)
     quake["hmoon"]="%.5f"%(hmoon)
@@ -114,7 +123,7 @@ for quake in content:
 
     print>>stderr,"Inserting quake ",quake["quakeid"]
     fields=FIELDSTXT.replace("(","(extra5,")
-    sql="insert into Quakes %s values ('upload',"%(fields)
+    sql="insert into Quakes %s values ('%s',"%(fields,label)
     for dbfield in FIELDS_DB:
         try:fieldname=FIELDS_DB2CSV[dbfield]
         except KeyError:fieldname=dbfield
@@ -129,4 +138,5 @@ for quake in content:
 print "Number of quakes read: ",itot
 print "Number of quakes inserted: ",iins
 print "Number of quakes skipped: ",iskp
+print "Number of quakes bad formed: ",ibad
 connection.commit()
