@@ -1670,6 +1670,7 @@ I;
   ////////////////////////////////////////////////////////////////////////
  if($QPERM){
 $CONTENT.=<<<I
+<div class='level3'>
 <hr/>
 <h2><a name='insert'>Decluster events</a></h2> 
 
@@ -1689,9 +1690,10 @@ $insert_msg_decluster
   <input type="submit" name="action" value="Decluster all">
   </form>
 </p>
+</div>
 I;
 
-  $SUBMENU.="<a href='#insert'>Decluster</a> | ";
+  $SUBMENU.="<span class='level3'><a href='#insert'>Decluster</a> | </span>";
 
  }
 
