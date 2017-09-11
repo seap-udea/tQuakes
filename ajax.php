@@ -19,14 +19,8 @@ if(0){}
 else if($action=="insertquakes"){
   $ps=parseParams($params);
 
-  //CONVIRTIENDO A CSV
-  /*
-  $xls2csv="LC_NUMERIC='sl' /usr/bin/ssconvert ".$ps["input"]." ".$ps["output"]." 2> /tmp/ssconvert";
-  $out1=shell_exec($xls2csv);
-  */
-
   //INSERTANDO SISMOS
-  $cmdinsert="PYTHONPATH=. python db/insertquakes.py ".$ps["output"]." 2> /tmp/insert";
+  $cmdinsert="PYTHONPATH=. python db/insertquakes.py ".$ps["output"]." ".$ps["country"]." 2> /tmp/insert";
   $out2=shell_exec($cmdinsert);
 
   echo "$out2";

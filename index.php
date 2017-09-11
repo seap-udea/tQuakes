@@ -39,7 +39,7 @@ $insert_msg=<<<I
 </p>
 <script>
   $(document).ready(function(){
-      ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target",
+      ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target;country=$country",
 	     function(e){
 	       alert(e);
 	       $("#insert_loader").hide();
@@ -1619,6 +1619,7 @@ C;
   //INSERT EVENTS
  if($QPERM){
 $CONTENT.=<<<I
+<hr/>
 <h2><a name='insert'>Insert new events</a></h2> 
 
 <p>
@@ -1630,6 +1631,7 @@ $insert_msg
 <p>
   $FORM
   <form method="get">
+  Country: <input type="text" name="country" value="COLOMBIA"><br/>
   File with new events: <input type="file" name="file_insert">
   <input type="submit" name="action" value="Upload">
   </form>
@@ -1640,11 +1642,11 @@ I;
 
  }
 
-
   ////////////////////////////////////////////////////////////////////////
   //LIST OF CALCULATED EARTHQUAKES
   ////////////////////////////////////////////////////////////////////////
 $CONTENT.=<<<C
+<hr/>
 <h2><a name='synthetic'>Synthetic earthquakes</a></h2> 
 
 <p>
