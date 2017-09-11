@@ -11,8 +11,9 @@ freq=1000
 filexls=argv[1]
 country=argv[2]
 if not os.path.isfile("%s.csv"%filexls):
-    print "Converting excel file %s to csv..."%filexls
-    system("LC_NUMERIC='sl' /usr/bin/ssconvert %s %s.csv &> /dev/null"%(filexls,filexls))
+    #print "Converting excel file %s to csv..."%filexls
+    print "%s.xls..."%filexls
+    system("LC_NUMERIC='sl' /usr/bin/ssconvert %s.xls %s.csv 2> /tmp/convert"%(filexls,filexls))
 else:
     print "File %s.csv already found..."%filexls
 
@@ -111,19 +112,19 @@ for quake in content:
     if(verbose):print "\tJD: ",quake["qjd"]
     if(verbose):print "\tET: ",quake["qet"]
 
-    sql="insert into Quakes %s values ("%(FIELDSTXT)
+    print>>stderr,"Inserting quake ",quake["quakeid"]
+    fields=FIELDSTXT.replace("(","(extra5,")
+    sql="insert into Quakes %s values ('upload',"%(fields)
     for dbfield in FIELDS_DB:
         try:fieldname=FIELDS_DB2CSV[dbfield]
         except KeyError:fieldname=dbfield
         try:value=quake[fieldname]
         except KeyError:value=""
-        #if(verbose):print dbfield,value
         sql+="'%s',"%value
     sql=sql.strip(",")
     sql+=") on duplicate key update %s;\n"%FIELDSUP
     db.execute(sql)
     if(verbose):print sql
-    break
 
 print "Number of quakes read: ",itot
 print "Number of quakes inserted: ",iins

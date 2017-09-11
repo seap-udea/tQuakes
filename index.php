@@ -33,8 +33,8 @@ if(!isBlank($action)){
     $tmp=$file["tmp_name"];
     shell_exec("cp $tmp $USERDIR/$name");
     statusMsg("Convirtiendo archivo $name ($tmp) a $target...");
-$insert_msg=<<<I
-<p id="insert_loader" style="background:white;padding:10px">
+$insert_msg_insert=<<<I
+<p id="insert_loader_insert" style="background:white;padding:10px">
   Loading <img src="img/loader.gif">
 </p>
 <script>
@@ -42,7 +42,28 @@ $insert_msg=<<<I
       ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target;country=$country",
 	     function(e){
 	       alert(e);
-	       $("#insert_loader").hide();
+	       $("#insert_loader_insert").hide();
+	     });
+    });
+</script>
+I;
+  }
+  ////////////////////////////////////////////////////////////////////////
+  //UPLOAD EARTHQUAKES FILE
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="Decluster"){
+    $all="0";
+    statusMsg("Declustering latest upload earthquakes...");
+$insert_msg_decluster=<<<I
+<p id="insert_loader_decluster" style="background:white;padding:10px">
+  Declustering <img src="img/loader.gif">
+</p>
+<script>
+  $(document).ready(function(){
+      ajaxDo("decluster","all=$all",
+	     function(e){
+	       alert(e);
+	       $("#insert_loader_decluster").hide();
 	     });
     });
 </script>
@@ -1626,7 +1647,7 @@ $CONTENT.=<<<I
   In order to add new events to the database, please upload the list of new earthquakes using <a href="db/template.xls">this template</a>.
 </p>
 
-$insert_msg
+$insert_msg_insert
 
 <p>
   $FORM
@@ -1639,6 +1660,36 @@ $insert_msg
 I;
 
   $SUBMENU.="<a href='#insert'>Insert</a> | ";
+
+ }
+
+  ////////////////////////////////////////////////////////////////////////
+  //DECLUSTER EVENTS
+  ////////////////////////////////////////////////////////////////////////
+ if($QPERM){
+$CONTENT.=<<<I
+<hr/>
+<h2><a name='insert'>Decluster events</a></h2> 
+
+<p>
+  In order to avoid "clustering bias" the earthquake database must be
+  declustered.  Decluster could be ran over the latest uploaded
+  earthquakes or over the whole sample of events.  Please make your
+  selection.
+</p>
+
+$insert_msg_decluster
+
+<p>
+  $FORM
+  <form method="get">
+  <input type="submit" name="action" value="Decluster">
+  <input type="submit" name="action" value="Decluster all">
+  </form>
+</p>
+I;
+
+  $SUBMENU.="<a href='#insert'>Decluster</a> | ";
 
  }
 

@@ -74,7 +74,7 @@ def decluster(inicent):
     # ############################################################
     # UPDATE EARTHQUAKES
     # ############################################################
-    print "Updating %d earthquakes..."%(nquakes),
+    print>>stderr,"Updating %d earthquakes..."%(nquakes),
     fc=open("cluster.ano","r")
     i=1
     clusters=dict()
@@ -204,20 +204,21 @@ def decluster(inicent):
         sql=sql.strip(",")
         sql+="where clusterid='%s'"%c.clusterid
         db.execute(sql)
+        
+        print "\n"
+        print "Total number of quakes:",nquakes
+        print "Total number of clustered quakes:",nclustered
+
 
         i+=1
 
     fc.close()
     connection.commit()
+    return db
 
-    nclustered=mysqlSimple("select count(quakeid) from Quakes where cluster1<>'0'",db)
-    ndeclustered=mysqlSimple("select count(quakeid) from Quakes where cluster1='0' or cluster1 like '-%'",db)
-
-    print "\n"
-    print "Total number of quakes:",nquakes
-    print "Total number of clusters:",nclusters
-    print "Total number of clustered quakes:",nclustered
-    print "Total number of declustered quakes:",ndeclustered
-
-decluster(1900)
-decluster(2000)
+db=decluster(1900)
+db=decluster(2000)
+nclustered=mysqlSimple("select count(quakeid) from Quakes where cluster1<>'0'",db)
+ndeclustered=mysqlSimple("select count(quakeid) from Quakes where cluster1='0' or cluster1 like '-%'",db)
+print>>stderr,"Total number of clustered quakes:",nclustered
+print>>stderr,"Total number of declustered quakes:",ndeclustered

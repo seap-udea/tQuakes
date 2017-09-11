@@ -14,7 +14,21 @@ if(0){}
 ////////////////////////////////////////////////////////////////////////
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//UPDATE HISTORY
+//DECLUSTER EARTHQUAKES
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+else if($action=="decluster"){
+  $ps=parseParams($params);
+
+  //DECLUSTERING EARTHQUAKES
+  $cmd="cd plots/processing;PYTHONPATH=. python decluster-quakes-R85.py ".$ps["all"]." 2> /tmp/decluster";
+  $out=shell_exec($cmd);
+  $err=shell_exec("cat /tmp/decluster");
+
+  echo "$err";
+}
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//INSERT EARTHQUAKES
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if($action=="insertquakes"){
   $ps=parseParams($params);
