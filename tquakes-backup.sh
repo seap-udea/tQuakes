@@ -1,7 +1,7 @@
 #!/bin/bash
 . configuration
 
-if [ $1 = "Quakes" ];then
+if [ "x$1" = "xQuakes" ];then
     tables="Quakes Clusters"
     filename="Quakes"
 else
