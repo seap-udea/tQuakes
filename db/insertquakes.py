@@ -51,7 +51,12 @@ for quake in content:
 
     # COUNTER
     itot+=1
+
+    # CONVERT DATE TO FORMAT
+
+    # DATE
     quake["qdatetime"]=quake["Fecha"]+" "+quake["Hora UTC"];
+
     if (itot%freq)==0:
         print "Analizando sismo %d fecha = %s (insertados %d, saltados %d)"%(itot,quake["qdatetime"],iins,iskp)
 
@@ -60,9 +65,9 @@ for quake in content:
         qdate=datetime.datetime.strptime(quake["qdatetime"],DATETIME_FORMAT)
     except:
         qdate=datetime.datetime.strptime(quake["qdatetime"],"%Y/%m/%d %H:%M:%S")
-        quake["Fecha"]=qdate.strftime("%d/%m/%Y")
+        quake["Fecha"]=qdate.strftime("%d/%m/%y")
         quake["qdate"]=quake["Fecha"]
-        quake["qdatetime"]=quake["Fecha"]+" "+quake["Hora UTC"];
+        quake["qdatetime"]=quake["qdate"]+" "+quake["Hora UTC"];
         
     quake["qjd"]=date2jd(qdate)
     dtime=qdate.strftime("%m/%d/%Y %H:%M:%S.%f")
