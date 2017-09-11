@@ -1640,6 +1640,7 @@ C;
   //INSERT EVENTS
  if($QPERM){
 $CONTENT.=<<<I
+<div class='level3'>
 <hr/>
 <h2><a name='insert'>Insert new events</a></h2> 
 
@@ -1657,9 +1658,10 @@ $insert_msg_insert
   <input type="submit" name="action" value="Upload">
   </form>
 </p>
+</div>
 I;
 
-  $SUBMENU.="<a href='#insert'>Insert</a> | ";
+  $SUBMENU.="<span class='level3'><a href='#insert'>Insert</a> | </span>";
 
  }
 
@@ -1769,18 +1771,6 @@ $CONTENT.=<<<C
   <p><a href=?if=search&action=cleansynthetic>Clean synthetic earthquakes</a></p>
 C;
  
-  ////////////////////////////////////////////////////////////////////////
-  //UPLOAD EARTHQUAKES
-  ////////////////////////////////////////////////////////////////////////
-  $CONTENT.="<div class='level3'>";
-  $CONTENT.="<h2><a name='upload'>Upload earthquakes</a></h2>";
-  $SUBMENU.="<span class='level3'><a href='#upload'>Upload</a> | </span>";
-
-$CONTENT.=<<<C
-<center><img src="img/menatwork.png" width="10%"/></center>
-</div>
-C;
-
 }
 
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
