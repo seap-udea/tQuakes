@@ -1,6 +1,6 @@
 BRANCH=$(shell bash .getbranch)
-#TABLE=Quakes
-TABLE=QuakesMockTime
+TABLE=Quakes
+#TABLE=QuakesMockTime
 #TABLE=QuakesMockSpace
 
 show:
@@ -54,11 +54,11 @@ unlock:
 
 backup:
 	@echo "Backuping Quakes data..."
-	@bash tquakes-backup.sh 
+	@bash -x tquakes-backup.sh Quakes
 
-backupall:
+backupall:backup
 	@echo "Backuping tQuakes database..."
-	@bash tquakes-backup.sh tQuakes
+	@bash -x tquakes-backup.sh 
 
 restore:
 	@echo "Restoring table Quakes..."
@@ -68,7 +68,7 @@ restore:
 	@mysql -u root -p tQuakes < data/sql/Quakes.sql
 	@p7zip data/sql/Quakes.sql
 
-restoreall:
+restoreall:restore
 	@echo "Restoring database..."
 	@cat data/sql/dump/tQuakes.sql.7z-* > data/sql/tQuakes.sql.7z
 	@p7zip -d data/sql/tQuakes.sql.7z

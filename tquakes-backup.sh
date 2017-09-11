@@ -5,7 +5,7 @@ if [ "x$1" = "xQuakes" ];then
     tables="Quakes Clusters"
     filename="Quakes"
 else
-    tables=""
+    tables="Users Stations"
     filename="tQuakes"
 fi
 
