@@ -20,16 +20,16 @@ foreach(array_keys($conf) as $key){
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //TABLE WITH EARTHQUAKES
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+$QUAKES="Quakes";
 //$QUAKES="QuakesMockTime";
 //$QUAKES="QuakesMockSpace";
-$QUAKES="Quakes";
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //TABLE FOR RUNNING PROCESS
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//$QUAKESRUN=$QUAKES;
+$QUAKESRUN=$QUAKES;
 //$QUAKESRUN="QuakesMockTime";
-$QUAKESRUN="QuakesMockSpace";
+//$QUAKESRUN="QuakesMockSpace";
 //$QUAKESRUN="Quakes";
 
 ////////////////////////////////////////////////////////////////////////

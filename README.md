@@ -254,6 +254,11 @@ If everything is working properly you may start the **tQuakes** daemon:
 $ make start
 ```
 
+If DOSEMU fails please change the following in the /etc/dosemu/dosemu.conf:
+   
+   $_layout="es-latin1"
+   $_cpu_emu="full"
+
 Instructions for the contributor
 --------------------------------
 

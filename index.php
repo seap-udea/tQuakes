@@ -39,7 +39,7 @@ $insert_msg=<<<I
 </p>
 <script>
   $(document).ready(function(){
-      ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target.csv",
+      ajaxDo("insertquakes","input=$USERDIR/$name;output=$USERDIR/$target",
 	     function(e){
 	       alert(e);
 	       $("#insert_loader").hide();
