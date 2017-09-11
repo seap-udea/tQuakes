@@ -59,7 +59,7 @@ md=scatterMap(axs[0],[],[],resolution=resolution,
               limits=[center[0],center[1],dlat,dlon])
 ms=scatterMap(axs[1],quakes[:,QLAT],quakes[:,QLON],resolution=resolution,
               limits=[center[0],center[1],dlat,dlon],
-              merdict=dict(labels=[False,False,True,True]),
+              merdict=dict(labels=[False,False,True,False]),
               pardict=dict(labels=[True,False,False,False]),
               color='k',marker='o',linestyle='none',
               markeredgecolor='none',markersize=1,zorder=10)
