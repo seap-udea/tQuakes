@@ -53,6 +53,14 @@ calculation station.  It could be installed on any directory on the machine:
 $ git clone --branch station --single-branch http://github.com/seap-udea/tQuakes.git
 ```
 
+or if you are a developer:
+
+```
+$ git clone --branch station --single-branch git@github.com:seap-udea/tQuakes.git
+```
+
+after properly set up the keys.
+
 tQuakes server
 --------------
 
