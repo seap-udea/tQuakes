@@ -126,7 +126,7 @@ $PERM=array("0"=>"Anónimo",
 //ENUM
 ////////////////////////////////////////////////////////////////////////
 $STATION_STATUS=array("Idle","Fetching","Preparing","Running","Analysing","Submiting","Disabled");
-$QUAKE_STATUS=array("Waiting","Fetched","Calculated","Analysed","Submitted");
+$QUAKE_STATUS=array("Waiting","Fetched","Calculated","Analysed","Submitted","Failed");
 
 ////////////////////////////////////////////////////////////////////////
 //ROUTINES
