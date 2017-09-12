@@ -6,4 +6,5 @@ SAMPLERATE=1800;
 TIMEWIDTH=-1;
 
 # Comment if you want to prevent submission
-QSUBMIT=0;
+QSUBMIT=1;
+NUMQUAKES=1;
