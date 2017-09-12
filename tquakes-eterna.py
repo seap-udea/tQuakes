@@ -73,6 +73,17 @@ for quake in qlist:
     print out
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    # CHECK IF THE RUN FAIL
+    if os.path.lexists("%s/.fail"%quakedir):
+        print "\tJob failed."
+        System("date +%%s > %s/.failed"%quakedir)
+        System("mv %s/.prepare %s/.states"%(quakedir,quakedir))
+        print "\tReporting failure..."
+        out=System("links -dump '%s/action.php?action=fail&station_id=%s&quakeid=%s'"%(conf.WEBSERVER,station.station_id,quakeid))
+        exit(0)
+    # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     # 7ZIP RESULTS
     System("cd %s;tar cf %s-eterna.tar %s*.* %s*.* quake.conf quake.log"%(quakedir,
                                                              quakeid,quakeid,lquakeid))  

@@ -33,7 +33,12 @@ print "\tGenerating plain data file..."
 ic=0
 for component in COMPONENTS:
     fileplain="%s%d.plain"%(lquakeid,component)
-    datacomp=numpy.loadtxt(fileplain)
+    try:
+        datacomp=numpy.loadtxt(fileplain)
+    except:
+        System("touch .fail")
+        exit(1)
+
     System("rm "+fileplain)
     if ic:data=numpy.column_stack((data,datacomp[:,2]))
     else:data=datacomp[:,2]
@@ -43,6 +48,7 @@ for component in COMPONENTS:
 
 # MAGNITUDE OF THE HORIZONTAL STRAIN
 hsm=numpy.sqrt(data[:,4]**2+data[:,5]**2)
+
 # ANGLE OF THE HORIZONTAL STRAIN (0 IS EAST, 90 NORTH, 180 WEST)
 hst=numpy.arctan2(data[:,4],data[:,5])*RAD
 data=numpy.column_stack((data,hsm,hst))
