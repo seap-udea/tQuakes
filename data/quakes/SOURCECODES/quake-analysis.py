@@ -251,7 +251,7 @@ for component in COMPONENTS:
     for tf in tpF:ds+=[min(abs(ps-tf))]
     iM=numpy.array(ds).argsort()[0]
     if vvv:print "Closest:",iM
-    ipeaks=numpy.arange(npeaks)
+    ipeaks=numpy.arange(numpeak)
     ipeak=ipeaks[tpF<0][-1]
     if vvv:print "Previous:",ipeak
     if abs(ipeak-iM)%2!=0:ipeak-=1
