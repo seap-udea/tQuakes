@@ -734,9 +734,11 @@ def getPhases(search,component,db,vvv=True):
 def schusterValue(phases,qbootstrap=False,
                   facbootstrap=0.5,bootcycles=50,
                   qsteps=0):
+
     if len(phases)<int(1/facbootstrap):return 0,0
+
     if qbootstrap:
-        nbootstrap=facbootstrap*len(phases)
+        nbootstrap=int(facbootstrap*len(phases))
         logps=[]
         i=0
         while i<bootcycles:
@@ -760,7 +762,7 @@ def schusterSteps(phases,
                   facbootstrap=1):
 
     if qbootstrap:
-        nbootstrap=facbootstrap*len(phases)
+        nbootstrap=int(facbootstrap*len(phases))
         phases=numpy.random.choice(phases,nbootstrap)
 
     xstep=[0.0];ystep=[0.0]
@@ -947,7 +949,7 @@ def prepareScript():
     System("cp %s %s/%s__%s.conf"%(confile,dirname,BASENAME,md5sum[0:5]))
     return confile
 
-def saveFigure(confile,fig):
+def saveFigure(confile,fig,qwater=True):
     # MD5SUM FOR THIS REALIZATION
     md5sum=md5sumFile(confile)
     # SAVE FIGURE
@@ -955,11 +957,12 @@ def saveFigure(confile,fig):
     print "Saving figure ",figname
 
     # WATER MARK
-    ax=fig.gca()
-    ax.text(1.01,1.0,"tQuakes",
-            horizontalalignment='left',verticalalignment='top',
-            rotation=-90,fontsize=10,color='b',alpha=0.3,
-            transform=ax.transAxes,zorder=1000)
+    if qwater:
+        ax=fig.gca()
+        ax.text(1.01,1.0,"tQuakes",
+                horizontalalignment='left',verticalalignment='top',
+                rotation=-90,fontsize=10,color='b',alpha=0.3,
+                transform=ax.transAxes,zorder=1000)
 
     fig.savefig(figname)
 
