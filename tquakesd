@@ -22,7 +22,7 @@ do
     # RUN PROCESS PER EACH PROCESSOR
     for i in $(seq 1 $station_nproc)
     do
-	if [ $qdebug -gt 0 ];then
+	if [ $qdebug -eq 0 ];then
 	    python tquakes-pipeline.py >> log/tquakes-proc$i.log &
 	    sleep 1
 	else
