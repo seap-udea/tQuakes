@@ -647,6 +647,13 @@ C;
     $SUBMENU.="<a href='#signal'>Signal</a> | ";
 
     $signals=preg_split("/;/",$quake["qsignal"]);
+    
+    if(isBlank($signals[0])){
+      $signaltxt.="<p><i style='color:red'>Execution failed</i></p>";
+      $signaltxt.="</ul>";
+      $tideresults.=$signaltxt;
+      goto download;
+    }
     $i=0;
     foreach($signals as $signal){
       $ncomp=$COMPONENTS[$i];
@@ -724,6 +731,7 @@ A;
     //////////////////////////////////////////////////////////////
     //DOWNLOAD
     //////////////////////////////////////////////////////////////
+    download:
     $SUBMENU.="<a href='#download'>Download</a> | ";
     
 $tideresults.=<<<T
@@ -1943,6 +1951,20 @@ else if($if=="quaketide"){
     $hsun=$hmoon=$qjd="<i style='font-size:10px;color:gray'>Enter the Date and time...</i>";
   }
 
+  // CHECK IF THE CALCULATOR IS WORKING
+  $logfile="log/tquakes.out";
+  $stats=stat($logfile);
+  statusMsg("Log time:".$stats[9]);
+  statusMsg("Now:".time());
+  if(stats[9]<(time()-60) and !file_exists("stop")){
+    statusMsg("Calculator is on");
+    $qcalculator="<span style='background:green;color:white;padding:10px'>Calculator on</span>";
+  }
+  else{
+    statusMsg("Calculator is down");
+    $qcalculator="<span style='background:red;color:yellow;padding:10px'>Calculator off</span>";
+  }
+
 $SUBMENU.=<<<QUAKE
 <a href="$referer">Back</a> |
 QUAKE;
@@ -1957,6 +1979,8 @@ $CONTENT.=<<<QUAKE
   phases, etc.).  Use the "plot" button to get plots of the tidal
   timeseries and other related graphs.
 </p>
+
+<p>$qcalculator</p>
 
 <h3>Basic properties</h3>
 $FORM
