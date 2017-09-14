@@ -67,7 +67,7 @@ else if($action=="updatehistory"){
   $html.="<p><a href=?if=search&action=cleanhistory>Clean history</a></p>";
 }
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//UPDATE HISTORY
+//UPDATE JULIAN DAY
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if($action=="updatejd"){
   $ps=parseParams($params);
@@ -76,6 +76,19 @@ else if($action=="updatejd"){
   $qjd=rtrim(shell_exec("PYTHONPATH=. python util/date2jd.py '$date'"));
   if(isBlank($qjd)){$html="Bad date, eg. 24/12/09 00:00:00";}
   else{$html=$qjd;}
+}
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//UPDATE HMOON AND HSUN
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+else if($action=="updatehmoonsun"){
+  $ps=parseParams($params);
+  $date=$ps["date"];
+  $lon=$ps["lon"];
+  $cmd="PYTHONPATH=. python util/hmoonsun.py '$date' $lon";
+  $hmoonsun=rtrim(shell_exec($cmd));
+  if(isBlank($hmoonsun)){$html="Bad date, eg. 24/12/09 00:00:00";}
+  else{$html=$hmoonsun;}
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

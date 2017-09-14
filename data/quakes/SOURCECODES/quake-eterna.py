@@ -25,6 +25,9 @@ for component in COMPONENTS:
     print "\t\tRunning component %d..."%component
     System("cp project%d project"%(component))
     System("dosemu -t -quiet PREDICT.EXE &> %s%d.log"%(quakeid,component))
+    #os.popen("dosemu -t -quiet PREDICT.EXE &> %s%d.log"%(quakeid,component)).read()
+    #os.popen("python a.py").read()
+    #system("python a.py")
     system("bash prd2plain.sh %s%d.prd > %s%d.plain"%(lquakeid,component,
                                                       lquakeid,component))
 

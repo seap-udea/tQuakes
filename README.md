@@ -267,6 +267,7 @@ If DOSEMU fails please change the following in the /etc/dosemu/dosemu.conf:
 ```
    $_layout="es-latin1"
    $_cpu_emu="full"
+   $_X_winsize="640,480"
 ```
 
 Instructions for the contributor

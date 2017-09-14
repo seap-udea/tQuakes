@@ -77,8 +77,10 @@ function ajaxDo(action,params,onsuc,onerr)
 
     var ajax='ajax.php';
     
+    var url='ajax.php?action='+action+'&params='+params;
+    //alert(url);
     jQuery.ajax({
-	url:'ajax.php?action='+action+'&params='+params,
+	url:url,
 	success:onsuc,
 	error:onerr,
     });
@@ -104,4 +106,22 @@ function onUpdateJD(juliandate)
 function updateJD(element)
 {
     ajaxDo('updatejd','date='+element.value,onUpdateJD);
+}
+
+function onUpdateHmoonsun(result)
+{
+    var parts=result.split(",");
+    var $hmoon=$('#hmoon');
+    var $hmoon_val=$('#hmoon_val');
+    var $hsun=$('#hsun');
+    var $hsun_val=$('#hsun_val');
+    $hmoon.html(parts[0]);
+    $hmoon_val.val(parts[0]);
+    $hsun.html(parts[1]);
+    $hsun_val.val(parts[1]);
+}
+
+function updateHmoonsun(element,lon)
+{
+    ajaxDo('updatehmoonsun','date='+element.value+';lon='+lon,onUpdateHmoonsun);
 }

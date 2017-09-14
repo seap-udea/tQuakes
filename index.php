@@ -1939,7 +1939,9 @@ else if($if=="quaketide"){
     $referer=$_SERVER["HTTP_REFERER"];
   }
   
-  if(!isset($qjd)){$qjd="<i style='font-size:10px;color:gray'>Enter the Date and time...</i>";}
+  if(!isset($qjd)){
+    $hsun=$hmoon=$qjd="<i style='font-size:10px;color:gray'>Enter the Date and time...</i>";
+  }
 
 $SUBMENU.=<<<QUAKE
 <a href="$referer">Back</a> |
@@ -1974,7 +1976,7 @@ $FORM
 <tr>
   <td>Longitude:</td>
   <td>
-    <input type="text" name="qlon" value="$qlon">
+    <input id="qlon" type="text" name="qlon" value="$qlon">
   </td>
 </tr>
 <tr>
@@ -1984,24 +1986,12 @@ $FORM
   </td>
 </tr>
 <tr>
-  <td>Hour angle of the Moon (degrees):</td>
-  <td>
-    <input type="text" name="hmoon" value="$hmoon">
-  </td>
-</tr>
-<tr>
-  <td>Hour angle of the Sun (degrees):</td>
-  <td>
-    <input type="text" name="hsun" value="$hsun">
-  </td>
-</tr>
-<tr>
   <td valign="top">
     Date and time:<br/>
     <i style="font-size:10px">D/MM/YY HH:MM:SS</i>
   </td>
   <td valign="top">
-    <input type="text" name="qdatetime" value="$qdatetime" onchange="updateJD(this)">
+    <input type="text" name="qdatetime" value="$qdatetime" onchange="updateJD(this);updateHmoonsun(this,$('#qlon').val());">
   </td>
 </tr>
 <tr>
@@ -2010,6 +2000,20 @@ $FORM
   </td>
   <td valign="top">
     <span id="qjd">$qjd</span>
+  </td>
+</tr>
+<tr>
+  <td>Hour angle of the Moon (degrees):</td>
+  <td>
+    <span id="hmoon">$hmoon</span>
+    <input id="hmoon_val" type="hidden" name="hmoon" value="$hmoon">
+  </td>
+</tr>
+<tr>
+  <td>Hour angle of the Sun (degrees):</td>
+  <td>
+    <span id="hsun">$hsun</span>
+    <input id="hsun_val" type="hidden" name="hsun" value="$hsun">
   </td>
 </tr>
 <tr>
