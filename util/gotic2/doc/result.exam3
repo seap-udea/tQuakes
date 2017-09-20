@@ -1,0 +1,894 @@
+********************************************************
+******************       GOTIC2       ******************
+****************** Version 2004.10.25 ******************
+********************************************************
+ 
+-------------------------------------------< INPUT CARD >------------------------------------------- No.
+ *********************[ Mandatory Cards ]**********************                                        1
+ STAPOSD ESASHI  , 141.3352777, 39.14805555555555, 393.0, 225.0                                        2
+ WAVE    ALL                                                                                           3
+ KIND    GV                                                                                            4
+ **********************[ Option Cards ]************************                                        5
+ #PREDICT 3, 199801010000, 199802010000, 60.0                                                          6
+ #PREXFL  result.test3                                                                                 7
+ #PREFMT  5, 4                                                                                         8
+ #PREOUT  predict.test4                                                                                9
+ END                                                                                                  10
+----------------------------------------< INPUT CARD (END) >----------------------------------------
+ 
+ 
+--------------------< Configuration >--------------------
+ Station  1
+    Name : ESASHI    
+    Longitude = 141.335278 (deg)
+              = 141.0 (deg),  20.0 (min),   6.9997 (sec)
+    Latitude  =  39.148056 (deg)
+              =  39.0 (deg),   8.0 (min),  53.0000 (sec)
+    Altitude  =  393.00 (m), Azimuth =  225.00 (deg)
+ Kind                :  GV
+ Tidal waves         :  M2  S2  K1  O1  N2  P1  K2  Q1 
+ Tidal waves         :  M1  J1  OO1 2N2 Mu2 Nu2 L2  T2 
+ Tidal waves         :  Mtm Mf  Mm  Ssa Sa 
+ Integration area    :   0.0 - 180.0 (deg)
+ 2nd mesh region     : Within  10.0 (deg)
+ 3rd mesh region     : Within   5.0 (deg)
+ Green's function    : Green's function based on 1066A model
+ MASSCON ON          : Mass conservation procedure conducted.
+ Delta factor        : Dehant's delta factor for gravity.
+ -------------------------------------------------------
+ 
+ 
+--------------------< Green's function >--------------------
+ 
+***** Elastic Earth model (1066A model) *****
+ 
+ Ang. dist.      RD           HD           GV           TL           ST           DV
+    0.0001   -0.768E+02   -0.232E+02   -0.188E+03    0.769E+02    0.233E+02   -0.489E-04
+    0.0010   -0.761E+02   -0.232E+02   -0.186E+03    0.769E+02    0.233E+02   -0.489E-03
+    0.0100   -0.689E+02   -0.230E+02   -0.169E+03    0.768E+02    0.235E+02   -0.489E-02
+    0.0200   -0.611E+02   -0.224E+02   -0.151E+03    0.764E+02    0.241E+02   -0.975E-02
+    0.0300   -0.536E+02   -0.213E+02   -0.134E+03    0.751E+02    0.250E+02   -0.146E-01
+    0.0400   -0.475E+02   -0.197E+02   -0.119E+03    0.719E+02    0.260E+02   -0.193E-01
+    0.0600   -0.352E+02   -0.166E+02   -0.898E+02    0.654E+02    0.272E+02   -0.285E-01
+    0.0800   -0.266E+02   -0.130E+02   -0.692E+02    0.546E+02    0.265E+02   -0.373E-01
+    0.1000   -0.210E+02   -0.983E+01   -0.552E+02    0.427E+02    0.236E+02   -0.455E-01
+    0.1600   -0.153E+02   -0.493E+01   -0.391E+02    0.182E+02    0.995E+01   -0.666E-01
+    0.2000   -0.153E+02   -0.456E+01   -0.374E+02    0.138E+02    0.358E+01   -0.781E-01
+    0.2500   -0.157E+02   -0.519E+01   -0.371E+02    0.137E+02    0.731E+00   -0.905E-01
+    0.3000   -0.160E+02   -0.597E+01   -0.368E+02    0.152E+02    0.187E+01   -0.101E+00
+    0.4000   -0.159E+02   -0.687E+01   -0.356E+02    0.170E+02    0.441E+01   -0.122E+00
+    0.5000   -0.156E+02   -0.714E+01   -0.345E+02    0.169E+02    0.703E+01   -0.143E+00
+    0.6000   -0.152E+02   -0.717E+01   -0.333E+02    0.171E+02    0.647E+01   -0.165E+00
+    0.8000   -0.144E+02   -0.694E+01   -0.313E+02    0.175E+02    0.867E+01   -0.214E+00
+    1.0000   -0.136E+02   -0.665E+01   -0.295E+02    0.180E+02    0.794E+01   -0.265E+00
+    1.2000   -0.128E+02   -0.631E+01   -0.277E+02    0.164E+02    0.780E+01   -0.314E+00
+    1.6000   -0.113E+02   -0.571E+01   -0.247E+02    0.155E+02    0.678E+01   -0.403E+00
+    2.0000   -0.101E+02   -0.516E+01   -0.221E+02    0.152E+02    0.679E+01   -0.475E+00
+    2.5000   -0.876E+01   -0.455E+01   -0.192E+02    0.143E+02    0.718E+01   -0.546E+00
+    3.0000   -0.771E+01   -0.400E+01   -0.170E+02    0.129E+02    0.687E+01   -0.600E+00
+    4.0000   -0.621E+01   -0.313E+01   -0.137E+02    0.104E+02    0.562E+01   -0.676E+00
+    5.0000   -0.527E+01   -0.253E+01   -0.116E+02    0.847E+01    0.457E+01   -0.727E+00
+    6.0000   -0.467E+01   -0.213E+01   -0.101E+02    0.700E+01    0.366E+01   -0.769E+00
+    7.0000   -0.427E+01   -0.185E+01   -0.914E+01    0.594E+01    0.234E+01   -0.811E+00
+    8.0000   -0.400E+01   -0.168E+01   -0.840E+01    0.519E+01    0.257E+01   -0.855E+00
+    9.0000   -0.380E+01   -0.156E+01   -0.784E+01    0.467E+01    0.147E+01   -0.904E+00
+   10.0000   -0.365E+01   -0.149E+01   -0.739E+01    0.431E+01    0.155E+01   -0.959E+00
+   12.0000   -0.342E+01   -0.142E+01   -0.668E+01    0.389E+01    0.102E+01   -0.108E+01
+   16.0000   -0.303E+01   -0.137E+01   -0.563E+01    0.357E+01    0.370E+00   -0.137E+01
+   20.0000   -0.264E+01   -0.134E+01   -0.477E+01    0.346E+01    0.402E+00   -0.168E+01
+   25.0000   -0.210E+01   -0.126E+01   -0.380E+01    0.341E+01    0.607E+00   -0.208E+01
+   30.0000   -0.151E+01   -0.116E+01   -0.291E+01    0.337E+01    0.125E+01   -0.245E+01
+   40.0000   -0.243E+00   -0.850E+00   -0.134E+01    0.296E+01    0.223E+01   -0.291E+01
+   50.0000    0.906E+00   -0.501E+00   -0.184E+00    0.187E+01    0.281E+01   -0.278E+01
+   60.0000    0.172E+01   -0.234E+00    0.450E+00    0.284E+00    0.294E+01   -0.200E+01
+   70.0000    0.211E+01   -0.141E+00    0.586E+00   -0.140E+01    0.257E+01   -0.733E+00
+   80.0000    0.205E+01   -0.243E+00    0.336E+00   -0.284E+01    0.206E+01    0.779E+00
+   90.0000    0.162E+01   -0.505E+00   -0.161E+00   -0.382E+01   -0.192E+00    0.228E+01
+  100.0000    0.882E+00   -0.858E+00   -0.782E+00   -0.431E+01   -0.133E+01    0.358E+01
+  110.0000   -0.705E-01   -0.122E+01   -0.143E+01   -0.435E+01   -0.351E+01    0.454E+01
+  120.0000   -0.116E+01   -0.152E+01   -0.206E+01   -0.405E+01   -0.404E+01    0.511E+01
+  130.0000   -0.230E+01   -0.170E+01   -0.262E+01   -0.354E+01   -0.437E+01    0.526E+01
+  140.0000   -0.344E+01   -0.171E+01   -0.312E+01   -0.290E+01   -0.488E+01    0.501E+01
+  150.0000   -0.449E+01   -0.154E+01   -0.355E+01   -0.222E+01   -0.641E+01    0.436E+01
+  160.0000   -0.543E+01   -0.118E+01   -0.392E+01   -0.153E+01   -0.891E+01    0.331E+01
+  170.0000   -0.617E+01   -0.656E+00   -0.423E+01   -0.807E+00   -0.842E+01    0.186E+01
+  180.0000   -0.668E+01    0.000E+00   -0.451E+01    0.000E+00   -0.370E+01   -0.128E-12
+--------------------------------------------------------------------------------------
+ 
+ 
+ 
+ Computation for wave M2 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/m2_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:06:13 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/m2.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Sat Mar 25 18:49:08 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  1.210762033243868E-003
+   Imag part of unconserved mass (m)  = -4.387113266095875E-004
+   Amplitude (m)                      =  1.287793589532255E-003
+   Phase  (deg)                       =  -19.9176370844498     
+  
+   --------------------------------------------------------------
+ 
+   Wave : M2 , Station : ESASHI    , Kind : GV
+ 
+   -----------------< Mesh Information >-----------------
+   Number of 1st order ocean meshes =   174412
+   Number of 2nd order ocean meshes =     4495
+   Number of 3rd order ocean meshes =    35676
+   Number of 4th order ocean meshes =        0
+   Number of 1st order land meshes  =    84510
+   Number of 2nd order land meshes  =     2643
+   Number of 3rd order land meshes  =    23324
+   Number of 4th order land meshes  =        0
+   Nearest ocean grid : Lon =  141.63125 (deg)
+                        Lat =   39.00417 (deg)
+                        Angular Distance =  0.27110 (deg)
+   ------------------------------------------------------
+ 
+ 
+ Computation for wave S2 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/s2_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:09:19 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/s2.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Sat Mar 25 18:50:10 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  8.540366068386855E-004
+   Imag part of unconserved mass (m)  = -8.722436018709641E-005
+   Amplitude (m)                      =  8.584792454279742E-004
+   Phase  (deg)                       =  -5.83150550961711     
+  
+   --------------------------------------------------------------
+ 
+   Wave : S2 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave K1 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/k1_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:07:15 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/k1.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Sat Mar 25 18:51:12 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  1.116675818308720E-003
+   Imag part of unconserved mass (m)  = -2.314312653166932E-004
+   Amplitude (m)                      =  1.140405767155505E-003
+   Phase  (deg)                       =  -11.7087975559025     
+  
+   --------------------------------------------------------------
+ 
+   Wave : K1 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave O1 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/o1_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:08:17 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/o1.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Sat Mar 25 18:52:15 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  3.501873778626501E-004
+   Imag part of unconserved mass (m)  = -2.831239379062261E-004
+   Amplitude (m)                      =  4.503225109072909E-004
+   Phase  (deg)                       =  -38.9552862477353     
+  
+   --------------------------------------------------------------
+ 
+   Wave : O1 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave N2 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/n2_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:11:23 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/n2.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Sat Mar 25 18:54:19 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  1.124633202357773E-004
+   Imag part of unconserved mass (m)  =  5.112472603425772E-005
+   Amplitude (m)                      =  1.235383989313967E-004
+   Phase  (deg)                       =   24.4460806565110     
+  
+   --------------------------------------------------------------
+ 
+   Wave : N2 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave P1 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/p1_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:10:21 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/p1.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Sat Mar 25 18:53:17 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  1.768456215308689E-004
+   Imag part of unconserved mass (m)  = -1.949396925389633E-005
+   Amplitude (m)                      =  1.779168027250691E-004
+   Phase  (deg)                       =  -6.29040711809183     
+  
+   --------------------------------------------------------------
+ 
+   Wave : P1 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave K2 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/k2_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:12:25 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/k2.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Sat Mar 25 18:55:21 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  3.163289856808280E-004
+   Imag part of unconserved mass (m)  = -6.150658552577044E-005
+   Amplitude (m)                      =  3.222531415593964E-004
+   Phase  (deg)                       =  -11.0032217510634     
+  
+   --------------------------------------------------------------
+ 
+   Wave : K2 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave Q1 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/q1_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:13:27 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/q1.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Mon Mar 27 16:48:21 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  3.454480521043110E-004
+   Imag part of unconserved mass (m)  = -1.802596676102511E-004
+   Amplitude (m)                      =  3.896510034243734E-004
+   Phase  (deg)                       =  -27.5561882466852     
+  
+   --------------------------------------------------------------
+ 
+   Wave : Q1 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave M1 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/m1_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Sun May 07 23:14:36 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/m1.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Mon Apr 10 11:43:30 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  = -4.802642791721545E-005
+   Imag part of unconserved mass (m)  = -1.243889674094706E-005
+   Amplitude (m)                      =  4.961112708475222E-005
+   Phase  (deg)                       =  -165.479406657255     
+  
+   --------------------------------------------------------------
+ 
+   Wave : M1 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave J1 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/j1_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Sun May 07 23:16:40 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/j1.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Mon Apr 10 11:45:34 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  1.803304361868453E-004
+   Imag part of unconserved mass (m)  = -2.868368938093043E-005
+   Amplitude (m)                      =  1.825974267393700E-004
+   Phase  (deg)                       =  -9.03785787582535     
+  
+   --------------------------------------------------------------
+ 
+   Wave : J1 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave OO1
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/oo1_j.nao                                                           
+     Model name   = NAO.99Jb                                          
+     Created date = Sun May 07 23:15:38 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/oo1.nao                                                             
+     Model name   = NAO.99b                                           
+     Created date = Mon Apr 10 11:44:32 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  1.843381452826412E-004
+   Imag part of unconserved mass (m)  = -3.415008177379072E-005
+   Amplitude (m)                      =  1.874747446761849E-004
+   Phase  (deg)                       =  -10.4955002921593     
+  
+   --------------------------------------------------------------
+ 
+   Wave : OO1, Station : ESASHI    , Kind : GV
+ 
+ Computation for wave 2N2
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/2n2_j.nao                                                           
+     Model name   = NAO.99Jb                                          
+     Created date = Sun May 07 23:17:42 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/2n2.nao                                                             
+     Model name   = NAO.99b                                           
+     Created date = Mon Apr 10 11:46:36 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  = -4.219246251889966E-005
+   Imag part of unconserved mass (m)  =  3.081405202543783E-005
+   Amplitude (m)                      =  5.224662377259551E-005
+   Phase  (deg)                       =   143.858550160210     
+  
+   --------------------------------------------------------------
+ 
+   Wave : 2N2, Station : ESASHI    , Kind : GV
+ 
+ Computation for wave Mu2
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/mu2_j.nao                                                           
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 15:59:02 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/mu2.nao                                                             
+     Model name   = NAO.99b                                           
+     Created date = Mon Apr 10 11:47:38 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  = -7.367618191541894E-006
+   Imag part of unconserved mass (m)  =  3.467692832921709E-005
+   Amplitude (m)                      =  3.545096833890434E-005
+   Phase  (deg)                       =   101.994956260004     
+  
+   --------------------------------------------------------------
+ 
+   Wave : Mu2, Station : ESASHI    , Kind : GV
+ 
+ Computation for wave Nu2
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/nu2_j.nao                                                           
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:00:04 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/nu2.nao                                                             
+     Model name   = NAO.99b                                           
+     Created date = Mon Apr 10 11:50:44 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  3.715349125446049E-005
+   Imag part of unconserved mass (m)  = -2.098678259939300E-005
+   Amplitude (m)                      =  4.267114899167184E-005
+   Phase  (deg)                       =  -29.4606732718137     
+  
+   --------------------------------------------------------------
+ 
+   Wave : Nu2, Station : ESASHI    , Kind : GV
+ 
+ Computation for wave L2 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/l2_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Wed Apr 12 16:01:06 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/l2.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Mon Apr 10 11:48:40 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  8.903853735784383E-005
+   Imag part of unconserved mass (m)  = -2.663941970461741E-005
+   Amplitude (m)                      =  9.293825809118068E-005
+   Phase  (deg)                       =  -16.6566451677468     
+  
+   --------------------------------------------------------------
+ 
+   Wave : L2 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave T2 
+ 
+   ---------------< Ocean tide model information >---------------
+   Local ocean tide model file : ./data/omap/t2_j.nao                                                            
+     Model name   = NAO.99Jb                                          
+     Created date = Sun May 07 23:18:44 JST 2000                      
+     xmin = 110.00, xmax = 165.00, ymin =  20.00, ymax =  65.00
+     dx   =  0.083, dy =    0.083, mend =  661  , nend =  541
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   197193
+     Number of land  grids =   160408
+ 
+   Global ocean tide model file : ./data/omap/t2.nao                                                              
+     Model name   = NAO.99b                                           
+     Created date = Mon Apr 10 11:49:42 JST 2000                      
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.010, phase unit =   0.010
+     Number of ocean grids =   173467
+     Number of land  grids =    85733
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.98763275323858     
+   Ocean percentage : total/(4pi)*100 =   71.5213089686271     
+   Real part of unconserved mass (m)  =  8.788897209236447E-005
+   Imag part of unconserved mass (m)  =  6.834873746372687E-006
+   Amplitude (m)                      =  8.815433576734201E-005
+   Phase  (deg)                       =   4.44677885223891     
+  
+   --------------------------------------------------------------
+ 
+   Wave : T2 , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave Mtm
+ 
+   ---------------< Ocean tide model information >---------------
+ 
+   Global ocean tide model file : ./data/omap/mtm.nao                                                             
+     Model name   = NAO.99L (Long period)                             
+     Created date = Mon Jul 26 09:35:36 1999                          
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.001, phase unit =   0.010
+     Number of ocean grids =   173629
+     Number of land  grids =    85571
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.99748132856592     
+   Ocean percentage : total/(4pi)*100 =   71.5996814409151     
+   Real part of unconserved mass (m)  =  1.641418709173779E-006
+   Imag part of unconserved mass (m)  =  2.374637720485292E-006
+   Amplitude (m)                      =  2.886721268563575E-006
+   Phase  (deg)                       =   55.3466432978602     
+  
+   --------------------------------------------------------------
+ 
+   Wave : Mtm, Station : ESASHI    , Kind : GV
+ 
+ Computation for wave Mf 
+ 
+   ---------------< Ocean tide model information >---------------
+ 
+   Global ocean tide model file : ./data/omap/mf.nao                                                              
+     Model name   = NAO.99L (Long period)                             
+     Created date = Wed Jul 21 14:49:04 1999                          
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.001, phase unit =   0.010
+     Number of ocean grids =   173629
+     Number of land  grids =    85571
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.99748132856592     
+   Ocean percentage : total/(4pi)*100 =   71.5996814409151     
+   Real part of unconserved mass (m)  =  1.601697796786099E-005
+   Imag part of unconserved mass (m)  =  1.518994929079764E-005
+   Amplitude (m)                      =  2.207437751511802E-005
+   Phase  (deg)                       =   43.4819343569525     
+  
+   --------------------------------------------------------------
+ 
+   Wave : Mf , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave Mm 
+ 
+   ---------------< Ocean tide model information >---------------
+ 
+   Global ocean tide model file : ./data/omap/mm.nao                                                              
+     Model name   = NAO.99L (Long period)                             
+     Created date = Fri Jul 23 12:26:30 1999                          
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.001, phase unit =   0.010
+     Number of ocean grids =   173629
+     Number of land  grids =    85571
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.99748132856592     
+   Ocean percentage : total/(4pi)*100 =   71.5996814409151     
+   Real part of unconserved mass (m)  =  1.341620442607124E-005
+   Imag part of unconserved mass (m)  =  6.793146411650283E-006
+   Amplitude (m)                      =  1.503799785118520E-005
+   Phase  (deg)                       =   26.8548683745592     
+  
+   --------------------------------------------------------------
+ 
+   Wave : Mm , Station : ESASHI    , Kind : GV
+ 
+ Computation for wave Ssa
+ 
+   ---------------< Ocean tide model information >---------------
+ 
+   Global ocean tide model file : ./data/omap/ssa.nao                                                             
+     Model name   = NAO.99L (Long period)                             
+     Created date = Mon Aug 23 12:18:59 1999                          
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.001, phase unit =   0.010
+     Number of ocean grids =   173629
+     Number of land  grids =    85571
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.99748132856592     
+   Ocean percentage : total/(4pi)*100 =   71.5996814409151     
+   Real part of unconserved mass (m)  =  1.512362364954413E-005
+   Imag part of unconserved mass (m)  =  1.187957677065356E-006
+   Amplitude (m)                      =  1.517020882306993E-005
+   Phase  (deg)                       =   4.49135009678189     
+  
+   --------------------------------------------------------------
+ 
+   Wave : Ssa, Station : ESASHI    , Kind : GV
+ 
+ Computation for wave Sa 
+ 
+   ---------------< Ocean tide model information >---------------
+ 
+   Global ocean tide model file : ./data/omap/sa.nao                                                              
+     Model name   = NAO.99L (Long period, Reformatted from 1.0deg map)
+     Created date = Sat Jul 24 09:36:51 1999                          
+     xmin =   0.25, xmax = 359.75, ymin = -89.75, ymax =  89.75
+     dx   =  0.500, dy =    0.500, mend =  720  , nend =  360
+     amplitude unit =  0.001, phase unit =   0.010
+     Number of ocean grids =   168488
+     Number of land  grids =    90712
+  
+   Unconserved mass information
+   Total area of ocean meshes (rad)   =   8.75984391507369     
+   Ocean percentage : total/(4pi)*100 =   69.7086229898720     
+   Real part of unconserved mass (m)  =  2.480047662558159E-005
+   Imag part of unconserved mass (m)  =  1.784891620306319E-006
+   Amplitude (m)                      =  2.486462304062257E-005
+   Phase  (deg)                       =   4.11648271985492     
+  
+   --------------------------------------------------------------
+ 
+   Wave : Sa , Station : ESASHI    , Kind : GV
+ 
+ 
+ 
+ 
+ ====================================================================
+ ============================= Gravity ==============================
+ ====================================================================
+ 
+ Station       ESASHI    
+
+ Latitude       39d  8m 53.0s North   
+ Longitude     141d 20m  7.0s East    
+ Altitude      393.00 m
+ Azimuth       225.00 degree
+ Earth model  1066A                                                                           
+ Range of integration           0. to   180. deg.
+ 
+      Amplitude : Unit in meter per second square (m/s/s), upward positive.     Phase : Unit in degree, lag positive.         
+      "Total" means sum of newtonian part and elastic part in gravity.                                                        
+      "G-phase" means phase with respect to that of tidal potential at Greenwich.
+      "A-phase" means phase with respect to +cos-argument of local potential.
+      "R-phase" means phase with respect to +cos-argument of equilibrium tide.
+ 
+ *********************************************************
+ **                Oceanic tidal effects                **
+ *********************************************************
+ 
+            1-st order mesh         2-nd order mesh         3-rd order mesh         4-th order mesh             Total
+           Amplitude G-phase       Amplitude G-phase       Amplitude G-phase       Amplitude G-phase       Amplitude G-phase
+ Total   
+ M2       1.5749E-08   25.718     2.7031E-09   14.659     1.0005E-09   10.230     0.0000E+00    0.000     1.9382E-08   23.395
+ S2       9.0710E-09   60.577     1.2506E-09   49.736     4.5168E-10   45.652     0.0000E+00    0.000     1.0742E-08   58.702
+ K1       2.3086E-08  212.768     1.8076E-09  212.150     5.9949E-10  206.220     0.0000E+00    0.000     2.5490E-08  212.571
+ O1       1.8684E-08  194.016     1.4544E-09  197.433     4.7737E-10  190.673     0.0000E+00    0.000     2.0612E-08  194.179
+ N2       1.6220E-09   33.042     3.6026E-10    3.066     1.3631E-10  356.478     0.0000E+00    0.000     2.0602E-09   25.758
+ P1       7.4517E-09  211.364     5.8398E-10  210.904     1.9367E-10  204.876     0.0000E+00    0.000     8.2281E-09  211.179
+ K2       2.5919E-09   57.992     3.4968E-10   45.749     1.2680E-10   41.356     0.0000E+00    0.000     3.0571E-09   55.922
+ Q1       3.7930E-09  187.479     2.9226E-10  190.036     9.7990E-11  183.871     0.0000E+00    0.000     4.1827E-09  187.573
+ M1       1.3406E-09  208.811     9.7771E-11  211.188     2.9730E-11  198.663     0.0000E+00    0.000     1.4675E-09  208.765
+ J1       1.0911E-09  223.493     8.1263E-11  221.385     2.7503E-11  216.758     0.0000E+00    0.000     1.1996E-09  223.196
+ OO1      5.6090E-10  229.396     3.8967E-11  217.961     1.3624E-11  218.567     0.0000E+00    0.000     6.1257E-10  228.434
+ 2N2      1.9059E-10  117.448     2.1397E-11    0.012     9.0639E-12  354.903     0.0000E+00    0.000     1.7786E-10  108.837
+ Mu2      1.8748E-10  106.535     4.6079E-11    3.608     1.4967E-11    2.638     0.0000E+00    0.000     1.8347E-10   87.631
+ Nu2      3.4007E-10   29.909     7.1040E-11    1.353     2.7497E-11  355.963     0.0000E+00    0.000     4.2812E-10   23.295
+ L2       5.5348E-10   37.481     8.1876E-11   26.903     3.1746E-11   24.069     0.0000E+00    0.000     6.6522E-10   35.552
+ T2       5.4306E-10   58.743     7.8366E-11   48.897     2.8522E-11   44.384     0.0000E+00    0.000     6.4823E-10   56.933
+ Mtm      2.3340E-10    2.863     3.1118E-11    9.678     8.3704E-12    8.770     0.0000E+00    0.000     2.7267E-10    3.820
+ Mf       1.0346E-09  344.215     1.3580E-10  353.749     3.5998E-11  352.285     0.0000E+00    0.000     1.2045E-09  345.525
+ Mm       3.6418E-10  320.891     5.4956E-11  344.793     1.4409E-11  343.898     0.0000E+00    0.000     4.2860E-10  324.623
+ Ssa      9.1004E-11  329.786     3.3721E-11  354.471     8.6821E-12  354.267     0.0000E+00    0.000     1.3075E-10  337.558
+ Sa       1.4666E-11  347.414     5.3364E-12  357.437     1.3683E-12  358.388     0.0000E+00    0.000     2.1298E-11  350.615
+ 
+ Attraction (Newtonian) part
+ M2       4.6139E-09   24.082     6.5858E-10   17.916     2.5462E-10   10.734     0.0000E+00    0.000     5.5180E-09   22.737
+ S2       2.7277E-09   59.932     3.1023E-10   52.616     1.1553E-10   46.114     0.0000E+00    0.000     3.1483E-09   58.711
+ K1       7.2732E-09  209.671     4.7302E-10  215.038     1.5825E-10  206.476     0.0000E+00    0.000     7.9023E-09  209.928
+ O1       6.0963E-09  191.138     3.8257E-10  200.185     1.2650E-10  190.638     0.0000E+00    0.000     6.6009E-09  191.651
+ N2       4.4594E-10   31.876     8.6306E-11    7.646     3.4453E-11  357.248     0.0000E+00    0.000     5.5572E-10   26.197
+ P1       2.3465E-09  208.544     1.5263E-10  213.739     5.1189E-11  205.082     0.0000E+00    0.000     2.5496E-09  208.785
+ K2       7.8251E-10   57.752     8.6523E-11   48.579     3.2420E-11   41.821     0.0000E+00    0.000     8.9939E-10   56.306
+ Q1       1.2685E-09  184.487     7.6847E-11  192.375     2.6051E-11  183.628     0.0000E+00    0.000     1.3707E-09  184.911
+ M1       4.3292E-10  205.630     2.5667E-11  214.306     7.6740E-12  198.847     0.0000E+00    0.000     4.6593E-10  205.995
+ J1       3.4188E-10  219.504     2.0893E-11  224.361     7.2458E-12  217.035     0.0000E+00    0.000     3.6994E-10  219.730
+ OO1      1.7631E-10  224.161     9.6681E-12  220.486     3.5887E-12  220.723     0.0000E+00    0.000     1.8954E-10  223.909
+ 2N2      5.9796E-11  122.532     4.9176E-12   10.303     2.2850E-12  358.090     0.0000E+00    0.000     5.7008E-11  116.049
+ Mu2      5.8214E-11  118.057     1.2248E-11    9.451     3.8003E-12    5.817     0.0000E+00    0.000     5.4989E-11  102.091
+ Nu2      9.6755E-11   28.600     1.6918E-11    4.902     6.9995E-12  356.764     0.0000E+00    0.000     1.1866E-10   23.527
+ L2       1.6533E-10   36.796     1.9714E-11   29.306     8.1475E-12   24.575     0.0000E+00    0.000     1.9289E-10   35.521
+ T2       1.6293E-10   58.636     1.9545E-11   51.930     7.3625E-12   44.900     0.0000E+00    0.000     1.8954E-10   57.418
+ Mtm      6.8044E-11  356.790     8.4324E-12    9.710     2.0729E-12    8.640     0.0000E+00    0.000     7.8325E-11  358.481
+ Mf       2.9883E-10  329.162     3.6904E-11  353.960     8.8235E-12  351.790     0.0000E+00    0.000     3.4100E-10  332.335
+ Mm       1.1156E-10  282.971     1.4968E-11  344.856     3.5329E-12  344.018     0.0000E+00    0.000     1.2142E-10  290.682
+ Ssa      5.5682E-11  201.579     9.1868E-12  354.475     2.1180E-12  354.698     0.0000E+00    0.000     4.5904E-11  208.012
+ Sa       6.7442E-12  190.925     1.4489E-12  357.457     3.3210E-13    2.065     0.0000E+00    0.000     5.0220E-12  195.363
+ 
+ Loading (Elastic) part
+ M2       1.1137E-08   26.396     2.0460E-09   13.611     7.4594E-10   10.058     0.0000E+00    0.000     1.3864E-08   23.656
+ S2       6.3436E-09   60.855     9.4089E-10   48.787     3.3616E-10   45.493     0.0000E+00    0.000     7.5932E-09   58.698
+ K1       1.5829E-08  214.191     1.3354E-09  211.128     4.4124E-10  206.128     0.0000E+00    0.000     1.7599E-08  213.757
+ O1       1.2599E-08  195.407     1.0724E-09  196.451     3.5087E-10  190.686     0.0000E+00    0.000     1.4021E-08  195.369
+ N2       1.1762E-09   33.484     2.7431E-10    1.626     1.0186E-10  356.218     0.0000E+00    0.000     1.5045E-09   25.596
+ P1       5.1093E-09  212.658     4.3160E-10  209.902     1.4249E-10  204.803     0.0000E+00    0.000     5.6817E-09  212.252
+ K2       1.8094E-09   58.096     2.6330E-10   44.820     9.4380E-11   41.196     0.0000E+00    0.000     2.1577E-09   55.762
+ Q1       2.5271E-09  188.980     2.1550E-10  189.202     7.1939E-11  183.959     0.0000E+00    0.000     2.8143E-09  188.869
+ M1       9.0863E-10  210.326     7.2156E-11  210.080     2.2057E-11  198.599     0.0000E+00    0.000     1.0024E-09  210.052
+ J1       7.5043E-10  225.308     6.0408E-11  220.356     2.0257E-11  216.659     0.0000E+00    0.000     8.3068E-10  224.739
+ OO1      3.8567E-10  231.786     2.9311E-11  217.129     1.0039E-11  217.796     0.0000E+00    0.000     4.2388E-10  230.455
+ 2N2      1.3114E-10  115.132     1.6582E-11  356.975     6.7835E-12  353.829     0.0000E+00    0.000     1.2151E-10  105.460
+ Mu2      1.3095E-10  101.440     3.3917E-11    1.501     1.1175E-11    1.557     0.0000E+00    0.000     1.3095E-10   81.612
+ Nu2      2.4335E-10   30.430     5.4164E-11    0.244     2.0499E-11  355.690     0.0000E+00    0.000     3.0947E-10   23.206
+ L2       3.8816E-10   37.772     6.2185E-11   26.141     2.3599E-11   23.894     0.0000E+00    0.000     4.7233E-10   35.564
+ T2       3.8013E-10   58.788     5.8857E-11   47.890     2.1160E-11   44.205     0.0000E+00    0.000     4.5870E-10   56.732
+ Mtm      1.6590E-10    5.350     2.2686E-11    9.666     6.2976E-12    8.813     0.0000E+00    0.000     1.9482E-10    5.964
+ Mf       7.5007E-10  350.153     9.8897E-11  353.670     2.7175E-11  352.446     0.0000E+00    0.000     8.7596E-10  350.621
+ Mm       2.8456E-10  334.833     3.9988E-11  344.769     1.0876E-11  343.858     0.0000E+00    0.000     3.3480E-10  336.306
+ Ssa      1.3285E-10  349.014     2.4535E-11  354.470     6.5642E-12  354.128     0.0000E+00    0.000     1.6384E-10  350.034
+ Sa       2.1023E-11  354.766     3.8874E-12  357.429     1.0371E-12  357.212     0.0000E+00    0.000     2.5944E-11  355.263
+               
+ *********************************************************
+ **  Theoretical Earth tide and oceanic tidal effects   **
+ *********************************************************
+               
+                  Solid Earth tide                Oceanic tidal effect                     Total
+            Amplitude  A-phase  R-phase       Amplitude  A-phase  R-phase       Amplitude  A-phase  R-phase
+
+ Total   
+ M2        5.2392E-07    0.000    0.000      1.9382E-08  306.065  306.065      5.3556E-07  358.324  358.324
+ S2        2.4376E-07    0.000    0.000      1.0742E-08  341.372  341.372      2.5396E-07  359.226  359.226
+ K1        4.8540E-07    0.000    0.000      2.5490E-08  353.906  353.906      5.1075E-07  359.696  359.696
+ O1        3.5129E-07    0.000    0.000      2.0612E-08  335.515  335.515      3.7015E-07  358.677  358.677
+ N2        1.0031E-07    0.000    0.000      2.0602E-09  308.429  308.429      1.0160E-07  359.090  359.090
+ P1        1.6273E-07    0.000    0.000      8.2281E-09  352.514  352.514      1.7090E-07  359.641  359.641
+ K2        6.6262E-08    0.000    0.000      3.0571E-09  338.592  338.592      6.9117E-08  359.075  359.075
+ Q1        6.7259E-08    0.000    0.000      4.1827E-09  328.908  328.908      7.0873E-08  358.254  358.254
+ M1        2.7628E-08    0.000    0.000      1.4675E-09  350.100  350.100      2.9074E-08  359.503  359.503
+ J1        2.7689E-08    0.000    0.000      1.1996E-09    4.531    4.531      2.8885E-08    0.188    0.188
+ OO1       1.5142E-08    0.000    0.000      6.1257E-10    9.769    9.769      1.5746E-08    0.378    0.378
+ 2N2       1.3274E-08    0.000    0.000      1.7786E-10   31.507   31.507      1.3426E-08    0.397    0.397
+ Mu2       1.6019E-08    0.000    0.000      1.8347E-10   10.301   10.301      1.6200E-08    0.116    0.116
+ Nu2       1.9053E-08    0.000    0.000      4.2812E-10  305.966  305.966      1.9308E-08  358.972  358.972
+ L2        1.4809E-08    0.000    0.000      6.6522E-10  318.222  318.222      1.5311E-08  358.341  358.341
+ T2        1.4250E-08    0.000    0.000      6.4823E-10  339.603  339.603      1.4859E-08  359.129  359.129
+ Mtm       2.6474E-09  180.000    0.000      2.7267E-10    3.820  183.820      2.3754E-09  179.562  359.562
+ Mf        1.3827E-08  180.000    0.000      1.2045E-09  345.525  165.525      1.2664E-08  181.362    1.362
+ Mm        7.3043E-09  180.000    0.000      4.2860E-10  324.623  144.623      6.9593E-09  182.043    2.043
+ Ssa       6.4341E-09  180.000    0.000      1.3075E-10  337.558  157.558      6.3135E-09  180.453    0.453
+ Sa        1.0217E-09  180.000    0.000      2.1298E-11  350.615  170.615      1.0007E-09  180.199    0.199
+               
