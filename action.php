@@ -47,7 +47,11 @@ if($action=="fetch"){
   if(isBlank($maxtime)){$maxtime=0;}
   $maxtime=2*$NUMQUAKES*$maxtime;
 
-  $sql="select * from $QUAKESRUN where astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>$maxtime) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
+  if(isBlank($fquakeid)){
+    $sql="select * from $QUAKESRUN where astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>$maxtime) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
+  }else{
+    $sql="select * from $QUAKESRUN where quakeid='$quakeid'";
+  }
 
   $quakes=mysqlCmd($sql,$out=1);
   if($quakes==0){
