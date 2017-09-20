@@ -16,6 +16,12 @@ updateConf("common",conf)
 station=loadConf(".stationrc")
 
 # ##################################################
+# CHECK IF A GIVEN EARTHQUAKE SHOULD BE FETCHED
+# ##################################################
+fquakeid=""
+if len(argv)>1:fquakeid=argv[1]
+
+# ##################################################
 # CHECK STATION
 # ##################################################
 qdisabled=False
@@ -36,7 +42,8 @@ if qdisabled:exit(0)
 # ##################################################
 # FETCHING EVENTS
 # ##################################################
-cmd="links -dump '%s/action.php?action=fetch&station_id=%s&numquakes=%d'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES)
+cmd="links -dump '%s/action.php?action=fetch&station_id=%s&numquakes=%d&fquakeid=%s'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES,fquakeid)
+#print cmd
 out=System(cmd)
 if 'No quakes' in out:
     print "No quakes available for fetching."
