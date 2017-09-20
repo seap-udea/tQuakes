@@ -1956,7 +1956,7 @@ else if($if=="quaketide"){
   $stats=stat($logfile);
   statusMsg("Log time:".$stats[9]);
   statusMsg("Now:".time());
-  if(stats[9]<(time()-60) and !file_exists("stop")){
+  if($stats[9]<(time()-60) and !file_exists("stop")){
     statusMsg("Calculator is on");
     $qcalculator="<span style='background:green;color:white;padding:10px'>Calculator on</span>";
   }
