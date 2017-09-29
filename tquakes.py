@@ -596,6 +596,8 @@ def scatterMap(ax,qlat,qlon,
                pardict=dict(),
                merdict=dict(),
                zoom=1,
+               topography=False,
+               lsmask=False,
                **formats):
     """
     Create a scatter 
@@ -637,8 +639,9 @@ def scatterMap(ax,qlat,qlon,
         m=map(projection="aea",resolution=resolution,width=dlon,height=dlat,
               lat_0=qlatmean,lon_0=qlonmean,ax=ax)
 
-        m.drawlsmask(alpha=0.5)
-        m.etopo(zorder=-10)
+        if lsmask:m.drawlsmask(alpha=0.5)
+        if topography:m.etopo(zorder=-10)
+        m.drawcoastlines(linewidth=1.25)
         m.drawparallels(numpy.arange(-45,45,1),**fpardict)
         m.drawmeridians(numpy.arange(-90,90,1),**fmerdict)
 
@@ -893,7 +896,8 @@ if __name__=="__main__":
         else:
             print "This is tQuakes!"
 
-def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None,fac=2.0):
+def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None,
+             fac=2.0,fach=False):
     """
     Subplots
     """
@@ -910,7 +914,8 @@ def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None,fac=2.0):
     # EFFECTIVE PLOTTING REGION
     hall=(1-fac*b-sum(dh))
     hs=(hall*numpy.array(panels))/spanels
-    fach=(1.0*max(panels))/spanels
+    if not fach:
+        fach=(1.0*max(panels))/spanels
 
     # CREATE AXES
     fig=plt.figure(figsize=(8,6/fach))

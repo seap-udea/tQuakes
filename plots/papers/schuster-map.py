@@ -10,12 +10,21 @@ from mpl_toolkits.basemap import Basemap as map,shiftgrid
 import matplotlib.patches as patches
 confile=prepareScript()
 conf=execfile(confile)
+import matplotlib as mpl
+
+def logp2color(logp,logpc,logpm):
+    if logp>logpc:
+        fc=0.5+(logp-logpc)/(logpm-logpc)
+    else:
+        fc=0.5+(logp-logpc)/logpc
+    return fc
 
 # ############################################################
 # CONNECT TO DATABASE
 # ############################################################
 connection=connectDatabase()
 db=connection.cursor()
+numpy.random.seed(seed)
 
 # ############################################################
 # PREPARE PLOTTING REGION
@@ -88,8 +97,10 @@ print "Global p-value: log(p) = %.1f +/- %.1f"%(logpt,dlogpt)
 m=scatterMap(axs[0],quakes[:,QLAT],quakes[:,QLON],
              resolution=resolution,
              merdict=dict(labels=[False,False,False,True]),
+             pardict=dict(labels=[True,False,False,True]),
              limits=[center[0],center[1],dlat,dlon],
              color='k',marker='o',linestyle='none',
+             topography=False,lsmask=False,
              markeredgecolor='none',markersize=1,zorder=10)
 
 lats=numpy.linspace(latb,latu,ngrid+1)
@@ -120,9 +131,12 @@ for i in xrange(ngrid):
             logps[i,j]=logp
 
 logpmax=abs(logps).max()
-logpmax=3.0
 maxradius=min((lons[1]-lons[0]),
               (lats[1]-lats[0]))/2*DEG*6371e3
+
+#cmap=plt.get_cmap("seismic")
+#cmap=plt.get_cmap("bwr")
+cmap=plt.get_cmap("Spectral_r")
 for i in xrange(ngrid):
     latmed=(lats[i]+lats[i+1])/2
     for j in xrange(ngrid):
@@ -138,28 +152,58 @@ for i in xrange(ngrid):
         else:fc='red'
 
         x,y=m(lonmed,latmed)
-        
-        circle=patches.Circle((x,y),radius,zorder=50,
-                              fc=fc,ec='none',alpha=0.5)
-        axs[0].add_patch(circle)
-
-        axs[0].text(x,y,"%.1f\n%d"%(logps[i,j],nphases[i,j]),
+        #text="%.1f\n%d"%(logps[i,j],nphases[i,j])
+        #text="%.1f"%(logps[i,j])
+        text=""
+        axs[0].text(x,y,text,
                     zorder=60,fontsize=10,
                     horizontalalignment='center',
                     verticalalignment='center')
+        #"""
+        fc=cmap(logp2color(abs(logps[i,j]),3.0,abs(logpmax)))
+        
+        circle=patches.Circle((x,y),radius,zorder=50,
+                              fc=fc,ec='k',alpha=0.5)
+        axs[0].add_patch(circle)
+        #"""
+
+        """
+        circle=patches.Rectangle((x,y),width=radius,height=radius,zorder=50,
+                              fc=fc,ec='none',alpha=0.5)
+        """
+        """
+        x,y=m(lons[j],lats[i])
+        width=(lons[j+1]-lons[j])*DEG*6371e3
+        height=(lats[i+1]-lats[i])*DEG*6371e3
+        
+        fc=cmap(abs(logps[i,j])/5)
+        rectangle=patches.Rectangle((x,y),width=width,height=height,zorder=50,
+                                 fc=fc,ec='none',alpha=0.5)
+
+        axs[0].add_patch(rectangle)
+        #"""
+
+axs+=[fig.add_axes([0.75,0.1,0.03,0.75])]
+cbar=mpl.colorbar.ColorbarBase(axs[1],cmap=cmap,orientation='vertical',alpha=0.5)
+axs[1].tick_params(labelsize=10)
+cbar.set_ticks([0.0,0.5,1.0])
+cbar.set_ticklabels([0.0,-3.0,"-%.1f"%logpmax])
+cbar.set_label(r"$\log(p)$",fontsize=14)
 
 # ############################################################
 # DECORATION
 # ############################################################
-axs[0].set_title("Global $\log(p)$ = %.2f $\pm$ %.2f, %s, phase %s"%(logpt,dlogpt,COMPONENTS_DICT[component][1],phasename),
+axs[0].set_title("Wave %s, $d\in[%.1f,%.1f]$, $M_{l}\in[%.1f,%.1f]$"%(phasename,depthmin,depthmax,Mlmin,Mlmax),
                  position=(0.5,1.02))
-axs[0].text(0.5,-0.08,r"$M_{l,max}=%.1f$, $d_{max}=%.1f$ km, Date = (%s,%s)"%\
-            (Mlmax,depthmax,dateini,dateend),
+"""
+axs[0].text(0.5,-0.08,r"$d\in[%.1f,%.1f]$, $M_{l}\in[%.1f,%.1f]$"%\
+            (depthmin,depthmax,Mlmin,Mlmax),
             horizontalalignment='center',
             verticalalignment='center',
             transform=axs[0].transAxes)
+"""
 
 # ############################################################
 # SAVING FIGURE
 # ############################################################
-saveFigure(confile,fig)
+saveFigure(confile,fig,qwater=False)
