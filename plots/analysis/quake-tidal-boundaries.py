@@ -16,7 +16,7 @@ connection=connectDatabase()
 tQuakes,connection=loadDatabase()
 db=connection.cursor()
 
-
+DT=CONF.TIMEWIDTH/2.0
 # ############################################################
 # ROUTINE
 # ############################################################
@@ -28,7 +28,7 @@ def plotBoundaries(quakeid,component,plt):
     table=numpy.loadtxt("util/astronomy-extremes-1970_2030.data")
     astro=loadExtremesTable(EXTREMES,table)
     full=numpy.loadtxt("util/astronomy-fullmoons-1970_2030.data")
-    
+
     # ############################################################
     # COMPONENT
     # ############################################################
@@ -52,12 +52,12 @@ def plotBoundaries(quakeid,component,plt):
 
     # PERIGEA
     ps=astro["Perigea"][1:,0]-qjd
-    cond=(ps>-40)*(ps<+40)
+    cond=(ps>-DT)*(ps<+DT)
     ps=ps[cond]
 
     # FULL MOONS
-    pfs=fullmoons[:,0]-qjd
-    cond=(pfs>-40)*(pfs<+40)
+    pfs=full[:]-qjd
+    cond=(pfs>-DT)*(pfs<+DT)
     pfs=pfs[cond]
 
     # ############################################################
@@ -153,17 +153,18 @@ def plotBoundaries(quakeid,component,plt):
     # PEAKS MONTHLY
     if psgn>0:tcF=tMF
     else:tcF=tmf
-    cond=(tcF>-40)*(tcF<+40)
+    cond=(tcF>-DT)*(tcF<+DT)
     tpF=tcF[cond]
     
     #DETECT INITIAL INDEX OF PEAK
     ipeaks=numpy.arange(len(tcF))
-    cond=tcF<=-40
+    cond=tcF<=-DT
     inipeak=ipeaks[cond][-1]+1
 
     numpeak=len(tpF)
     ds=[]
     for tf in tpF:ds+=[min(abs(ps-tf))]
+
     iM=numpy.array(ds).argsort()[0]
     ipeaks=numpy.arange(npeaks)
     ipeak=ipeaks[tpF<0][-1]
@@ -186,14 +187,14 @@ def plotBoundaries(quakeid,component,plt):
 
     # PLOT THE PERIGEA
     for tp in ps[cond]:ax.axvline(tp,color='k',zorder=-1000,alpha=0.1,linewidth=3)
-
+    
     # GET THE FULL MOONS
-    pfs=fullmoons[:,0]-qjd
+    pfs=full[:]-qjd
     cond=(pfs>-CONF.TIMEWIDTH)*(pfs<+CONF.TIMEWIDTH)
     pfs=pfs[cond]
 
     # PLOT THE FULL MOONS
-    for tp in pfs[cond]:ax.axvline(tp,color='b',zorder=-1000,alpha=0.1,linewidth=3)
+    for tp in pfs:ax.axvline(tp,color='b',ls='dashed',zorder=-1000,alpha=0.1,linewidth=3)
 
     # ############################################################
     # DECORATION
