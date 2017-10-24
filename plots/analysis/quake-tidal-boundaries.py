@@ -163,7 +163,7 @@ def plotBoundaries(quakeid,component,plt):
 
     numpeak=len(tpF)
     ds=[]
-    for tf in tpF:ds+=[min(abs(ps-tf))]
+    for tf in tpF:ds+=[min(abs(pfs-tf))]
 
     iM=numpy.array(ds).argsort()[0]
     ipeaks=numpy.arange(npeaks)
