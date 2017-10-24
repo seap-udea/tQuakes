@@ -150,6 +150,11 @@ def plotBoundaries(quakeid,component,plt):
     ipeak=ipeaks[tMF<0][-1]
     tminf=tMF[ipeak];tmaxf=tMF[ipeak+1]
 
+    dt=-tMF[tMF<0][-1]
+    dtmean=tMF[ipeak+1]-tMF[ipeak]
+    dtphase=dt/dtmean;
+    print("Fornightly:%f"%dtphase)
+
     # PEAKS MONTHLY
     if psgn>0:tcF=tMF
     else:tcF=tmf
@@ -172,6 +177,11 @@ def plotBoundaries(quakeid,component,plt):
     if (ipeak+2)>=numpeak:npeak=ipeak-2
     else:npeak=ipeak+2
     tminm=tcF[inipeak+ipeak];tmaxm=tcF[inipeak+ipeak+2]
+
+    dtmean=abs(tpF[npeak]-tpF[ipeak])
+    dt=-tpF[ipeak]
+    dtphase=dt/dtmean
+    print("Monthly:%f"%dtphase)
 
     # ############################################################
     # ASTRONOMY TIMES
