@@ -50,7 +50,7 @@ if($action=="fetch"){
   if(isBlank($fquakeid)){
     $sql="select * from $QUAKESRUN where astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>$maxtime) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
   }else{
-    $sql="select * from $QUAKESRUN where quakeid='$quakeid'";
+    $sql="select * from $QUAKESRUN where quakeid='$fquakeid'";
   }
 
   $quakes=mysqlCmd($sql,$out=1);
