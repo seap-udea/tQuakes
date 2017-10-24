@@ -21,9 +21,7 @@ Contents:
    :maxdepth: 2
 
    installation
-   exampleone
-   lessonindex
-   documentation
+   SpiceyPy
 
 
 Indices and tables

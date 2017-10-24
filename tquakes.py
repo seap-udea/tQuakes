@@ -658,6 +658,7 @@ QLAT=1
 QLON=2
 QDEP=3
 ML=4
+QET=5
 def getQuakes(search,db,vvv=True):
     # ############################################################
     # GET BASIC INFO EARTHQUAKES
@@ -1292,6 +1293,14 @@ def bodyPosition(body,et):
     R,alpha,dec=sp.recrad(x[:3])
 
     return R,alpha,dec
+
+def bodyElements(body,mu,et):
+    import spiceypy as sp
+
+    x,tl=sp.spkezr(body,et,"J2000","NONE","EARTH")
+    els=sp.oscltx(x,et,mu)
+
+    return els
 
 def localST(et,lon):
     """

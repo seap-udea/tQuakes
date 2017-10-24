@@ -76,7 +76,7 @@ else:
         cond=phs<=1
         phs=phs[cond]
         nquakes=len(phs)
-        phs*=360
+        phs*=360.0
 
 print "Number of earthquakes with true phases: ",nquakes
 

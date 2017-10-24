@@ -1,0 +1,17 @@
+# get spice script
+include getspice.py
+
+# Misc
+include LICENSE
+include requirements.txt
+include README.rst
+
+# Docs
+include docs/conf.py
+include docs/*.rst
+include docs/make.bat
+include docs/Makefile
+
+# Windows Support
+include appveyor/cspice.def
+include appveyor/makeDynamicSpice.bat
