@@ -1343,3 +1343,99 @@ def bodyHA(body,et,qlon):
 
     return ha
 
+def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
+    """
+    Given a timeseries t (times), s (signal) compute the phases of
+    wave (if None of all waves)
+    """
+    qphases=""
+    # ==============================
+    # FIND MAXIMA AND MINIMA
+    # ==============================
+    # SEMIDIURNAL LEVEL PEAKS
+    tmb,smb,tMb,sMb=signalBoundary(t,s)
+
+    # ==============================
+    # SMOOTH MAXIMA & MINIMA
+    # ==============================
+    b,a=signal.butter(8,0.125)
+    sMs=signal.filtfilt(b,a,sMb,padlen=100)
+    tMs=tMb
+    b,a=signal.butter(8,0.125)
+    sms=signal.filtfilt(b,a,smb,padlen=100)
+    tms=tmb
+
+    # FORTNIGHTLY LEVEL PEAKS (MAXIMA)
+    tmF,smF,tMF,sMF=signalBoundary(tMs,sMs)
+
+    # FORTNIGHTLY LEVEL PEAKS (MINIMA)
+    tmf,smf,tMf,sMf=signalBoundary(tms,sms)
+
+    # ==============================
+    # SEMI-DIURNAL PHASE
+    # ==============================
+    if psgn>0:tb=tMb
+    else:tb=tmb
+    npeaks=len(tb)
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tb<0][-1]
+    dtmean=tb[ipeak+1]-tb[ipeak]
+    dt=-tb[tb<0][-1]
+    dtphase=dt/dtmean;
+    qphases+="%.4f:%.4f;"%(dt,dtphase)
+    if verb:print "\t\tSemidiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+
+    # ==============================
+    # DIURNAL PHASE
+    # ==============================
+    if psgn>0:tp=tMb
+    else:tp=tmb
+    dprev=hmoon/MOONRATE
+    tshift=tp+dprev
+    isorts=abs(tshift).argsort()
+    iso=0;dt=-1
+    while dt<0:
+        iprev=isorts[iso]
+        dt=-tp[iprev]
+        iso+=1
+    dtmean=tp[iprev+1]-tp[iprev-1]
+    dtphase=dt/dtmean
+    qphases+="%.4f:%.4f;"%(dt,dtphase)
+    if verb:print "\t\tDiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+    
+    # ==============================
+    # FORTNIGHTLY PHASE
+    # ==============================
+    npeaks=len(tMF)
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tMF<0][-1]
+    dtmean=tMF[ipeak+1]-tMF[ipeak]
+    #if dtmean>16:dtmean=14.0
+    dt=-tMF[tMF<0][-1]
+    dtphase=dt/dtmean;
+    qphases+="%.4f:%.4f;"%(dt,dtphase)
+    if verb:print "\t\tFortnightly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+
+    # ==============================
+    # MONTHLY PHASE
+    # ==============================
+    if psgn>0:tcF=tMF
+    else:tcF=tmf
+    cond=(tcF>-DT)*(tcF<+DT)
+    tpF=tcF[cond]
+    numpeak=len(tpF)
+    ds=[]
+    for tf in tpF:ds+=[min(abs(ps-tf))]
+    iM=numpy.array(ds).argsort()[0]
+    ipeaks=numpy.arange(npeaks)
+    ipeak=ipeaks[tpF<0][-1]
+    if abs(ipeak-iM)%2!=0:ipeak-=1
+    if (ipeak+2)>=numpeak:npeak=ipeak-2
+    else:npeak=ipeak+2
+    dtmean=abs(tpF[npeak]-tpF[ipeak])
+    dt=-tpF[ipeak]
+    dtphase=dt/dtmean
+    qphases+="%.4f:%.4f;"%(dt,dtphase)
+    if verb:print "\t\tMonthly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+
+    return qphases
