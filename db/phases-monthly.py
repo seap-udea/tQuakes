@@ -18,6 +18,8 @@ rrr=0
 ttt=0
 # UPDATE DATABASE
 iupdb=100
+# DEBUG 
+ddd=0
 
 """
 
@@ -48,42 +50,50 @@ numquakes=len(tQuakes['Quakes']['rows'].keys())
 print "Attempting to update %d earthquakes..."%numquakes
 
 keys=tQuakes['Quakes']['rows'].keys()
-#numpy.random.shuffle(keys)
-
+numpy.random.shuffle(keys)
 for j,quakeid in enumerate(keys):
 
     quake=tQuakes['Quakes']['rows'][quakeid]
 
     qcomplete=100.0*float(i)/float(numquakes)
-    #"""
-    sys.stdout.write('\r')
-    sys.stdout.write("RUNNING ----> %d/%d %.1f%% DONE"%(j,numquakes,qcomplete))
-    sys.stdout.flush()
-    #"""
-    #if quake["quakeid"]!="0004H1O":continue
+    if not ddd:
+        sys.stdout.write('\r')
+        sys.stdout.write("RUNNING ----> %d/%d %.1f%% DONE"%(j,numquakes,qcomplete))
+        sys.stdout.flush()
+    if ddd:
+        #if quake["quakeid"]!="00BZ8O5":continue
+        #if quake["quakeid"]!="ZZF5XAB":continue
+        #if quake["quakeid"]!="ZY1Z25E":continue
+        pass
 
     status=quake["astatus"]
     aphases=quake["aphases"]
+    qpeaks=quake["qpeaks"]
+    if vvv:print "Qpeaks found:",qpeaks
 
     # TEST IF QUAKE HAS NOT BEEN FULLY ANALYSED
-    if status!='4':
+    if status!='4' and not ddd:
         if vvv:print "Quake %s not analysed"%quakeid
         continue
 
     # TEST IF QUAKE HAS BEEN ALREADY ANALYSED
-    if len(aphases)>82:
+    # if len(aphases)>82 and not ddd:
+    if len(qpeaks)!=0 and not ddd:
         if vvv:print "Quake %s already updated"%quakeid
         continue
 
-    if vvv:print "Quake to update ",quakeid
-
+    if vvv:
+        print
+        print "Quake to update ",quakeid
+    
     if ttt:tstart=timer()
     hmoon=float(quake["hmoon"])
     qjd=float(quake["qjd"])
 
     # PERIGEA
     ps=astro["Perigea"][1:,0]-qjd
-    cond=(ps>-40)*(ps<+40)
+    #cond=(ps>-40)*(ps<+40)
+    cond=(ps>-CONF.TIMEWIDTH)*(ps<CONF.TIMEWIDTH)
     ps=ps[cond]
     
     # FULL MOONS
@@ -101,27 +111,30 @@ for j,quakeid in enumerate(keys):
     if vvv:print "Num. phases:",len(qphasesvec)
 
     # EXTRACTING FILES
-    print "Extracting timeseries..."
+    if vvv:print "Extracting timeseries..."
     qdir="tmp2/%s-analysis"%quakeid
     System("cd tmp2;cp -r TEMPLATE %s-analysis"%(quakeid))
     cmd="7zr x -so /home/tquakes/tQuakes/%s-eterna.* |tar xf - -C %s %s.data"%(quakeid,qdir,quakeid)
     System(cmd)
 
     # IF DATA FILE IS NOT PRESENT
-    if not os.path.isfile("%s.data"%quakeid):
-        print "Data file not recovered for %s..."%quakeid
+    if not os.path.isfile("%s/%s.data"%(qdir,quakeid)):
+        print>>stderr,"\nData file not recovered for %s..."%quakeid
         cmd="7zr x -so /home/tquakes/tQuakes/%s-eterna.* |tar xf - -C %s"%(quakeid,qdir)
         System(cmd)
         System("cd %s;python quake-data.py %s"%(qdir,quakeid))
         if os.path.isfile("%s/%s.data"%(qdir,quakeid)):
-            print "Data file succesfully reconstructed for %s."%quakeid
+            if vvv:print "Data file succesfully reconstructed for %s."%quakeid
+        else:
+            print>>stderr,"\nAnalysis failed for %s."%quakeid
+            System("rm -r %s"%(qdir))
+            continue
 
     # !!!! REPLACE FILES !!!!
     if rrr:
         System("cp /home/tquakes/tQuakes/%s-analysis.* %s"%(quakeid,qdir))
         System("cd %s;p7zip -d %s-analysis.tar.7z;tar xf %s-analysis.tar quake.conf"%(qdir,quakeid,quakeid))
         System("cd %s;mv quake.conf quake.old"%(qdir))
-
 
     #READ 
     try:
@@ -143,7 +156,10 @@ for j,quakeid in enumerate(keys):
     if vvv:print "Times sample:",t[:5]
 
     # CORRECT PHASES
+    qpeaks=""
     for component in COMPONENTS:
+
+        #if component!=2:continue
         if vvv:print "*"*60,"\nAnalysing component ",component,"\n","*"*60
 
         # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -159,10 +175,12 @@ for j,quakeid in enumerate(keys):
         # CALCULATE PHASES
         # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
         s=tab[:,nc]
+
         if vvv:print "Signal sample:",s[:5]
         try:
-            qphase=calculatePhases(t,s,psgn,hmoon,pfs,DT=CONF.TIMEWIDTH/2.0,
-                                   waves=None,verb=vvv)
+            qphase,speaks=calculatePhases(t,s,psgn,hmoon,ps,DT=CONF.TIMEWIDTH/2.0,
+                                         waves=None,verb=vvv)
+            qpeaks+=speaks
         except:
             print "\nError with data of %s..."%quakeid
             continue
@@ -170,6 +188,7 @@ for j,quakeid in enumerate(keys):
         if vvv:print "New phases:",qphase
         qphasevec=qphase.split(";")[:-1]
         if vvv:print "New phase vec:",qphasevec
+        if vvv:print "Peaks:",speaks
 
         # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
         # REPLACE PHASES
@@ -187,7 +206,7 @@ for j,quakeid in enumerate(keys):
     if vvv:print "Joined old phases:",qphases
     qphases=";".join(qphasesvec)
     if vvv:print "Joined new phases:",qphases
-    
+
     # ASTRONOMY PHASES
     aphases=""
 
@@ -252,9 +271,10 @@ for j,quakeid in enumerate(keys):
 
     # UPDATE DATABASE
     if vvv:print "Saving into database..."
-    sql="update Quakes set qphases='%s',aphases='%s' where quakeid='%s'"%(qphases,
-                                                                          aphases,
-                                                                          quakeid)
+    sql="update Quakes set qphases='%s',aphases='%s',qpeaks='%s' where quakeid='%s'"%(qphases,
+                                                                                      aphases,
+                                                                                      qpeaks,
+                                                                                      quakeid)
 
     if vvv:print "\tSQL: %s"%sql
     while True:
@@ -266,10 +286,11 @@ for j,quakeid in enumerate(keys):
             time.sleep(0.5)
     
     if ttt:tend=timer();print "Execution time for %s:"%quakeid,tend-tstart
-    if (i and ((i%iupdb)==0)) or True:
+    if (i and ((i%iupdb)==0)) or ddd:
         if vvv:print "Quake %d/%d..."%(i,numquakes)
         connection.commit()
-        #break
+        if vvv:raw_input()
+        if ddd:break
     i+=1
 
 print

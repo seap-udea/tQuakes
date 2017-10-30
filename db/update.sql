@@ -1,6 +1,6 @@
 use tQuakes;
 
-update Quakes set qdate=DATE_FORMAT(STR_TO_DATE(qdate,'%d/%m/%Y'),'%d/%m/%y'),qdatetime=CONCAT(qdate,CONCAT(" ",qtime)) where qdate like '%/%/20%';
+/*update Quakes set qdate=DATE_FORMAT(STR_TO_DATE(qdate,'%d/%m/%Y'),'%d/%m/%y'),qdatetime=CONCAT(qdate,CONCAT(" ",qtime)) where qdate like '%/%/20%';*/
 /*
 alter table Quakes
       add column country varchar(255),
@@ -76,3 +76,4 @@ insert ignore into Users (email,uname,password,ulevel,activate) values ('gmonsal
 /*alter table Quakes add column hmoon varchar(50) after qdeptherr;*/
 /*alter table Quakes add column hsun varchar(50) after qdeptherr;*/
 /*alter table Quakes add column aphases varchar(500) after qphases;*/
+alter table Quakes add column qpeaks varchar(1500) after aphases;

@@ -1349,6 +1349,7 @@ def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
     wave (if None of all waves)
     """
     qphases=""
+    speaks=""
     # ==============================
     # FIND MAXIMA AND MINIMA
     # ==============================
@@ -1384,6 +1385,10 @@ def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
     dtphase=dt/dtmean;
     qphases+="%.4f:%.4f;"%(dt,dtphase)
     if verb:print "\t\tSemidiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+    #STORE SEMIDIURNAL PEAKS
+    tps=numpy.concatenate((tb[tb<=0][-3:],tb[tb>=0][:3]))
+    speaks+=";".join(["%.3f"%t for t in tps])
+    speaks+="::"
 
     # ==============================
     # DIURNAL PHASE
@@ -1398,7 +1403,7 @@ def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
         iprev=isorts[iso]
         dt=-tp[iprev]
         iso+=1
-    dtmean=tp[iprev+1]-tp[iprev-1]
+    dtmean=tp[iprev+2]-tp[iprev]
     dtphase=dt/dtmean
     qphases+="%.4f:%.4f;"%(dt,dtphase)
     if verb:print "\t\tDiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
@@ -1406,25 +1411,34 @@ def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
     # ==============================
     # FORTNIGHTLY PHASE
     # ==============================
-    npeaks=len(tMF)
+    if psgn>0:tcF=tMF
+    else:tcF=tmf
+    npeaks=len(tcF)
     ipeaks=numpy.arange(npeaks)
-    ipeak=ipeaks[tMF<0][-1]
-    dtmean=tMF[ipeak+1]-tMF[ipeak]
+    ipeak=ipeaks[tcF<0][-1]
+    dtmean=tcF[ipeak+1]-tcF[ipeak]
     #if dtmean>16:dtmean=14.0
-    dt=-tMF[tMF<0][-1]
+    dt=-tcF[tcF<0][-1]
     dtphase=dt/dtmean;
     qphases+="%.4f:%.4f;"%(dt,dtphase)
     if verb:print "\t\tFortnightly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+    #STORE FORNIGHTLY PEAKS
+    tps=numpy.concatenate((tcF[tcF<=0][-3:],tcF[tcF>=0][:3]))
+    speaks+=";".join(["%.3f"%t for t in tps])
+    speaks+="::"
 
     # ==============================
     # MONTHLY PHASE
     # ==============================
+    """
+    # TAKES THE LATEST PEAK CLOSE TO THE START OF THE SYNODIC MONTH
     if psgn>0:tcF=tMF
     else:tcF=tmf
     cond=(tcF>-DT)*(tcF<+DT)
     tpF=tcF[cond]
     numpeak=len(tpF)
     ds=[]
+    #You should use the synodic ps
     for tf in tpF:ds+=[min(abs(ps-tf))]
     iM=numpy.array(ds).argsort()[0]
     ipeaks=numpy.arange(npeaks)
@@ -1437,5 +1451,26 @@ def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
     dtphase=dt/dtmean
     qphases+="%.4f:%.4f;"%(dt,dtphase)
     if verb:print "\t\tMonthly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
-
-    return qphases
+    #"""
+    #"""
+    # TAKES THE LATEST PEAK CLOSE TO THE START OF THE ANOMALISTIC MONTH
+    if psgn>0:tcF=tMF
+    else:tcF=tmf
+    ipeaks=numpy.arange(npeaks)
+    cond=tcF<0
+    tpF=tcF[cond][-2:]
+    ipeaks=ipeaks[cond][-2:]
+    ds=[]
+    #You should use the anomalistic ps (time of perigea)
+    for tf in tpF:ds+=[min(abs(ps-tf))]
+    iM=numpy.array(ds).argsort()[0]
+    ipeak=ipeaks[iM]
+    npeak=ipeak+2
+    dtmean=abs(tcF[npeak]-tcF[ipeak])
+    dt=-tcF[ipeak]
+    dtphase=dt/dtmean
+    qphases+="%.4f:%.4f;"%(dt,dtphase)
+    if verb:print "\t\tMonthly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+    #"""
+    speaks+=":"
+    return qphases,speaks

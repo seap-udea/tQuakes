@@ -647,7 +647,7 @@ C;
     $SUBMENU.="<a href='#signal'>Signal</a> | ";
 
     $signals=preg_split("/;/",$quake["qsignal"]);
-    
+
     if(isBlank($signals[0])){
       $signaltxt.="<p><i style='color:red'>Execution failed</i></p>";
       $signaltxt.="</ul>";
