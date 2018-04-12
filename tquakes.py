@@ -1,4 +1,9 @@
-import MySQLdb as mdb
+try:
+    import MySQLdb as mdb
+except:
+    import pymysql
+    pymysql.install_as_MySQLdb()
+    import MySQLdb as mdb
 import csv,datetime,commands,re,os,numpy,cmath,time as timing
 from scipy import signal
 from sys import exit,argv,stderr
@@ -148,7 +153,7 @@ def updateConf(filename,conf):
         for key in d.keys():
             if d[key]==-1 or d[key]=="":del d[key]
         conf.__dict__.update(d)
-    else:print "Configuration file '%s' does not found."%filename
+    else:print("Configuration file '%s' does not found."%filename)
 
 def loadConf(filename):
     """Load configuration file
@@ -169,7 +174,7 @@ def loadConf(filename):
     if os.path.lexists(filename):
         execfile(filename,{},d)
         conf+=dict2obj(d)
-    else:print "Configuration file '%s' does not found."%filename
+    else:print("Configuration file '%s' does not found."%filename)
     return conf
 
 def fileBase(filename):
@@ -240,7 +245,7 @@ def updateDatabase(dbdict,con):
     with con:
         db=con.cursor()
         for table in dbdict.keys():
-            print "Actualizando tabla ",table
+            print("Actualizando tabla ",table)
             for row in dbdict[table]['rows'].keys():
                 sql="update %s set "%table;
                 for field in dbdict[table]['fields']:
@@ -665,7 +670,7 @@ def getQuakes(search,db,vvv=True):
     # ############################################################
     i=0
     sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(search)
-    if vvv:print "Searching quakes with the criterium:\n\t%s"%sql
+    if vvv:print("Searching quakes with the criterium:\n\t%s"%sql)
     results=mysqlArray(sql,db)
     nquakes=len(results)
     table=numpy.zeros((nquakes,5))
@@ -674,7 +679,7 @@ def getQuakes(search,db,vvv=True):
         qids+=[results[i][0]]
         for j in xrange(5):
             table[i,j]=float(results[i][j+1])
-    if vvv:print "%s quakes found."%len(qids)
+    if vvv:print("%s quakes found."%len(qids))
     return qids,table
 
 SDF=5
@@ -709,7 +714,7 @@ def getPhases(search,component,db,dbtable="Quakes",vvv=True):
     # ############################################################
     i=0
     sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from %s %s"%(dbtable,search)
-    if vvv:print "Searching quakes' phases with the criterium:\n\t%s"%sql
+    if vvv:print("Searching quakes' phases with the criterium:\n\t%s"%sql)
     results=mysqlArray(sql,db)
     nquakes=len(results)
     table=numpy.zeros((nquakes,5))
@@ -732,7 +737,7 @@ def getPhases(search,component,db,dbtable="Quakes",vvv=True):
         phases=numpy.array(phases)
         table=numpy.column_stack((table,phases))
         
-    if vvv:print "%s quakes found."%len(qids)
+    if vvv:print("%s quakes found."%len(qids))
     return qids,table
 
 def schusterValue(phases,qbootstrap=False,
@@ -872,14 +877,14 @@ if __name__=="__main__":
             """
             args=tuple([int(d) for d in argv[2:]])
             if len(args)==0:
-                print helptxt
+                print(helptxt)
                 exit(1)
             try:
                 jd=date2jd(datetime.datetime(*args))
             except:
-                print helptxt
+                print(helptxt)
                 exit(1)
-            print jd
+            print(jd)
         elif argv[1]=="tdWindow":
             helptxt="""
             Options: M <method>
@@ -891,11 +896,11 @@ if __name__=="__main__":
                 fit=argv[3]
                 t,d=tdWindow(M,fit=fit)
             except:
-                print helptxt
+                print(helptxt)
                 exit(1)
-            print "M = %.2f, dt = %.2f days, d = %.2f km"%(M,t,d)
+            print("M = %.2f, dt = %.2f days, d = %.2f km"%(M,t,d))
         else:
-            print "This is tQuakes!"
+            print("This is tQuakes!")
 
 def subPlots(plt,panels,l=0.1,b=0.1,w=0.8,dh=None,
              fac=2.0,fach=False):
@@ -960,7 +965,7 @@ def saveFigure(confile,fig,qwater=True):
     md5sum=md5sumFile(confile)
     # SAVE FIGURE
     figname="%s/%s__%s.png"%(DIRNAME,BASENAME,md5sum[0:5])
-    print "Saving figure ",figname
+    print("Saving figure ",figname)
 
     # WATER MARK
     if qwater:
@@ -1043,7 +1048,7 @@ def plotSignal(quakeid,component,plt):
             transform=ax.transAxes)
 
     figname="%s/%s.png"%(DIRNAME,BASENAME)
-    print "Saving figure ",figname
+    print("Saving figure ",figname)
     fig.savefig(figname)
     return fig
 
@@ -1223,7 +1228,7 @@ def plotBoundaries(quakeid,component,plt):
             transform=ax.transAxes)
     
     figname="%s/%s.png"%(DIRNAME,BASENAME)
-    print "Saving figure ",figname
+    print("Saving figure ",figname)
     fig.savefig(figname)
     return fig
 
@@ -1392,7 +1397,7 @@ def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
     dt=-tb[tb<0][-1]
     dtphase=dt/dtmean;
     qphases+="%.4f:%.4f;"%(dt,dtphase)
-    if verb:print "\t\tSemidiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+    if verb:print("\t\tSemidiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase))
     #STORE SEMIDIURNAL PEAKS
     tps=numpy.concatenate((tb[tb<=0][-3:],tb[tb>=0][:3]))
     speaks+=";".join(["%.3f"%t for t in tps])
@@ -1414,7 +1419,7 @@ def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
     dtmean=tp[iprev+2]-tp[iprev]
     dtphase=dt/dtmean
     qphases+="%.4f:%.4f;"%(dt,dtphase)
-    if verb:print "\t\tDiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+    if verb:print("\t\tDiurnal (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase))
     
     # ==============================
     # FORTNIGHTLY PHASE
@@ -1429,7 +1434,7 @@ def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
     dt=-tcF[tcF<0][-1]
     dtphase=dt/dtmean;
     qphases+="%.4f:%.4f;"%(dt,dtphase)
-    if verb:print "\t\tFortnightly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+    if verb:print("\t\tFortnightly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase))
     #STORE FORNIGHTLY PEAKS
     tps=numpy.concatenate((tcF[tcF<=0][-3:],tcF[tcF>=0][:3]))
     speaks+=";".join(["%.3f"%t for t in tps])
@@ -1478,7 +1483,7 @@ def calculatePhases(t,s,psgn,hmoon,ps,DT=40,waves=None,verb=True):
     dt=-tcF[ipeak]
     dtphase=dt/dtmean
     qphases+="%.4f:%.4f;"%(dt,dtphase)
-    if verb:print "\t\tMonthly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase)
+    if verb:print("\t\tMonthly (%e): dt = %e, dtphase = %e"%(dtmean,dt,dtphase))
     #"""
     speaks+=":"
     return qphases,speaks

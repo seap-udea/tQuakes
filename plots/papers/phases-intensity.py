@@ -5,13 +5,18 @@ from tquakes import *
 from matplotlib import use
 use('Agg')
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap as map,shiftgrid
+#from mpl_toolkits.basemap import Basemap as map,shiftgrid
 import matplotlib.patches as patches
 from scipy.optimize import leastsq
 import spiceypy as sp
 sp.furnsh("util/kernels/kernels.mk")
 confile=prepareScript()
 conf=execfile(confile)
+
+try:
+    qload=argv[1]
+except:
+    qload=1
 
 # ############################################################
 # CONNECT TO DATABASE
@@ -68,40 +73,70 @@ qids,phases=getPhases(search,component,db,dbtable=dbtable)
 phs=phases[:,4+phasenum]
 nquakes=len(phs)
 
-results=mysqlArray("select quakeid,qet,aphases,qphases,qsignal from %s %s"%(dbtable,search),db)
+results=mysqlArray("select quakeid,qet,aphases,qphases,qsignal,qjd from %s %s"%(dbtable,search),db)
 
-aphs=[]
-qphs=[]
-qsigs=[]
-for i,result in enumerate(results):
-    qid=result[0]
-    aphases=result[2]
-    qphases=result[3]
-    qsignal=result[4]
+if not qload:
+    aphs=[]
+    qphs=[]
+    qsigs=[]
+    for i,result in enumerate(results):
 
-    #Read time-series
-    conf=loadConf("/home/tquakes/tQuakes/%s.conf"%quakeid)
+        if (i%100)==0:
+            print("Reading event %d..."%i)
 
-    exit(0)
+        qid=result[0]
+        aphases=result[2]
+        qphases=result[3]
+        qsignal=result[4]
+        qjd=float(result[5])
 
+        if qsignal=='':continue
+        #Get tidal phases
 
-    if qsignal=='':continue
-    #Get tidal phases
+        #Get astronomical phases
+        fases=aphases.split(";")[0].split(":")
+        signal=float(qsignal.split(";")[2])
+        aph=float(fases[0])
+        #print(qid,signal,qjd)
 
-    #Get astronomical phases
-    fases=aphases.split(";")[0].split(":")
-    signal=float(qsignal.split(";")[2])
-    aph=float(fases[0])
+        #Prepare info about quake
+        conf=loadConf("/home/tquakes/tQuakes/%s.conf"%qid)
+        qdir="tmp2/%s-analysis"%qid
+        System("cd tmp2;cp -r TEMPLATE %s-analysis"%(qid))
+        cmd="7zr x -so /home/tquakes/tQuakes/%s-eterna.* |tar xf - -C %s %s.data"%(qid,qdir,qid)
+        System(cmd)
 
-    qphs+=[phs[i]]
-    aphs+=[aph]
-    qsigs+=[signal]
-    
-print("%d events selected"%len(qphs))
-aphs=numpy.array(aphs)
-qphs=numpy.array(qphs)
-dmax=aphs.max()
-qsigs=numpy.array(qsigs)
+        #Read dataseries
+        nc=COMPONENTS.index(2)+1
+
+        try:
+            data=numpy.loadtxt("%s/%s.data"%(qdir,qid))
+        except:continue
+        cond=(data[:,0]>=qjd-1)&(data[:,0]<=qjd)
+        signalprev=data[cond,nc]
+        msignal=signalprev.max()
+        System("rm -r %s"%qdir)
+
+        qphs+=[phs[i]]
+        aphs+=[aph]
+        #qsigs+=[signal]
+        qsigs+=[msignal]
+        #if i>2:break
+
+    print("%d events selected"%len(qphs))
+    aphs=numpy.array(aphs)
+    qphs=numpy.array(qphs)
+    dmax=aphs.max()
+    qsigs=numpy.array(qsigs)
+    numpy.savetxt("signals.txt",numpy.transpose(numpy.vstack((aphs,
+                                                              qphs,
+                                                            qsigs
+                                                          ))))
+
+alldata=numpy.loadtxt("signals.txt")
+aphs=alldata[:,0]
+qphs=alldata[:,1]
+qsigs=alldata[:,2]
 
 #cond=(aphs>15.0)&((360*phs)<90)
 #aphs[cond]-=dmax
@@ -125,7 +160,7 @@ ax.hist(qsigs[cond],nbins,color='r',alpha=0.5,normed=True)
 # DECORATION
 # ############################################################
 ax.set_xlabel("Tidal monthly phase",fontsize=14)
-ax.set_ylabel("Vertical displacement (mm)",fontsize=14)
+ax.set_ylabel("Maximum daily vertical displacement (mm)",fontsize=14)
 ax.set_title(dbtitle,position=(0.5,1.05),fontsize=18)
 
 #ax.set_xlim((0.4,0.6))
@@ -136,5 +171,6 @@ ax.set_title(dbtitle,position=(0.5,1.05),fontsize=18)
 # ############################################################
 # SAVING FIGURE
 # ############################################################
+plt.tight_layout()
 saveFigure(confile,fig)
 
