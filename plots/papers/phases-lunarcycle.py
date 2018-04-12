@@ -64,71 +64,49 @@ limit %d"""%(Mlmin,Mlmax,
 #READ FULL MOONS
 full=numpy.loadtxt("util/astronomy-fullmoons-1970_2030.data")
 
-#READ PHASES
-qids,phases=getPhases(search,component,db)
+qids,phases=getPhases(search,component,db,dbtable=dbtable)
 phs=phases[:,4+phasenum]
 nquakes=len(phs)
-results=mysqlArray("select quakeid,qet,qdatetime,qdepth,qjd from Quakes %s"%(search),
-                   db)
 
-#COMPUTE LUNAR PROPERTIES
-qnus=[]
-qets=[]
-MUEARTH=4.035032355022597e5 # km^3/s^2
-k=0
+results=mysqlArray("select quakeid,qet,aphases,qphases from %s %s"%(dbtable,search),db)
+
+aphs=[]
 for i,result in enumerate(results):
     qid=result[0]
-    qet=float(result[1]);
-    qjd=float(result[4]);
-    
-    els=bodyElements("MOON",MUEARTH,qet)
-    xs=bodyPosition("MOON",MUEARTH,qet)
-    qnu=els[8]*RAD #True anomaly
+    aphases=result[2]
+    qphases=result[3]
 
-    qnus+=[qnu]
-    qets+=[qet]
+    #Get tidal phases
 
-#RANDOM
-tmin=min(qets)
-tmax=max(qets)
-qrs=tmin+(tmax-tmin)*numpy.random.random(len(qets))
-qrnus=[]
-for i in range(len(qets)):
-    els=bodyElements("MOON",MUEARTH,qrs[i])
-    xs=bodyPosition("MOON",MUEARTH,qrs[i])
-    qnu=els[8]*RAD #True anomaly
-    qrnus+=[qnu]
+    #Get astronomical phases
+    fases=aphases.split(";")[0].split(":")
+    aph=float(fases[0])
+
+    aphs+=[aph]
+aphs=numpy.array(aphs)
+phs=numpy.array(phs)
+dmax=aphs.max()
+
+#cond=(aphs>15.0)&((360*phs)<90)
+#aphs[cond]-=dmax
+#cond=(aphs<7.0)&((360*phs)>270)
+#aphs[cond]+=dmax
 
 # ############################################################
 # HISTOGRAM
 # ############################################################
-normed=False
-
-nbins=int(360.0/dphase)
-h,bins=numpy.histogram(qnus,nbins,normed=normed)
-xs=(bins[:-1]+bins[1:])/2
-dh=numpy.sqrt(h)
-
-hmax=(h+dh).max()
-hmin=(h-dh).min()
-hmean=h.mean()
-
-hr,rbins=numpy.histogram(qrnus,nbins,normed=normed)
-xrs=(bins[:-1]+bins[1:])/2
-
-ax.hist(qnus,nbins,facecolor='blue',normed=normed,alpha=0.2)
-ax.errorbar(xs,h,yerr=dh,linestyle='None',color='r')
-#ax.plot(xrs,hr,'r-')
+ax.plot(aphs,360*phs,'ko',ms=2)
 
 # ############################################################
 # DECORATION
 # ############################################################
-ax.set_ylabel("Frequency",fontsize=14)
-ax.set_title("Lunar true anomaly",position=(0.5,1.05),fontsize=18)
-color='r'
+ax.set_ylabel("Tidal monthly phase",fontsize=14)
+ax.set_xlabel("Time since perigea (days)",fontsize=14)
+ax.set_title(dbtitle,position=(0.5,1.05),fontsize=18)
+ax.axhline(180,color="r",ls="--",lw=3)
 
-ax.set_xlim((0,360))
-ax.set_ylim((0.0*hmin,1.1*hmax))
+ax.set_ylim((0,360))
+ax.set_xlim((0,aphs.max()))
 
 # ############################################################
 # SAVING FIGURE

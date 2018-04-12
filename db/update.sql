@@ -76,4 +76,6 @@ insert ignore into Users (email,uname,password,ulevel,activate) values ('gmonsal
 /*alter table Quakes add column hmoon varchar(50) after qdeptherr;*/
 /*alter table Quakes add column hsun varchar(50) after qdeptherr;*/
 /*alter table Quakes add column aphases varchar(500) after qphases;*/
-alter table Quakes add column qpeaks varchar(1500) after aphases;
+/*alter table Quakes add column qpeaks varchar(1500) after aphases;*/
+create table Quakes_synphases like Quakes;
+insert Quakes_synphases select * from Quakes;

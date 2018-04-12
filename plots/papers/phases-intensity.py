@@ -64,71 +64,74 @@ limit %d"""%(Mlmin,Mlmax,
 #READ FULL MOONS
 full=numpy.loadtxt("util/astronomy-fullmoons-1970_2030.data")
 
-#READ PHASES
-qids,phases=getPhases(search,component,db)
+qids,phases=getPhases(search,component,db,dbtable=dbtable)
 phs=phases[:,4+phasenum]
 nquakes=len(phs)
-results=mysqlArray("select quakeid,qet,qdatetime,qdepth,qjd from Quakes %s"%(search),
-                   db)
 
-#COMPUTE LUNAR PROPERTIES
-qnus=[]
-qets=[]
-MUEARTH=4.035032355022597e5 # km^3/s^2
-k=0
+results=mysqlArray("select quakeid,qet,aphases,qphases,qsignal from %s %s"%(dbtable,search),db)
+
+aphs=[]
+qphs=[]
+qsigs=[]
 for i,result in enumerate(results):
     qid=result[0]
-    qet=float(result[1]);
-    qjd=float(result[4]);
+    aphases=result[2]
+    qphases=result[3]
+    qsignal=result[4]
+
+    #Read time-series
+    conf=loadConf("/home/tquakes/tQuakes/%s.conf"%quakeid)
+
+    exit(0)
+
+
+    if qsignal=='':continue
+    #Get tidal phases
+
+    #Get astronomical phases
+    fases=aphases.split(";")[0].split(":")
+    signal=float(qsignal.split(";")[2])
+    aph=float(fases[0])
+
+    qphs+=[phs[i]]
+    aphs+=[aph]
+    qsigs+=[signal]
     
-    els=bodyElements("MOON",MUEARTH,qet)
-    xs=bodyPosition("MOON",MUEARTH,qet)
-    qnu=els[8]*RAD #True anomaly
+print("%d events selected"%len(qphs))
+aphs=numpy.array(aphs)
+qphs=numpy.array(qphs)
+dmax=aphs.max()
+qsigs=numpy.array(qsigs)
 
-    qnus+=[qnu]
-    qets+=[qet]
-
-#RANDOM
-tmin=min(qets)
-tmax=max(qets)
-qrs=tmin+(tmax-tmin)*numpy.random.random(len(qets))
-qrnus=[]
-for i in range(len(qets)):
-    els=bodyElements("MOON",MUEARTH,qrs[i])
-    xs=bodyPosition("MOON",MUEARTH,qrs[i])
-    qnu=els[8]*RAD #True anomaly
-    qrnus+=[qnu]
+#cond=(aphs>15.0)&((360*phs)<90)
+#aphs[cond]-=dmax
+#cond=(aphs<7.0)&((360*phs)>270)
+#aphs[cond]+=dmax
 
 # ############################################################
 # HISTOGRAM
 # ############################################################
-normed=False
-
-nbins=int(360.0/dphase)
-h,bins=numpy.histogram(qnus,nbins,normed=normed)
-xs=(bins[:-1]+bins[1:])/2
-dh=numpy.sqrt(h)
-
-hmax=(h+dh).max()
-hmin=(h-dh).min()
-hmean=h.mean()
-
-hr,rbins=numpy.histogram(qrnus,nbins,normed=normed)
-xrs=(bins[:-1]+bins[1:])/2
-
-ax.hist(qnus,nbins,facecolor='blue',normed=normed,alpha=0.2)
-ax.errorbar(xs,h,yerr=dh,linestyle='None',color='r')
-#ax.plot(xrs,hr,'r-')
+ax.plot(360*qphs,qsigs,'ko',ms=2)
+"""
+nbins=10
+cond=(qphs>0.4)*(qphs<0.6)
+ax.hist(qsigs[cond],nbins,color='b',alpha=0.5,normed=True)
+nbins=10
+cond=(qphs<0.2)|(qphs>0.8)
+ax.hist(qsigs[cond],nbins,color='r',alpha=0.5,normed=True)
+"""
 
 # ############################################################
 # DECORATION
 # ############################################################
-ax.set_ylabel("Frequency",fontsize=14)
-ax.set_title("Lunar true anomaly",position=(0.5,1.05),fontsize=18)
-color='r'
+ax.set_xlabel("Tidal monthly phase",fontsize=14)
+ax.set_ylabel("Vertical displacement (mm)",fontsize=14)
+ax.set_title(dbtitle,position=(0.5,1.05),fontsize=18)
 
-ax.set_xlim((0,360))
-ax.set_ylim((0.0*hmin,1.1*hmax))
+#ax.set_xlim((0.4,0.6))
+#ax.set_xlim((0,0.2))
+#ax.set_xlim((0,360))
+#ax.set_ylim((0,aphs.max()))
 
 # ############################################################
 # SAVING FIGURE

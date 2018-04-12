@@ -689,7 +689,7 @@ PHASES=[0]*5+["Semidiurnal Fourier","Diurnal Fourier",
               "Fornightly Fourier","Monthly Fourier",
               "Semidiurnal","Fornightly","Monthly"]
 
-def getPhases(search,component,db,vvv=True):
+def getPhases(search,component,db,dbtable="Quakes",vvv=True):
     # COLUMNS: 
     """
     0:qjd,1:qlat,2:qlon,3:qdepth,4:Mlq
@@ -708,7 +708,7 @@ def getPhases(search,component,db,vvv=True):
     # GET BASIC INFO EARTHQUAKES
     # ############################################################
     i=0
-    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(search)
+    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from %s %s"%(dbtable,search)
     if vvv:print "Searching quakes' phases with the criterium:\n\t%s"%sql
     results=mysqlArray(sql,db)
     nquakes=len(results)
@@ -720,7 +720,7 @@ def getPhases(search,component,db,vvv=True):
             table[i,j]=float(results[i][j+1])
 
     for ip in xrange(1,NUM_PHASES+1):
-        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from Quakes %s"%(np+ip,search)
+        sql="select SUBSTRING_INDEX(SUBSTRING_INDEX(qphases,';',%d),';',-1) from %s %s"%(np+ip,dbtable,search)
         results=mysqlArray(sql,db)
         phases=[]
         for ph in results:
@@ -1301,6 +1301,14 @@ def bodyElements(body,mu,et):
     els=sp.oscltx(x,et,mu)
 
     return els
+
+def bodyPosition(body,mu,et):
+    import spiceypy as sp
+
+    x,tl=sp.spkezr(body,et,"ECLIPJ2000","NONE","EARTH")
+
+    return x
+
 
 def localST(et,lon):
     """
