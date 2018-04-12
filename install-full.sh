@@ -77,7 +77,7 @@ if [ ! -e db/.inidb ];then
     echo -e "\tWhen prompted please use root mysql password."
     mysql -u root -p < db/user.sql
     mysql -u root -p < db/initialize.sql
-    make restore
+    make restoreall
     touch db/.inidb
 else
     echo "Database already installed."
