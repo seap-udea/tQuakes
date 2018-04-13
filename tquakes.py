@@ -664,12 +664,12 @@ QLON=2
 QDEP=3
 ML=4
 QET=5
-def getQuakes(search,db,vvv=True):
+def getQuakes(search,db,dbtable="Quakes",vvv=True):
     # ############################################################
     # GET BASIC INFO EARTHQUAKES
     # ############################################################
     i=0
-    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from Quakes %s"%(search)
+    sql="select quakeid,qjd,qlat,qlon,qdepth,Ml from %s %s"%(dbtable,search)
     if vvv:print("Searching quakes with the criterium:\n\t%s"%sql)
     results=mysqlArray(sql,db)
     nquakes=len(results)
@@ -975,7 +975,7 @@ def saveFigure(confile,fig,qwater=True):
                 rotation=-90,fontsize=10,color='b',alpha=0.3,
                 transform=ax.transAxes,zorder=1000)
 
-    fig.savefig(figname)
+    fig.savefig(figname,bbox_inches='tight')
 
 def plotSignal(quakeid,component,plt):
     # ############################################################
