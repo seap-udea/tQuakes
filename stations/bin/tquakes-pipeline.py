@@ -21,11 +21,11 @@ sleep(tsleep)
 # ##################################################
 # PIPELINE
 # ##################################################
-system("python tquakes-fetch.py")
-system("python tquakes-prepare.py")
-system("python tquakes-eterna.py")
-system("python tquakes-analysis.py")
-system("python tquakes-submit.py")
+system("python %s/tquakes-fetch.py"%conf.BINDIR)
+system("python %s/tquakes-prepare.py"%conf.BINDIR)
+system("python %s/tquakes-eterna.py"%conf.BINDIR)
+system("python %s/tquakes-analysis.py"%conf.BINDIR)
+system("python %s/tquakes-submit.py"%conf.BINDIR)
 
 # ##################################################
 # STATUS
