@@ -48,11 +48,18 @@ MOONRATE=(360.0-360.0/27.32166) # Degrees per day
 FIELDS_CSV2DB={'Fecha':'qdate','Hora UTC':'qtime','Latitud':'qlat','Longitud':'qlon','Profundidad':'qdepth',
                'Magnitudl':'Ml','Magnitudw':'Mw','Departamento':'departamento','Municipio':'municipio',
                '# Estaciones':'numstations','Rms':'timerms','Gap':'gap','Error Latitud (Km)':'qlaterr',
-               'Error Longitud (Km)':'qlonerr','Error Profundidad (Km)':'qdeptherr','Estado':'status'};
+               'Error Longitud (Km)':'qlonerr','Error Profundidad (Km)':'qdeptherr','Estado':'status',
+               'Pais':'country','Tipo':'qtype',
+               'Strike_main':'qstrikemain','Strike_aux':'qstrikeaux',
+               'Dip_main':'qdipmain','Dip_aux':'qdipaux',
+               'Rake_main':'qrakemain','Rake_aux':'qrakeaux'
+};
 
 FIELDS_CSV=['Fecha','Hora UTC','Latitud','Longitud','Profundidad','Magnitudl','Magnitudw','Departamento',
             'Municipio','# Estaciones','Rms','Gap','Error Latitud (Km)','Error Longitud (Km)',
-            'Error Profundidad (Km)','Estado']
+            'Error Profundidad (Km)','Estado',
+            'Pais','Tipo',
+            'Strike_main','Strike_aux','Dip_main','Dip_aux','Rake_main','Rake_aux']
 
 FIELDS_DB=[]
 FIELDS_DB2CSV=dict()
@@ -62,7 +69,7 @@ for field in FIELDS_CSV:
     FIELDS_DB2CSV[dbfield]=field
 FIELDS_DB+=["quakeid","quakestr",
             "qdatetime","qjd","qet","hmoon","hsun",
-            "astatus","adatetime","stationid","country"]
+            "astatus","adatetime","stationid"]
 
 FIELDSTXT="("
 FIELDSUP=""

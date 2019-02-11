@@ -9,8 +9,7 @@ freq=1000
 # CONVERT XLS TO CSV
 # ############################################################
 filexls=argv[1]
-country=argv[2]
-label=argv[3]
+label=argv[2]
 if not os.path.isfile("%s.csv"%filexls):
     #print "Converting excel file %s to csv..."%filexls
     print "%s.xls..."%filexls
@@ -63,6 +62,16 @@ for quake in content:
         ibad+=1
         continue
 
+    # NEW FIELDS
+    quake["qtype"]=quake["Tipo"]
+    quake["qstrikemain"]=quake["Strike_main"]
+    quake["qstrikeaux"]=quake["Strike_aux"]
+    quake["qdipmain"]=quake["Dip_main"]
+    quake["qdipaux"]=quake["Dip_aux"]
+    quake["qrakemain"]=quake["Rake_main"]
+    quake["qrakeaux"]=quake["Rake_aux"]
+    quake["country"]=quake["Pais"]
+    
     # CONVERT DATE TO FORMAT
 
     # DATE
@@ -75,7 +84,10 @@ for quake in content:
     try:
         qdate=datetime.datetime.strptime(quake["qdatetime"],DATETIME_FORMAT)
     except:
-        qdate=datetime.datetime.strptime(quake["qdatetime"],"%Y/%m/%d %H:%M:%S")
+        try:
+            qdate=datetime.datetime.strptime(quake["qdatetime"],"%Y/%m/%d %H:%M:%S")
+        except:
+            qdate=datetime.datetime.strptime(quake["qdatetime"],"%Y-%m-%d %H:%M:%S")
         quake["Fecha"]=qdate.strftime("%d/%m/%y")
         quake["qdate"]=quake["Fecha"]
         quake["qdatetime"]=quake["qdate"]+" "+quake["Hora UTC"];
@@ -96,11 +108,11 @@ for quake in content:
     # CHECK IF QUAKE ALREADY EXIST IN DATABASE
     if quake["quakestr"] in qs:
         iskp+=1
-        if(verbose):print "\tQuake already exist in database. Skipping."
+        if(verbose):print >>stderr,"\tQuake already exist in database. Skipping."
         continue
     else:
         iins+=1
-        if(verbose):print "\tNew quake. Inserting.";
+        if(verbose):print >>stderr,"\tNew quake. Inserting.";
 
     # GENERATE A RANDOM ID
     q=1
@@ -115,7 +127,6 @@ for quake in content:
     hsun=bodyHA("SUN",qet,qlon)
     quake["hmoon"]="%.5f"%(hmoon)
     quake["hsun"]="%.5f"%(hsun)
-    quake["country"]=country
 
     if(verbose):print "\tDate: ",quake["qdatetime"]
     if(verbose):print "\tJD: ",quake["qjd"]
@@ -132,6 +143,8 @@ for quake in content:
         sql+="'%s',"%value
     sql=sql.strip(",")
     sql+=") on duplicate key update %s;\n"%FIELDSUP
+
+    print >>stderr,sql
     db.execute(sql)
     if(verbose):print sql
 

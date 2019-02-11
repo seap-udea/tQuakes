@@ -34,7 +34,7 @@ else if($action=="insertquakes"){
   $ps=parseParams($params);
 
   //INSERTANDO SISMOS
-  $cmdinsert="PYTHONPATH=. python db/insertquakes.py ".$ps["output"]." ".$ps["country"]." ".$ps["label"]." 2> /tmp/insert";
+  $cmdinsert="PYTHONPATH=. python db/insertquakes.py ".$ps["output"]." ".$ps["label"]." 2> /tmp/insert";
   $out2=shell_exec($cmdinsert);
 
   echo "$out2";

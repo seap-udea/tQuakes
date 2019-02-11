@@ -8,6 +8,7 @@ else
     tables="Users Stations"
     filename="tQuakes"
 fi
+echo $tables
 
 echo "Dumping..."
 mysqldump -u $DBUSER --password="$DBPASSWORD" tQuakes $tables > data/sql/$filename.sql

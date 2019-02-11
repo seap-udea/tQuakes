@@ -111,20 +111,6 @@ def decluster(inicent):
                 clusters[icluster][1]+=1
         else:clusterid="0"
 
-        """
-        if quakeid=='ZISO7IY' and 0:
-            print "Quake ",i
-            print "\tQuakeid: ",quakeid
-            print "\tDate: ",qdatetime
-            print "\tJD: ",qjd
-            print "\tLat: ",qlat
-            print "\tLon: ",qlon
-            print "\tDepth: ",qdep
-            print "\tMl: ",Ml
-            print "\tCluster: ",cluster
-            print "\tClusterid: ",clusterid
-        # """
-
         # SAVE QUAKE INFORMATION
         sql="update Quakes set cluster1='%s' where quakeid='%s'"%(clusterid,quakeid)
         db.execute(sql)
@@ -202,11 +188,12 @@ def decluster(inicent):
         for key in c.__dict__.keys():
             sql+="%s='%s',"%(key,str(c.__dict__[key]))
         sql=sql.strip(",")
-        sql+="where clusterid='%s'"%c.clusterid
+        sql+=" where clusterid='%s'"%c.clusterid
         db.execute(sql)
         
         print "\n"
         print "Total number of quakes:",nquakes
+        nclustered=mysqlSimple("select count(quakeid) from Quakes where cluster1<>'0'",db)
         print "Total number of clustered quakes:",nclustered
 
 
