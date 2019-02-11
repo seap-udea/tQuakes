@@ -14,7 +14,7 @@ do
     fi
 
     # RUN PROCESS PER EACH PROCESSOR
-    python tquakes-pipeline.py
+    $PYTHON tquakes-pipeline.py
     
     # WAIT UNTIL PROCESSES END
     wait

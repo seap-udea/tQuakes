@@ -1954,9 +1954,10 @@ else if($if=="quaketide"){
   // CHECK IF THE CALCULATOR IS WORKING
   $logfile="log/tquakes.out";
   $stats=stat($logfile);
-  statusMsg("Log time:".$stats[9]);
+  $timefile=$stats[9];
+  statusMsg("Log time:".$timefile);
   statusMsg("Now:".time());
-  if($stats[9]<(time()-60) and !file_exists("stop")){
+  if(abs($timefile-time())<60 and !file_exists("stop")){
     statusMsg("Calculator is on");
     $qcalculator="<span style='background:green;color:white;padding:10px'>Calculator on</span>";
   }

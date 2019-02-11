@@ -36,8 +36,10 @@ print "\tGenerating plain data file..."
 ic=0
 for component in COMPONENTS:
     fileplain="%s%d.plain"%(lquakeid,component)
+    System("sed -e 's/\*\*\*\*\*\*\*\*\*\*/ 0/' %s > %s.rem"%(fileplain,fileplain))
+    fileplain+=".rem"
     datacomp=numpy.loadtxt(fileplain)
-    System("rm "+fileplain)
+    #System("rm "+fileplain)
     if ic:data=numpy.column_stack((data,datacomp[:,2]))
     else:data=datacomp[:,2]
     ic+=1
