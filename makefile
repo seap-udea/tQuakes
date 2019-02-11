@@ -72,8 +72,8 @@ fetch:
 prepare:
 	python tquakes-prepare.py
 
-eterna:
-	python tquakes-eterna.py
+run:
+	python tquakes-run.py
 
 analysis:
 	python tquakes-analysis.py

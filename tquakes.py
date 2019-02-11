@@ -67,32 +67,34 @@ FIELDSUP=FIELDSUP.strip(",")
 
 DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
 
-"""
-ETERNA COMPONENTS:
--1: for tidal potential in m**2/s**2.
-0: for tidal gravity in nm/s**2.
-1: for tidal tilt in mas, at azimuth STATAZIMUT.
-2: for tidal vertical displacement in mm.
-3: for tidal horizontal displacement in mm at azimuth 0 deg.
-4: for tidal vertical strain in 10**-9 = nstr.
-5: for tidal horizontal strain in 10**-9 = nstr, at azimuth 0 deg.
-6: for tidal areal  strain in 10**-9 = nstr.
-7: for tidal shear  strain in 10**-9 = nstr.
-8: for tidal volume strain in 10**-9 = nstr.
-9: for tidal horizontal strain at azimuth 90 deg.
-"""
-
-# NAME    :  g  tilt  vd vs hs0 hs90   areal shear volume
-# IN FILE :  1  2     3  4  5   6      7     8     9
-COMPONENTS=[ 0, 1,    2, 4, 5,  9]#,     6,    7,    8]
-
-# EQUIVALENCES IN GOTIC2
-GOTIC2={'0':'GV','1':'TL','2':'RD','4':'DV','5':'ST','9':'HD'}
+# COMPONENTS IN GOTIC
+GOTIC2=dict(
+    GV=0, #Gravity, mugal
+    TL=1, #Tilt, nanorad
+    RD=2, #Radial displacement, mm
+    DV=3, #Vertical displacement, nanorad
+    ST=4, #Strain, nanostrain
+    HN=5, #Horizontal displacement 0 degrees, mm
+    HE=6, #Horizontal displacement 90 degrees, mm
+)
 
 # GOTIC2 SIGNAL:  solid + ocean  Solid  Ocean
-GOTIC2_TYPES=dict(B=1           ,S=2   ,O=3  )
+GOTIC2_TYPES=dict(
+    B=1,
+    S=2,
+    O=3
+)
 
-PHASESGN=  [-1,+1,   +1,-1,+1, +1]   
+GOTIC2_COLUMNS=dict(
+    GV=["UPWARD"], #Gravity, mugal
+    TL=["NS","EW","AZIMUTHAL"], #Tilt, nanorad
+    RD=["UPWARD"], #Radial displacement, mm
+    DV=["NS","EW"], #Vertical displacement, nanorad
+    ST=["NSEXP","EW","SHEARNE","AZIMUTHAL","AREAL","CUBIC"], #Strain, nanostrain
+    HD=["NS","EW","AZIMUTHAL"], #Horizontal displacement 0 degrees, mm
+)    
+
+PHASESGN= [-1,+1,   +1,-1,+1, +1]   
 
 COMPONENTS_LONGTERM=[0]
 
@@ -481,8 +483,6 @@ def genGotic2Ini(name,basefile,
                  dateini,dateend,samplerate,
                  component,azimut,gt):
     
-    #qdepth=0.0
-    qdepth=-200.0
     content1="""#LOCATION
 STAPOSD %s, %.5f, %.5f, %.2f, %s    
 #TIDAL WAVES
@@ -490,7 +490,7 @@ WAVE    ALL
 #COMPONENT OF TIDE
 KIND    %s
 """%(name,qlon,qlat,qdepth,azimut,
-     GOTIC2[str(component)]
+     component
      )
 
     inihour=iniminute=0.0;
@@ -1374,3 +1374,17 @@ def bodyHA(body,et,qlon):
 
     return ha
 
+def readPlain(filename):
+    f=open(filename,"r")
+    table=[]
+    for line in f:
+        line=line.strip()
+        fields=line.split()
+        date=fields[0]
+        time=fields[1]
+        values=fields[2:]
+        timedate=datetime.datetime.strptime(date+" "+time,"%Y/%m/%d %H:%M")
+        timejd=date2jd(timedate)
+        table+=[[float(timejd)]+[float(value) for value in values]]
+    f.close()
+    return numpy.array(table)

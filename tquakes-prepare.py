@@ -83,56 +83,39 @@ for quake in qlist.split("\n"):
     # GENERATE INITIAL FILES
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # GENERATE ETERNA.INI FILES PER COMPONENT
-    for component in COMPONENTS:
+    for gcomp,gcompn in GOTIC2.items():
 
         # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        # ETERNA
+        # BASENAME OF FILES
         # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        basename="%s%d"%(quakeid,component)
-        fp=open(quakedir+"project%d"%component,"w")
-        fp.write("%s"%basename)
-        fp.close()
+        basename=quakeid+gcomp
 
-        # COMPONENT 9 IS HORIZONTAL STRAIN AT 90 DEGRESS
+        # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        # DISTINGUISH COMPONENTS
+        # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         azimut=0
-        if component==9:
-            component=5
-            azimut=90
-
-        eterna=open(quakedir+basename+".INI","w")
-        content=genEternaIni(basename,
-                             float(quake.qlat),
-                             float(quake.qlon),
-                             float(quake.qdepth)*-1000,
-                             qdateini.year,qdateini.month,qdateini.day,
-                             timespan,conf.SAMPLERATE,
-                             component,azimut)
-        eterna.write(content)
-        eterna.close()
-
-        # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        # GOTIC2
-        # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        gcomp=GOTIC2[str(component)]
-        basename="%s%s"%(quakeid,gcomp)
-
-        # COMPONENT 9 IS HORIZONTAL STRAIN AT 90 DEGRESS
-        azimut=0
-        if component==9:
-            component=5
+        if gcomp=="HN":
+            gcomp="HD"
+        elif gcomp=="HE":
+            gcomp="HD"
             azimut=90.0
 
-        for gtype in GOTIC2_TYPES.keys():
-            gt=GOTIC2_TYPES[gtype]
-            basegotic2=basename+gtype
-            content1,content2=genGotic2Ini(quakeid,basegotic2,
+        for gt,gtn in GOTIC2_TYPES.items():
+            basegotic2=basename+gt
+            content1,content2=genGotic2Ini(quakeid,
+                                           basegotic2,
                                            float(quake.qlat),
                                            float(quake.qlon),
                                            float(quake.qdepth)*-1000,
-                                           qdateini,qdateend,conf.SAMPLERATE,
-                                           component,azimut,
-                                           gt)
+                                           qdateini,qdateend,
+                                           conf.SAMPLERATE,
+                                           gcomp,
+                                           azimut,
+                                           gtn)
             
+            # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            # WRITE CONFIGURATION
+            # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             gotic2=open(quakedir+basename+".ini","w")
             gotic2.write(content1)
             gotic2.close()
@@ -141,7 +124,7 @@ for quake in qlist.split("\n"):
             gotic2.write(content2)
             gotic2.close()
             
-    print "\tEterna and Gotic2 files generated..."
+    print "\tGotic2 files generated..."
 
     if not len(fquakeid):
         # CHANGE STATUS OF QUAKE

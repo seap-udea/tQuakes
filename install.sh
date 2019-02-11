@@ -1,5 +1,4 @@
 #!/bin/bash
-
 cp configuration.in configuration
 . configuration
 
@@ -28,7 +27,7 @@ else
 fi
  
 # ##################################################
-# INSTALLING ETERNA
+# INSTALLING GOTIC2
 # ##################################################
 echo -n "Installing ETERNA..."
 if [ ! -d $HOME/ETERNA33 ];then 

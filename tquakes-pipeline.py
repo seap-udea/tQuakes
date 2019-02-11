@@ -53,7 +53,7 @@ out=System("ls -d data/quakes/??????? 2> /dev/null")
 if out!="":
     print "Processing pending jobs.".upper()
     system("python tquakes-prepare.py")
-    system("python tquakes-eterna.py")
+    system("python tquakes-run.py")
     system("python tquakes-analysis.py")
     system("python tquakes-submit.py")
 
@@ -63,7 +63,7 @@ print out
 
 # PROCESS
 system("python tquakes-prepare.py")
-system("python tquakes-eterna.py")
+system("python tquakes-run.py")
 system("python tquakes-analysis.py")
 system("python tquakes-submit.py")
 

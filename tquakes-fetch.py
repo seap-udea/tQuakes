@@ -49,10 +49,10 @@ if 'No quakes' in out:
     print "No quakes available for fetching."
     exit(0)
 print "Done."
-print out
 
 # SETTING STATION STATUS
 System("links -dump '%s/action.php?action=status&station_id=%s&station_status=1'"%(conf.WEBSERVER,station.station_id))
+print(out)
 
 # ##################################################
 # CREATE QUAKES
