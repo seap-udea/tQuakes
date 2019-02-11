@@ -190,12 +190,13 @@ def decluster(inicent):
         sql=sql.strip(",")
         sql+=" where clusterid='%s'"%c.clusterid
         db.execute(sql)
-        
+
+        """
         print "\n"
         print "Total number of quakes:",nquakes
         nclustered=mysqlSimple("select count(quakeid) from Quakes where cluster1<>'0'",db)
         print "Total number of clustered quakes:",nclustered
-
+        """
 
         i+=1
 
