@@ -17,20 +17,30 @@ predict="util/Eterna/ETERNA34/PREDICT.EXE"
 station=loadConf(".stationrc")
 
 # ##################################################
+# CHECK IF RUN IS ONLY FOR ONE QUAKE
+# ##################################################
+fquakeid=""
+if len(argv)>1:fquakeid=argv[1]
+
+# ##################################################
 # GET UNCALCULATED QUAKES
 # ##################################################
-print "Searching prepared quakes..."
-qlist=System("ls data/quakes/*/.prepare 2> /dev/null")
-if len(qlist)==0:
-    print "\tNo quakes prepared."
-    exit(0)
-else:
-    qlist=qlist.split("\n")
-    nquakes=len(qlist)
-    print "\t%d prepared quakes found..."%nquakes
+if not len(fquakeid):
+    print "Searching prepared quakes..."
+    qlist=System("ls data/quakes/*/.prepare 2> /dev/null")
+    if len(qlist)==0:
+        print "\tNo quakes prepared."
+        exit(0)
+    else:
+        qlist=qlist.split("\n")
+        nquakes=len(qlist)
+        print "\t%d prepared quakes found..."%nquakes
 
-# SETTING STATUS
-System("links -dump '%s/action.php?action=status&station_id=%s&station_status=3'"%(conf.WEBSERVER,station.station_id))
+    # SETTING STATUS
+    System("links -dump '%s/action.php?action=status&station_id=%s&station_status=3'"%(conf.WEBSERVER,station.station_id))
+else:
+    qlist=["data/quakes/%s/.prepare"%fquakeid]
+    nquakes=1
 
 # ##################################################
 # LOOP OVER QUAKES
@@ -47,18 +57,20 @@ for quake in qlist:
     quake=loadConf(quakedir+"quake.conf")
 
     # CHECK IF THE QUAKE HAVE BEEN ALREADY RAN
-    if not os.path.lexists(quakedir+".prepare"):
-        print "\tQuake already calculated by other process..."
-        continue
+    if not len(fquakeid):
+        if not os.path.lexists(quakedir+".prepare"):
+            print "\tQuake already calculated by other process..."
+            continue
 
     # ONLY PREPARE QUAKES NOT LOCKED
-    lockfile=quakedir+".lock"
-    if os.path.lexists(lockfile):
-        print "\tQuake locked by another process"
-        continue
-    else:
-        print "\tLocking quake"
-        System("touch "+lockfile)
+    if not len(fquakeid):
+        lockfile=quakedir+".lock"
+        if os.path.lexists(lockfile):
+            print "\tQuake locked by another process"
+            continue
+        else:
+            print "\tLocking quake"
+            System("touch "+lockfile)
         
     # COPY PREDICT PROGRAM
     System("cp %s %s"%(predict,quakedir))
@@ -102,11 +114,12 @@ for quake in qlist:
     System("mv %s/.prepare %s/.states"%(quakedir,quakedir))
     
     # REPORT END OF CALCULATIONS
-    print "\tReporting calculations..."
-    out=System("links -dump '%s/action.php?action=report&station_id=%s&quakeid=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,quakeid,deltat))
+    if not len(fquakeid):
+        print "\tReporting calculations..."
+        out=System("links -dump '%s/action.php?action=report&station_id=%s&quakeid=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,quakeid,deltat))
 
-    # DELETE LOCKFILE
-    System("rm "+lockfile)
+        # DELETE LOCKFILE
+        System("rm "+lockfile)
 
     print "\tQuake done."
 

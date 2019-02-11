@@ -85,8 +85,17 @@ ETERNA COMPONENTS:
 # NAME    :  g  tilt  vd vs hs0 hs90   areal shear volume
 # IN FILE :  1  2     3  4  5   6      7     8     9
 COMPONENTS=[ 0, 1,    2, 4, 5,  9]#,     6,    7,    8]
+
+# EQUIVALENCES IN GOTIC2
+GOTIC2={'0':'GV','1':'TL','2':'RD','4':'DV','5':'ST','9':'HD'}
+
+# GOTIC2 SIGNAL:  solid + ocean  Solid  Ocean
+GOTIC2_TYPES=dict(B=1           ,S=2   ,O=3  )
+
 PHASESGN=  [-1,+1,   +1,-1,+1, +1]   
+
 COMPONENTS_LONGTERM=[0]
+
 COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      grav=[0,"Tidal gravity",r"nm/s$^2$"],
                      tilt=[1,"Tidal tilt",r"mas"],
@@ -99,6 +108,7 @@ COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
                      volume=[8,"Volume strain","nstr"],
                      hst=[9,"Horizontal strain (Az = 90)","nstr"]
                  )
+
 
 PHASES_DICT=dict(sd_fourier=[1,"Semidiurnal (Fourier)"],
                  dn_fourier=[2,"Diurnal (Fourier)"],
@@ -465,6 +475,44 @@ TIDALPARAM=  3.381379  4.347615   1.16000    0.0000 M4     #tidal param.
     
     content=content.replace("\n","\r\n")
     return content
+
+def genGotic2Ini(name,basefile,
+                 qlat,qlon,qdepth,
+                 dateini,dateend,samplerate,
+                 component,azimut,gt):
+    
+    #qdepth=0.0
+    qdepth=-200.0
+    content1="""#LOCATION
+STAPOSD %s, %.5f, %.5f, %.2f, %s    
+#TIDAL WAVES
+WAVE    ALL
+#COMPONENT OF TIDE
+KIND    %s
+"""%(name,qlon,qlat,qdepth,azimut,
+     GOTIC2[str(component)]
+     )
+
+    inihour=iniminute=0.0;
+    endhour=endminute=0.0;
+    content2=content1+"""
+#LOCATION AND TIME
+PREDICT %d, %s%02d%02d%02d%02d, %s%02d%02d%02d%02d, %.1f
+PREXFL  %s.pre
+PREFMT  5, 2
+PREOUT  %s.out
+MESH2   ON
+"""%(gt,
+     dateini.year,dateini.month,dateini.day,inihour,iniminute,
+     dateend.year,dateend.month,dateend.day,endhour,endminute,
+     samplerate/60.0,basefile,basefile)
+
+    #FILE FINALIZATION
+    content1+="END"
+    content2+="END"
+    content1=content1.replace("\n","\r\n")
+    content2=content2.replace("\n","\r\n")
+    return content1,content2
 
 def loadExtremesTable(extremes,table):
     """

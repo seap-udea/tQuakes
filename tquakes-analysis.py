@@ -16,6 +16,12 @@ updateConf("common",conf)
 station=loadConf(".stationrc")
 
 # ##################################################
+# CHECK IF RUN IS ONLY FOR ONE QUAKE
+# ##################################################
+fquakeid=""
+if len(argv)>1:fquakeid=argv[1]
+
+# ##################################################
 # GET NOT ANALYSED QUAKES
 # ##################################################
 print "Searching calculated quakes..."

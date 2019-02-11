@@ -16,7 +16,7 @@ updateConf("common",conf)
 station=loadConf(".stationrc")
 
 # ##################################################
-# CHECK IF A GIVEN EARTHQUAKE SHOULD BE FETCHED
+# CHECK IF RUN IS ONLY FOR ONE QUAKE
 # ##################################################
 fquakeid=""
 if len(argv)>1:fquakeid=argv[1]
@@ -64,7 +64,7 @@ for quake in out.split("\n"):
     System("mkdir -p %s/.states"%(quakedir))
     System("cp -rd data/quakes/TEMPLATE/* %s"%(quakedir))
     System("cp -rd data/quakes/TEMPLATE/.[a-z]* %s"%(quakedir))
-    System("date +%%s > %s/.fetch"%quakedir)
+    if not len(fquakeid):System("date +%%s > %s/.fetch"%quakedir)
     fq=open(quakedir+"/quake.conf","w")
     for key in quake.keys():
         fq.write("%s='%s'\n"%(key,quake[key]))
