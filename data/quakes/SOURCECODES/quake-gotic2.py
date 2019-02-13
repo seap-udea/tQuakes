@@ -27,7 +27,7 @@ for k,gn in GOTIC2.items():
         for f in g:
             header+="%d:%s/%s/%s "%(n,k,gt,f)
             n+=1
-        
+ 
 # ##################################################
 # RUN ETERNA
 # ##################################################
@@ -39,7 +39,7 @@ for gcomp,gcompn in GOTIC2.items():
 
     print "\t\tRunning gotic2..."
     cmd="%s < %s.ini > %s.pre &> %s.log"%(gotic2,basename,basename,basename)
-    #System(cmd)
+    System(cmd)
 
     #BODY, OCEANIC AND BOTH
     for gt,gtn in GOTIC2_TYPES.items():
@@ -62,5 +62,5 @@ for gcomp,gcompn in GOTIC2.items():
 # SAVE DATA
 # ##################################################
 numpy.savetxt("%s.data"%(quakeid),data,header=header)
-System("zip %s.data"%quakeid)
+System("gzip %s.data"%quakeid)
 print "Quake done."
