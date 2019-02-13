@@ -10,8 +10,7 @@ freq=1000
 # ############################################################
 filexls=argv[1]
 label=argv[2]
-if not os.path.isfile("%s.csv"%filexls):
-    #print "Converting excel file %s to csv..."%filexls
+if not os.path.isfile("%s.csv"%filexls) or True:
     print "%s.xls..."%filexls
     system("LC_NUMERIC='en_US.UTF-8' LC_CURRENCY=' ' /usr/bin/ssconvert %s.xls %s.csv 2> /tmp/convert"%(filexls,filexls))
 else:
@@ -70,7 +69,15 @@ for quake in content:
     quake["qdipaux"]=quake["Dip_aux"]
     quake["qrakemain"]=quake["Rake_main"]
     quake["qrakeaux"]=quake["Rake_aux"]
-    quake["country"]=quake["Pais"]
+
+    quake["qfocaltype"]=quake["Tipo focal"]
+    quake["qgrade"]=quake["Grado"]
+    quake["qdepthfm"]=quake["Profundidad Focal"]
+    quake["qvtr"]=quake["VTR"]
+    quake["extra1"]=quake["Extra1"]
+    quake["extra2"]=quake["Extra2"]
+    quake["extra3"]=quake["Extra3"]
+    quake["extra4"]=quake["Extra4"]
     
     # CONVERT DATE TO FORMAT
 
@@ -138,8 +145,14 @@ for quake in content:
     for dbfield in FIELDS_DB:
         try:fieldname=FIELDS_DB2CSV[dbfield]
         except KeyError:fieldname=dbfield
+
+        #print "\nOriginal:",dbfield,fieldname,quake[fieldname]
+        
         try:value=quake[fieldname]
         except KeyError:value=""
+
+        #print "Para la base:",fieldname,value
+
         sql+="'%s',"%value
     sql=sql.strip(",")
     sql+=") on duplicate key update %s;\n"%FIELDSUP

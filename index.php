@@ -35,7 +35,7 @@ if(!isBlank($action)){
     statusMsg("Convirtiendo archivo $name ($tmp) a $target...");
 $insert_msg_insert=<<<I
 <p id="insert_loader_insert" style="background:white;padding:10px">
-  Loading <img src="img/loader.gif">
+  Loading data into database <img src="img/loader.gif">
 </p>
 <script>
   $(document).ready(function(){
@@ -56,7 +56,7 @@ I;
     statusMsg("Declustering latest upload earthquakes...");
 $insert_msg_decluster=<<<I
 <p id="insert_loader_decluster" style="background:white;padding:10px">
-  Declustering <img src="img/loader.gif">
+  Declustering.  It may take a while (15-30 min).  Take a cup of coffee <img src="img/loader.gif">
 </p>
 <script>
   $(document).ready(function(){
@@ -1378,7 +1378,15 @@ else if($if=="search"){
   ////////////////////////////////////////////////////////////////////////
   //SEARCH DATABASE
   ////////////////////////////////////////////////////////////////////////
-  $CONTENT.="<h2><a name='search'>Search database</a></h2><p><b>Database</b>: <span style=font-family:courier>$QUAKES</span></p>";
+$CONTENT.=<<<C
+  <center>
+  $insert_msg_insert
+  $insert_msg_decluster
+  </center>
+
+  <h2><a name='search'>Search database</a>
+  </h2><p><b>Database</b>: <span style=font-family:courier>$QUAKES</span></p>
+C;
   $SUBMENU.="<a href='#search'>Search</a> | ";
 
 $CONTENT.=<<<C
@@ -1656,8 +1664,6 @@ $CONTENT.=<<<I
   In order to add new events to the database, please upload the list of new earthquakes using <a href="db/template.xls">this template</a>.
 </p>
 
-$insert_msg_insert
-
 <p>
   $FORM
   <form method="get">
@@ -1688,8 +1694,6 @@ $CONTENT.=<<<I
   earthquakes or over the whole sample of events.  Please make your
   selection.
 </p>
-
-$insert_msg_decluster
 
 <p>
   $FORM
@@ -2468,7 +2472,7 @@ echo<<<CONTENT
       <span class="level0"><p class="menuitem"><a href="?if=quaketide">Tides</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=data">Products</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=download">Download</a><hr/></p></span>
-      <span class="level0"><p class="menuitem"><a href="?if=register">Station</a><hr/></p></span>
+      <span class="level3"><p class="menuitem"><a href="?if=register">Station</a><hr/></p></span>
       <span class="level0"><p class="menuitem"><a href="?if=references">References</a><hr/></p></span>
       $USER
       <hr/>

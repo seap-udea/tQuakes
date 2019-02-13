@@ -53,11 +53,12 @@ FIELDS_CSV2DB={'Fecha':'qdate','Hora UTC':'qtime','Latitud':'qlat','Longitud':'q
                'Strike_main':'qstrikemain','Strike_aux':'qstrikeaux',
                'Dip_main':'qdipmain','Dip_aux':'qdipaux',
                'Rake_main':'qrakemain','Rake_aux':'qrakeaux',
-               'Tipo focal':'qfocaltype','Grado':'qgrade','Profundidad Focal':'qdephtfm',
+               'Tipo focal':'qfocaltype','Grado':'qgrade','Profundidad Focal':'qdepthfm',
                'VTR':'qvtr',
                'T_Tr':'T_Tr','T_Pl':'T_Pl',
                'P_Tr':'P_Tr','P_Pl':'P_Pl',
                'B_Tr':'B_Tr','B_Pl':'B_Pl',
+               'Extra1':'extra1','Extra2':'extra2','Extra3':'extra3','Extra4':'extra4',
 };
 
 FIELDS_CSV=['Fecha','Hora UTC','Latitud','Longitud','Profundidad','Magnitudl','Magnitudw','Departamento',
@@ -68,6 +69,7 @@ FIELDS_CSV=['Fecha','Hora UTC','Latitud','Longitud','Profundidad','Magnitudl','M
             'Tipo focal','Grado','Profundidad Focal','VTR',
             'Strike_main','Strike_aux','Dip_main','Dip_aux','Rake_main','Rake_aux',
             'T_Tr','T_Pl','P_Tr','P_Pl','B_Tr','B_Pl',
+            'Extra1','Extra2','Extra3','Extra4',
 ]
 
 FIELDS_DB=[]
