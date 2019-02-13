@@ -52,14 +52,23 @@ FIELDS_CSV2DB={'Fecha':'qdate','Hora UTC':'qtime','Latitud':'qlat','Longitud':'q
                'Pais':'country','Tipo':'qtype',
                'Strike_main':'qstrikemain','Strike_aux':'qstrikeaux',
                'Dip_main':'qdipmain','Dip_aux':'qdipaux',
-               'Rake_main':'qrakemain','Rake_aux':'qrakeaux'
+               'Rake_main':'qrakemain','Rake_aux':'qrakeaux',
+               'Tipo focal':'qfocaltype','Grado':'qgrade','Profundidad Focal':'qdephtfm',
+               'VTR':'qvtr',
+               'T_Tr':'T_Tr','T_Pl':'T_Pl',
+               'P_Tr':'P_Tr','P_Pl':'P_Pl',
+               'B_Tr':'B_Tr','B_Pl':'B_Pl',
 };
 
 FIELDS_CSV=['Fecha','Hora UTC','Latitud','Longitud','Profundidad','Magnitudl','Magnitudw','Departamento',
             'Municipio','# Estaciones','Rms','Gap','Error Latitud (Km)','Error Longitud (Km)',
             'Error Profundidad (Km)','Estado',
-            'Pais','Tipo',
-            'Strike_main','Strike_aux','Dip_main','Dip_aux','Rake_main','Rake_aux']
+            'Pais',
+            'Tipo',
+            'Tipo focal','Grado','Profundidad Focal','VTR',
+            'Strike_main','Strike_aux','Dip_main','Dip_aux','Rake_main','Rake_aux',
+            'T_Tr','T_Pl','P_Tr','P_Pl','B_Tr','B_Pl',
+]
 
 FIELDS_DB=[]
 FIELDS_DB2CSV=dict()

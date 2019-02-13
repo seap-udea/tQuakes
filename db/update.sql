@@ -1,5 +1,17 @@
 use tQuakes;
 
+/*Nuevos campos asociados a los mecanismos focales*/
+alter table Quakes add column qdepthfm varchar(15) after qdepth; /*Profundidad del sismo determinada con el mecanismo focal*/
+alter table Quakes add column qfocaltype varchar(15) after qdepthfm; /*Tipo de mecanismo: T, reverse; N, normal; S, strike slip; O, oblique*/
+alter table Quakes add column qgrade varchar(15) after qfocaltype; /*Grado del sismo: A, excellent; B, very good; C, good; D, fair*/
+alter table Quakes add column qvtr varchar(15) after qgrade; /*Variance reduction*/
+alter table Quakes add column T_Tr varchar(15) after qvtr; /*T axis, azimuth in degrees*/
+alter table Quakes add column T_Pl varchar(15) after T_Tr; /*T axis, plunge in degrees*/
+alter table Quakes add column P_Tr varchar(15) after T_Pl; /*P axis, azimuth in degrees*/
+alter table Quakes add column P_Pl varchar(15) after P_Tr; /*P axis, plunge in degrees*/
+alter table Quakes add column B_Tr varchar(15) after P_Pl; /*B axis, azimuth in degrees*/
+alter table Quakes add column B_Pl varchar(15) after B_Tr; /*B axis, plunge in degrees*/
+
 /*update Quakes set qdate=DATE_FORMAT(STR_TO_DATE(qdate,'%d/%m/%Y'),'%d/%m/%y'),qdatetime=CONCAT(qdate,CONCAT(" ",qtime)) where qdate like '%/%/20%';*/
 /*
 alter table Quakes
@@ -77,5 +89,5 @@ insert ignore into Users (email,uname,password,ulevel,activate) values ('gmonsal
 /*alter table Quakes add column hsun varchar(50) after qdeptherr;*/
 /*alter table Quakes add column aphases varchar(500) after qphases;*/
 /*alter table Quakes add column qpeaks varchar(1500) after aphases;*/
-create table Quakes_synphases like Quakes;
-insert Quakes_synphases select * from Quakes;
+/*create table Quakes_synphases like Quakes;*/
+/*insert Quakes_synphases select * from Quakes;*/

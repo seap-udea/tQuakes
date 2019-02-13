@@ -62,7 +62,7 @@ if($action=="fetch"){
   foreach($quakes as $quake){
     foreach($disprops as $prop){
       $$prop=$quake["$prop"];
-      echo "$prop='".$quake["$prop"]."',";
+      echo "$prop='".trim($quake["$prop"])."',";
     }
     echo "<br/>";
     $sql="update $QUAKESRUN set astatus='1',stationid='$station_id',adatetime=now() where quakeid='$quakeid';";
