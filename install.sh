@@ -29,7 +29,7 @@ fi
 # ##################################################
 # INSTALLING GOTIC2
 # ##################################################
-echo -n "Installing ETERNA..."
+echo -n "Installing GOTIC2..."
 if [ ! -d $HOME/ETERNA33 ];then 
     cp -r util/Eterna/ETERNA33 $HOME/
     echo "Done."
