@@ -29,8 +29,8 @@ fi
 # ##################################################
 # CONFIGURE GIT
 # ##################################################
-git --config user.email seapudea@gmail.com
-git --config user.name SEAP
+git config --global user.email seapudea@gmail.com
+git config --global user.name SEAP
 
 # ##################################################
 # INSTALLING GOTIC2
