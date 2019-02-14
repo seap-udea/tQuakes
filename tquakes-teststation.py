@@ -13,8 +13,9 @@ print "*"*50+"\nRUNNING tquakes-test\n"+"*"*50
 qfail=0
 
 # ##################################################
-# TESTING IF ETERNA IS RUNNING
+# TESTING IF GOTIC 2 IS RUNNING
 # ##################################################
+"""
 if not qfail:
     print "Testing Eterna..."
     System("rm data/quakes/TEST/*.prn data/quakes/TEST/*.prd")
@@ -26,6 +27,7 @@ if not qfail:
     else:
         print "\tEterna is not running properly."
         qfail=1
+"""
 
 # ##################################################
 # TESTING CONNECTION
@@ -71,7 +73,9 @@ if not qfail:
 # ##################################################
 if not qfail and qrec:
     print "Testing ssh connection..."
-    out=System("scp -o 'StrictHostKeyChecking no' .stationrc %s@%s:."%(conf.TQUSER,conf.DATASERVER))
+    cmd="scp -i .keys/key.pem -o 'StrictHostKeyChecking no' .stationrc %s@%s:tQuakes/"%(conf.TQUSER,conf.DATASERVER)
+    print "\t\tExecuting:",cmd
+    out=System(cmd)
     if "Could not" in out:
         print "\tConnection failed.".upper()
         qfail=1

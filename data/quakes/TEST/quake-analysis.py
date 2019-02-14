@@ -1,1 +1,0 @@
-../TEMPLATE/quake-analysis.py

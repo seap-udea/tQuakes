@@ -1,5 +1,5 @@
 PACKAGES_FULL="mysql-server python-mysqldb python-setuptools gnuplot-x11 apache2 php5 php5-mysqldb wget links p7zip python-scipy";
-PACKAGES_STATION="links p7zip python-mysqldb python-numpy gfortran";
+PACKAGES_STATION="links p7zip python-mysqldb python-numpy python-scipy gfortran make";
 HOMEDIR="/home";
 TQUSER="tquakes";
 DBUSER="tquakes";
@@ -7,7 +7,7 @@ DBPASSWORD="quakes2015";
 DBNAME="tQuakes";
 
 WEBSERVER="http://urania.udea.edu.co/tQuakes";
-DATASERVER="urania.udea.edu.co";
+DATASERVER="ec2-35-170-187-214.compute-1.amazonaws.com";
 
 NUMQUAKES=50;
 SAMPLERATE=3600;

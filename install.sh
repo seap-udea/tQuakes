@@ -21,17 +21,33 @@ done
 
 if [ "x$packinst" != "x" ];then
     echo -e "Packages to install:\n\t$packinst"
-    sudo apt-get install $packinst
+    sudo apt-get install -y $packinst
 else
     echo -e "No packages required to be installed."
 fi
- 
+
+# ##################################################
+# CREATE PUBLIC AND PRIVATE
+# ##################################################
+if [ ! -e $HOME/.ssh/id_rsa.pub ];then
+    ssh-keygen -t rsa -f $HOME/.ssh/id_rsa -N ''
+else
+    echo "Key already available."
+fi
+chmod 400 .key/tquakes.key
+
+# ##################################################
+# CONFIGURE GIT
+# ##################################################
+git config --global user.email seapudea@gmail.com
+git config --global user.name SEAP
+
 # ##################################################
 # INSTALLING GOTIC2
 # ##################################################
-echo -n "Installing ETERNA..."
-if [ ! -d $HOME/ETERNA33 ];then 
-    cp -r util/Eterna/ETERNA33 $HOME/
+echo -n "Installing GOTIC2..."
+if [ ! -e util/gotic2 ];then 
+    make -C util/gotic2-source 
     echo "Done."
 else
     echo "Already installed."
