@@ -1,1 +1,1 @@
-../TEMPLATE/quake-eterna.py
+../SOURCECODES/quake-eterna.py

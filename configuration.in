@@ -1,5 +1,5 @@
 PACKAGES_FULL="mysql-server python-mysqldb python-setuptools gnuplot-x11 apache2 php5 php5-mysqldb wget links p7zip python-scipy";
-PACKAGES_STATION="links p7zip python-mysqldb python-numpy gfortran make";
+PACKAGES_STATION="links p7zip python-mysqldb python-numpy python-scipy gfortran make";
 HOMEDIR="/home";
 TQUSER="tquakes";
 DBUSER="tquakes";

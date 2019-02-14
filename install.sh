@@ -21,9 +21,18 @@ done
 
 if [ "x$packinst" != "x" ];then
     echo -e "Packages to install:\n\t$packinst"
-    sudo apt-get install $packinst
+    sudo apt-get install -y $packinst
 else
     echo -e "No packages required to be installed."
+fi
+
+# ##################################################
+# CREATE PUBLIC AND PRIVATE
+# ##################################################
+if [ ! -e $HOME/.ssh/id_rsa.pub ];then
+    ssh-keygen -t rsa -f $HOME/.ssh/id_rsa -N ''
+else
+    echo "Key already available."
 fi
 
 # ##################################################

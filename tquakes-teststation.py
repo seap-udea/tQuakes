@@ -13,7 +13,7 @@ print "*"*50+"\nRUNNING tquakes-test\n"+"*"*50
 qfail=0
 
 # ##################################################
-# TESTING IF ETERNA IS RUNNING
+# TESTING IF GOTIC 2 IS RUNNING
 # ##################################################
 if not qfail:
     print "Testing Eterna..."
