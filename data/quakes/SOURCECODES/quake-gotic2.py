@@ -15,23 +15,12 @@ gotic2="./gotic2"
 # LOAD STATION INFORMATION
 # ##################################################
 station=loadConf(".stationrc")
-
-#HEADER
-header=""
-n=1
-for k,gn in GOTIC2.items():
-    gname=k
-    if k=="HN" or k=="HE":gname="HD"
-    g=GOTIC2_COLUMNS[gname]
-    for gt,gtn in GOTIC2_TYPES.items():
-        for f in g:
-            header+="%d:%s/%s/%s "%(n,k,gt,f)
-            n+=1
  
 # ##################################################
 # RUN ETERNA
 # ##################################################
 i=0
+System("rm -rf %s.*"%quakeid)
 for gcomp,gcompn in GOTIC2.items():
 
     print "\tRunning component %s:"%gcomp
@@ -61,6 +50,6 @@ for gcomp,gcompn in GOTIC2.items():
 # ##################################################
 # SAVE DATA
 # ##################################################
-numpy.savetxt("%s.data"%(quakeid),data,header=header)
+numpy.savetxt("%s.data"%(quakeid),data,fmt="%25.17e",header="0:jd "+GOTIC2_HEADER)
 System("gzip %s.data"%quakeid)
 print "Quake done."

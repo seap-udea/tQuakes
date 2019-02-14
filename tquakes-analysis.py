@@ -25,7 +25,7 @@ if len(argv)>1:fquakeid=argv[1]
 # GET NOT ANALYSED QUAKES
 # ##################################################
 print "Searching calculated quakes..."
-qlist=System("ls data/quakes/*/.eterna 2> /dev/null")
+qlist=System("ls data/quakes/*/.gotic2 2> /dev/null")
 if len(qlist)==0:
     print "\tNo quakes calculated."
     exit(0)
@@ -42,14 +42,14 @@ System("links -dump '%s/action.php?action=status&station_id=%s&station_status=4'
 # ##################################################
 iq=1
 for quake in qlist:
-    search=re.search("\/(\w+)\/\.eterna",quake)
+    search=re.search("\/(\w+)\/\.gotic2",quake)
     quakeid=search.group(1)
     print "Analysing quake %d '%s'"%(iq,quakeid)
 
     # LOAD QUAKE INFORMATION
     quakedir="data/quakes/%s/"%quakeid
 
-    if not os.path.lexists(quakedir+".eterna"):
+    if not os.path.lexists(quakedir+".gotic2"):
         print "\tQuake already analysed by other process..."
         continue
 
@@ -68,20 +68,16 @@ for quake in qlist:
 
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     # RUN JOB
-    out=System("cd %s;PYTHONPATH=. python quake-analysis.py %s >> quake.log"%(quakedir,quakeid))
+    out=System("cd %s;PYTHONPATH=. python quake-analysis2.py %s >> quake.log"%(quakedir,quakeid))
     quake=loadConf(quakedir+"quake.conf")
     # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     # CHANGE STATUS OF QUAKE
     System("date +%%s > %s/.analysis"%quakedir)
-    System("mv %s/.eterna %s/.states"%(quakedir,quakedir))
+    System("mv %s/.gotic2 %s/.states"%(quakedir,quakedir))
     System("cp %s/.analysis %s/.states"%(quakedir,quakedir))
     
     # COMPRESS
-    System("cd %s;tar cf %s-analysis.tar %s*-ff*.* quake.conf quake.log .states"%(quakedir,
-                                                                                  quakeid,quakeid))  
-    System("cd %s;p7zip %s-analysis.tar"%(quakedir,quakeid))
-    System("cd %s;rm *ff*"%(quakedir))
     System("cd %s;cp quake.conf %s.conf"%(quakedir,quakeid))
     
     # TIME
@@ -106,4 +102,4 @@ for quake in qlist:
 
     iq+=1
     # if iq>2*conf.NUMQUAKES:break
-    
+

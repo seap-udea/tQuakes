@@ -1,1 +1,0 @@
-../SOURCECODES/quake-analysis.py

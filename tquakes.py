@@ -3,6 +3,7 @@ import csv,datetime,commands,re,os,numpy,cmath,time as timing
 from scipy import signal
 from sys import exit,argv,stderr
 from util.jdcal import *
+from collections import OrderedDict
 
 # ######################################################################
 # MACROS
@@ -68,7 +69,7 @@ FIELDSUP=FIELDSUP.strip(",")
 DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
 
 # COMPONENTS IN GOTIC
-GOTIC2=dict(
+GOTIC2=OrderedDict(
     GV=0, #Gravity, mugal
     TL=1, #Tilt, nanorad
     RD=2, #Radial displacement, mm
@@ -79,13 +80,13 @@ GOTIC2=dict(
 )
 
 # GOTIC2 SIGNAL:  solid + ocean  Solid  Ocean
-GOTIC2_TYPES=dict(
+GOTIC2_TYPES=OrderedDict(
     B=1,
     S=2,
     O=3
 )
 
-GOTIC2_COLUMNS=dict(
+GOTIC2_COLUMNS=OrderedDict(
     GV=["UPWARD"], #Gravity, mugal
     TL=["NS","EW","AZIMUTHAL"], #Tilt, nanorad
     RD=["UPWARD"], #Radial displacement, mm
@@ -93,6 +94,21 @@ GOTIC2_COLUMNS=dict(
     ST=["NSEXP","EW","SHEARNE","AZIMUTHAL","AREAL","CUBIC"], #Strain, nanostrain
     HD=["NS","EW","AZIMUTHAL"], #Horizontal displacement 0 degrees, mm
 )    
+
+#GENERATE MAP FROM COMPONENT TO COLUMN
+n=1
+GOTIC2_NCOLUMNS=OrderedDict()
+GOTIC2_HEADER=""
+for k,gn in GOTIC2.items():
+    gname=k
+    if k=="HN" or k=="HE":gname="HD"
+    g=GOTIC2_COLUMNS[gname]
+    for gt,gtn in GOTIC2_TYPES.items():
+        for f in g:
+            GOTIC2_HEADER+="%d:%s/%s/%s "%(n,k,gt,f)
+            GOTIC2_NCOLUMNS["T=%s.L=%s.C=%s"%(k,gt,f)]=n
+            n+=1
+
 
 PHASESGN= [-1,+1,   +1,-1,+1, +1]   
 
