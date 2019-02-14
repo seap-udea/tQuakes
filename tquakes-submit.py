@@ -88,7 +88,6 @@ for quake in qlist:
             continue
     else:
         print "\tSkipping submission."
-        
 
     # CHANGE STATUS OF QUAKE
     System("date +%%s > %s/.submit"%quakedir)
