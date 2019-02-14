@@ -30,8 +30,8 @@ fi
 # INSTALLING GOTIC2
 # ##################################################
 echo -n "Installing GOTIC2..."
-if [ ! -d $HOME/ETERNA33 ];then 
-    cp -r util/Eterna/ETERNA33 $HOME/
+if [ ! -e util/gotic2 ];then 
+    make -C util/gotic2-source 
     echo "Done."
 else
     echo "Already installed."
