@@ -79,10 +79,8 @@ for quake in qlist:
 
     # SUBMIT DATA
     if conf.QSUBMIT:
-        System("cd %s;tar cf %s.tar *.data.* quake.conf quake.log"%(quakedir,
-                                                                    quakeid,quakeid))  
-        
-        system("scp -o 'StrictHostKeyChecking no' -r %s/%s.conf %s/*.tar tquakes@%s:. 2> scratch/%s.err"%(quakedir,quakeid,quakedir,conf.DATASERVER,quakeid))
+        System("cd %s;tar zcf %s.tar.gz *.data* *.conf quake.log"%(quakedir,quakeid))  
+        system("scp -i .keys/key.pem -o 'StrictHostKeyChecking no' -r %s/%s.conf %s/*.tar.gz tquakes@%s:tQuakes/ 2> scratch/%s.err"%(quakedir,quakeid,quakedir,conf.DATASERVER,quakeid))
         err=System("cat scratch/%s.err"%quakeid)
         if err!="" and ("differs" not in err) and ("WARNING" not in err):
             print "\tConnection failed to data server."
@@ -90,6 +88,7 @@ for quake in qlist:
             continue
     else:
         print "\tSkipping submission."
+        
 
     # CHANGE STATUS OF QUAKE
     System("date +%%s > %s/.submit"%quakedir)

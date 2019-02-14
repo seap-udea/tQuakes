@@ -51,5 +51,4 @@ for gcomp,gcompn in GOTIC2.items():
 # SAVE DATA
 # ##################################################
 numpy.savetxt("%s.data"%(quakeid),data,fmt="%25.17e",header="0:jd "+GOTIC2_HEADER)
-System("gzip %s.data"%quakeid)
 print "Quake done."
