@@ -1,3 +1,4 @@
+
 BRANCH=$(shell bash .getbranch)
 TABLE=Quakes
 #TABLE=QuakesMockTime
