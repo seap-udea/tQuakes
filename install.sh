@@ -25,7 +25,13 @@ if [ "x$packinst" != "x" ];then
 else
     echo -e "No packages required to be installed."
 fi
- 
+
+# ##################################################
+# CONFIGURE GIT
+# ##################################################
+git --config user.email seapudea@gmail.com
+git --config user.name SEAP
+
 # ##################################################
 # INSTALLING GOTIC2
 # ##################################################
