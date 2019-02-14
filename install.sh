@@ -34,6 +34,7 @@ if [ ! -e $HOME/.ssh/id_rsa.pub ];then
 else
     echo "Key already available."
 fi
+chmod 400 .key/tquakes.key
 
 # ##################################################
 # CONFIGURE GIT
