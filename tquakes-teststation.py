@@ -15,19 +15,19 @@ qfail=0
 # ##################################################
 # TESTING IF GOTIC 2 IS RUNNING
 # ##################################################
-"""
 if not qfail:
-    print "Testing Eterna..."
-    System("rm data/quakes/TEST/*.prn data/quakes/TEST/*.prd")
-    System("cd data/quakes/TEST;dosemu -t PREDICT.EXE &> test.log")
-    out=System("cd data/quakes/TEST;cat *.prd |wc -l")
-    System("rm data/quakes/TEST/*.prn data/quakes/TEST/*.prd")
+    print "Testing Gotic2..."
+    cmd="cd data/quakes/TEST;./gotic2 < TEST.ini > TEST.pre"
+    System(cmd)
+    cmd="cd data/quakes/TEST;./gotic2 < TEST.inp > TEST.out"
+    System(cmd)
+    out=System("cd data/quakes/TEST;cat TEST.out |wc -l")
+    System("cd data/quakes/TEST;rm *.pre *.out")
     if int(out)>0:
-        print "\tEterna is running."
+        print "\tGotic2 is running."
     else:
-        print "\tEterna is not running properly."
+        print "\tGotic2 is not running properly."
         qfail=1
-"""
 
 # ##################################################
 # TESTING CONNECTION
