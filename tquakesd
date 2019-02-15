@@ -14,6 +14,9 @@ then
 fi
 touch .start
 
+# ALLOW GITHUB PULL
+eval $(keychain --eval id_rsa_seap)
+
 j=0
 while [ 1 ]
 do
