@@ -31,13 +31,12 @@ do
     make pull
 
     # RUN PROCESS PER EACH PROCESSOR
-    nsleep=$(( ( RANDOM % 10 )  + 1 ))
     for i in $(seq 1 $station_nproc)
     do
 	if [ $qdebug -eq 0 ];then
 	    echo "Sleeping $nsleep seconds..."
-	    sleep $nsleep
 	    python tquakes-pipeline.py >> log/tquakes-proc$i.log &
+	    sleep 1
 	else
 	    echo "Process $i/$station_nproc..."
 	    python tquakes-pipeline.py
