@@ -15,6 +15,7 @@ do
 	echo "Daemon is already running"
 	exit 0
     fi
+    touch .start
 
     # CHECK IF STOP SIGNAL HAVE BEEN SENT
     if [ -e stop ];then 
