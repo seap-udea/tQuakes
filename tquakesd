@@ -34,9 +34,9 @@ do
     make pull
 
     # RUN PROCESS PER EACH PROCESSOR
-    nsleep=$(( ( RANDOM % 10 )  + 1 ))
     for i in $(seq 1 $station_nproc)
     do
+	nsleep=$(( ( RANDOM % 10 )  + 1 ))
 	if [ $qdebug -eq 0 ];then
 	    echo "Sleeping $nsleep seconds before starting..."
 	    sleep $nsleep
