@@ -39,6 +39,7 @@ do
     do
 	if [ $qdebug -eq 0 ];then
 	    echo "Sleeping $nsleep seconds before starting..."
+	    sleep $nsleep
 	    python tquakes-pipeline.py >> log/tquakes-proc$i.log &
 	else
 	    echo "Process $i/$station_nproc..."
