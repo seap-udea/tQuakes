@@ -12,7 +12,10 @@ do
     # CHECK IF STOP SIGNAL HAVE BEEN SENT
     if [ -e stop ];then 
 	echo "Stopping."
+	touch log/tquakesd-stopped
 	exit 0
+    else
+	rm log/tquakesd-stopped
     fi
 
     # UPDATE BRANCH
