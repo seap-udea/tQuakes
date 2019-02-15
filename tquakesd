@@ -9,6 +9,13 @@ if [ "x$1" = "x" ];then qdebug=0;fi
 j=0
 while [ 1 ]
 do
+    # CHECK IF IT IS ALREADY RUNNING
+    if ! ps caux | grep tquakesd &> /dev/null
+    then
+	echo "Daemon is already running"
+	exit 0
+    fi
+
     # CHECK IF STOP SIGNAL HAVE BEEN SENT
     if [ -e stop ];then 
 	echo "Stopping."
