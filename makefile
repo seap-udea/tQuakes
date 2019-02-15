@@ -16,6 +16,7 @@ start:cleandata
 stop:
 	@echo "Stopping process..."
 	@skill -9 tquakesd
+	@sudo pkill python
 	@touch stop
 	@rm .start &> /dev/null
 

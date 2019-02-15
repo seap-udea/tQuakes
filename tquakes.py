@@ -66,7 +66,7 @@ for field in FIELDS_DB:
 FIELDSTXT=FIELDSTXT.strip(",")+")"
 FIELDSUP=FIELDSUP.strip(",")
 
-DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
+DATETIME_FORMAT="%Y-%m-%d %H:%M:%S"
 
 # COMPONENTS IN GOTIC
 GOTIC2=OrderedDict(
