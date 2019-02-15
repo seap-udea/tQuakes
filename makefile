@@ -9,7 +9,6 @@ start:
 	@touch stop
 	@rm stop
 	@nohup ./tquakesd > log/tquakes.out 2>&1 &
-	@tail -f log/tquakes.out
 
 stop:
 	@echo "Stopping process..."
