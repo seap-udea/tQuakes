@@ -6,17 +6,17 @@
 qdebug=1
 if [ "x$1" = "x" ];then qdebug=0;fi
 
+# CHECK IF IT IS ALREADY RUNNING
+if [ -e .start ]
+then
+    echo "Daemon is already running"
+    exit 0
+fi
+touch .start
+
 j=0
 while [ 1 ]
 do
-    # CHECK IF IT IS ALREADY RUNNING
-    if [ -e .start ]
-    then
-	echo "Daemon is already running"
-	exit 0
-    fi
-    touch .start
-
     # CHECK IF STOP SIGNAL HAVE BEEN SENT
     if [ -e stop ];then 
 	echo "Stopping."
