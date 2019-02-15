@@ -15,6 +15,7 @@ stop:
 	@echo "Stopping process..."
 	@skill -9 tquakesd
 	@touch stop
+	@rm .start &> /dev/null
 
 status:
 	@echo "Checking status..."
