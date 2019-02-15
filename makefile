@@ -87,4 +87,4 @@ analysis:
 submit:
 	python tquakes-submit.py
 
-pipeline:fetch prepare eterna analysis submit
+pipeline:fetch prepare run analysis submit
