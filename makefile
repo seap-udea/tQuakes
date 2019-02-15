@@ -4,7 +4,7 @@ BRANCH=$(shell bash .getbranch)
 show:
 	@echo "Branch: $(BRANCH)"
 
-start:	
+start:cleandata
 	@echo "Starting process..."
 	@touch stop
 	@rm stop
