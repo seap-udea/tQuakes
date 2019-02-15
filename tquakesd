@@ -31,6 +31,7 @@ do
     make pull
 
     # RUN PROCESS PER EACH PROCESSOR
+    $(( ( RANDOM % 10 )  + 1 ))
     for i in $(seq 1 $station_nproc)
     do
 	if [ $qdebug -eq 0 ];then
