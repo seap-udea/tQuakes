@@ -1,6 +1,9 @@
 
 BRANCH=$(shell bash .getbranch)
 
+key:
+	eval $(keychain --eval id_rsa_seap)
+
 show:
 	@echo "Branch: $(BRANCH)"
 
