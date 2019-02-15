@@ -4,6 +4,7 @@ from scipy import signal
 from sys import exit,argv,stderr
 from util.jdcal import *
 from collections import OrderedDict
+from urllib import urlencode,quote
 
 # ######################################################################
 # MACROS

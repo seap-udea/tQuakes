@@ -42,7 +42,9 @@ if qdisabled:exit(0)
 # ##################################################
 # FETCHING EVENTS
 # ##################################################
-cmd="links -dump '%s/action.php?action=fetch&station_id=%s&numquakes=%d&fquakeid=%s'"%(conf.WEBSERVER,station.station_id,conf.NUMQUAKES,fquakeid)
+cmd="links -dump '%s/action.php?action=fetch2&station_id=%s&numquakes=%d&fquakeid=%s&condition=%s'"%(conf.WEBSERVER,station.station_id,
+                                                                                                     conf.NUMQUAKES,fquakeid,
+                                                                                                     quote(conf.CONDITION))
 #print cmd
 out=System(cmd)
 if 'No quakes' in out:
