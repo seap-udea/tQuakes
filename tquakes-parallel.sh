@@ -42,4 +42,5 @@ do
     # WAIT UNTIL PROCESSES END
     wait
     ((j++))
+    exit 0
 done
