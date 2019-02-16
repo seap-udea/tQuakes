@@ -88,6 +88,6 @@ submit:
 	python tquakes-submit.py
 
 parallel:
-	bash tquake-parallel.sh
+	bash tquakes-parallel.sh
 
 pipeline:fetch prepare run analysis submit
