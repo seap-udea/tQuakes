@@ -25,14 +25,22 @@ if len(argv)>1:fquakeid=argv[1]
 # GET NOT ANALYSED QUAKES
 # ##################################################
 print "Searching calculated quakes..."
-qlist=System("ls data/quakes/*/.gotic2 2> /dev/null")
-if len(qlist)==0:
-    print "\tNo quakes calculated."
-    exit(0)
+if not len(fquakeid):
+    qlist=System("ls data/quakes/*/.gotic2 2> /dev/null")
+    if len(qlist)==0:
+        print "\tNo quakes calculated."
+        exit(0)
+    else:
+        qlist=qlist.split("\n")
+        nquakes=len(qlist)
+        print "\t%d calculated quakes found..."%nquakes
 else:
-    qlist=qlist.split("\n")
-    nquakes=len(qlist)
-    print "\t%d calculated quakes found..."%nquakes
+    qlist=""
+    nquakes=0
+    for fquake in fquakeid.split("."):
+        qlist+="data/quakes/%s/.gotic2\n"%fquake
+        nquakes+=1
+    qlist.strip("\n")
 
 # SETTING STATION STATUS
 System("links -dump '%s/action.php?action=status&station_id=%s&station_status=4'"%(conf.WEBSERVER,station.station_id))
@@ -41,7 +49,8 @@ System("links -dump '%s/action.php?action=status&station_id=%s&station_status=4'
 # LOOP OVER QUAKES
 # ##################################################
 iq=1
-for quake in qlist:
+for quake in qlist.split("\n"):
+    if quake=="":continue
     search=re.search("\/(\w+)\/\.gotic2",quake)
     quakeid=search.group(1)
     print "Analysing quake %d '%s'"%(iq,quakeid)

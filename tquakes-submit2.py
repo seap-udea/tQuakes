@@ -16,6 +16,12 @@ updateConf("common",conf)
 station=loadConf(".stationrc")
 
 # ##################################################
+# CHECK IF RUN IS ONLY FOR ONE QUAKE
+# ##################################################
+fquakeid=""
+if len(argv)>1:fquakeid=argv[1]
+
+# ##################################################
 # CHECK IF STATION CAN SUBMIT
 # ##################################################
 qdisabled=False
@@ -38,20 +44,29 @@ System("links -dump '%s/action.php?action=status&station_id=%s&station_status=5'
 # GET UNSUBMITED QUAKES
 # ##################################################
 print "Searching calculated quakes..."
-qlist=System("ls data/quakes/*/.analysis 2> /dev/null")
-if len(qlist)==0:
-    print "\tNo quakes analysed."
-    exit(0)
+if not len(fquakeid):
+    qlist=System("ls data/quakes/*/.analysis 2> /dev/null")
+    if len(qlist)==0:
+        print "\tNo quakes analysed."
+        exit(0)
+    else:
+        qlist=qlist.split("\n")
+        nquakes=len(qlist)
+        print "\t%d analysed quakes found..."%nquakes
 else:
-    qlist=qlist.split("\n")
-    nquakes=len(qlist)
-    print "\t%d analysed quakes found..."%nquakes
-
+    qlist=""
+    nquakes=0
+    for fquake in fquakeid.split("."):
+        qlist+="data/quakes/%s/.analysis\n"%fquake
+        nquakes+=1
+    qlist.strip("\n")
+    
 # ##################################################
 # LOOP OVER QUAKES
 # ##################################################
 iq=1
-for quake in qlist:
+for quake in qlist.split("\n"):
+    if quake=="":continue
     search=re.search("\/(\w+)\/\.analysis",quake)
     quakeid=search.group(1)
     print "Submitting quake %d '%s'"%(iq,quakeid)

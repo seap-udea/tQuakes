@@ -49,8 +49,10 @@ elif int(out)==-1:
 if qdisabled:exit(0)
 
 # CHECK IF THERE IS PENDING QUAKES
+print "Fetching quakes..."
 out=System("python tquakes-fetch2.py")
-quakes=""
+print out
+quakes=out.split("\n")[-1].split(":")[-1]
 system("python tquakes-prepare2.py "+quakes)
 system("python tquakes-run2.py "+quakes)
 system("python tquakes-analysis2.py "+quakes)

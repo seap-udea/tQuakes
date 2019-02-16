@@ -30,22 +30,22 @@ if not len(fquakeid):
     if len(qlist)==0:
         print "\tNo quakes prepared."
         exit(0)
-    else:
-        qlist=qlist.split("\n")
-        nquakes=len(qlist)
-        print "\t%d prepared quakes found..."%nquakes
-
     # SETTING STATUS
     System("links -dump '%s/action.php?action=status&station_id=%s&station_status=3'"%(conf.WEBSERVER,station.station_id))
 else:
-    qlist=["data/quakes/%s/.prepare"%fquakeid]
-    nquakes=1
+    qlist=""
+    nquakes=0
+    for fquake in fquakeid.split("."):
+        qlist+="data/quakes/%s/.prepare\n"%fquake
+        nquakes+=1
+    qlist.strip("\n")
 
 # ##################################################
 # LOOP OVER QUAKES
 # ##################################################
 iq=1
-for quake in qlist:
+for quake in qlist.split("\n"):
+    if quake=="":continue
     search=re.search("\/(\w+)\/\.prepare",quake)
     quakeid=search.group(1)
     lquakeid=quakeid.lower()

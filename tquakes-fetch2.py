@@ -60,6 +60,7 @@ print(out)
 # CREATE QUAKES
 # ##################################################
 print "Creating directories of fetched quakes...",
+output="QUAKES:"
 for quake in out.split("\n"):
     quake=eval("dict(%s)"%quake.strip(" ,"))
     quakedir="data/quakes/%s"%quake["quakeid"]
@@ -71,4 +72,7 @@ for quake in out.split("\n"):
     for key in quake.keys():
         fq.write("%s='%s'\n"%(key,quake[key]))
     fq.close()
+    output+=quake["quakeid"]+"."
+output=output.strip(".")
 print "Fetched done from %s."%conf.WEBSERVER
+print output
