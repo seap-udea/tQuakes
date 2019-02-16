@@ -24,6 +24,7 @@ else
 fi
 
 j=0
+rm log/tquakes-proc*.log
 while [ 1 ]
 do
     # UPDATE BRANCH
@@ -36,11 +37,11 @@ do
 	#nsleep=$(( ( RANDOM % 10 )  + 1 ))
 	#echo "Sleeping $nsleep seconds before starting..."
 	#sleep $nsleep
-	python tquakes-pipeline.py &
+	python tquakes-pipeline.py |tee log/tquakes-proc$i.log 2>&1 &
     done
     
     # WAIT UNTIL PROCESSES END
     wait
     ((j++))
-    exit 0
+    rm .start;exit 0
 done
