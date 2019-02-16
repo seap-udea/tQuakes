@@ -37,7 +37,7 @@ do
     for i in $(seq 1 $station_nproc)
     do
 	if [ $qdebug -eq 0 ];then
-	    python tquakes-pipeline.py >> log/tquakes-proc$i.log 2>&1 &
+	    python tquakes-pipeline2.py > log/tquakes-proc$i.log 2>&1 &
 	else
 	    echo "Process $i/$station_nproc..."
 	    python tquakes-pipeline.py
