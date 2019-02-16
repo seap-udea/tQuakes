@@ -51,7 +51,10 @@ if qdisabled:exit(0)
 print "Fetching quakes..."
 out=System("python tquakes-fetch2.py")
 print out
-quakes=out.split("\n")[-1].split(":")[-1]
+if not 'QUAKES' in out:
+    quakes=""
+else:
+    quakes=out.split("\n")[-1].split(":")[-1]
 system("python tquakes-prepare2.py "+quakes)
 system("python tquakes-run2.py "+quakes)
 system("python tquakes-analysis2.py "+quakes)
