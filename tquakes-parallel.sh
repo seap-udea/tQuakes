@@ -28,8 +28,8 @@ rm log/tquakes-proc*.log
 while [ 1 ]
 do
     # UPDATE BRANCH
-    echo "Updating repository..."
-    make pull
+    #echo "Updating repository..."
+    #make pull
 
     # RUN PROCESS PER EACH PROCESSOR
     for i in $(seq 1 $station_nproc)
