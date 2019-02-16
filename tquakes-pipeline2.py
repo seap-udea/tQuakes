@@ -33,7 +33,6 @@ out=System("links -dump '%s/action.php?action=checkstation&station_id=%s'"%(conf
 if int(out)>0:
     print "Station enabled."
 elif int(out)==0:
-
     # REMOVE REMAINING QUAKES
     System("rm -r data/quakes/???????")
     # REMOVE SERVER SIGNATURE
