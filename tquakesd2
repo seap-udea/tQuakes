@@ -51,3 +51,4 @@ do
     # BREAK AFTER 
     if [ $j -ge $DAEMON_LIMIT ];then exit 0;fi
 done
+rm .start
