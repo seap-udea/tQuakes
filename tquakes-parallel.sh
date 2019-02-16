@@ -37,7 +37,7 @@ do
 	#nsleep=$(( ( RANDOM % 10 )  + 1 ))
 	#echo "Sleeping $nsleep seconds before starting..."
 	#sleep $nsleep
-	python tquakes-pipeline.py |tee log/tquakes-proc$i.log 2>&1 &
+	python tquakes-pipeline2.py |tee log/tquakes-proc$i.log 2>&1 &
     done
     
     # WAIT UNTIL PROCESSES END

@@ -36,11 +36,8 @@ do
     # RUN PROCESS PER EACH PROCESSOR
     for i in $(seq 1 $station_nproc)
     do
-	nsleep=$(( ( RANDOM % 10 )  + 1 ))
 	if [ $qdebug -eq 0 ];then
-	    echo "Sleeping $nsleep seconds before starting..."
-	    sleep $nsleep
-	    python tquakes-pipeline.py >> log/tquakes-proc$i.log &
+	    python tquakes-pipeline.py >> log/tquakes-proc$i.log 2>&1 &
 	else
 	    echo "Process $i/$station_nproc..."
 	    python tquakes-pipeline.py

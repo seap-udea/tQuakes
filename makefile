@@ -11,11 +11,11 @@ start:cleandata
 	@echo "Starting process..."
 	@touch stop
 	@rm stop
-	@nohup ./tquakesd > log/tquakes.out 2>&1 &
+	@nohup ./tquakesd2 > log/tquakes.out 2>&1 &
 
 stop:
 	@echo "Stopping process..."
-	@skill -9 tquakesd
+	@skill -9 tquakesd2
 	@sudo pkill python
 	@touch stop
 	@rm .start &> /dev/null
@@ -73,19 +73,19 @@ resetquakes:
 	@find data/quakes -maxdepth 1 -type d -not -name TEMPLATE -not -name quakes -exec touch {}/.fetch \;
 
 fetch:
-	python tquakes-fetch.py
+	python tquakes-fetch2.py
 
 prepare:
-	python tquakes-prepare.py
+	python tquakes-prepare2.py
 
 run:
-	python tquakes-run.py
+	python tquakes-run2.py
 
 analysis:
-	python tquakes-analysis.py
+	python tquakes-analysis2.py
 
 submit:
-	python tquakes-submit.py
+	python tquakes-submit2.py
 
 parallel:
 	bash tquakes-parallel.sh
