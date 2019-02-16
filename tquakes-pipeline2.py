@@ -49,12 +49,12 @@ elif int(out)==-1:
 if qdisabled:exit(0)
 
 # CHECK IF THERE IS PENDING QUAKES
-out=System("python tquakes-fetch.py")
-quakes=out
-System("python tquakes-prepare.py "+quakes)
-system("python tquakes-run.py "+quakes)
-system("python tquakes-analysis.py "+quakes)
-system("python tquakes-submit.py "+quakes)
+out=System("python tquakes-fetch2.py")
+quakes=""
+system("python tquakes-prepare2.py "+quakes)
+system("python tquakes-run2.py "+quakes)
+system("python tquakes-analysis2.py "+quakes)
+system("python tquakes-submit2.py "+quakes)
 
 # ##################################################
 # STATUS
