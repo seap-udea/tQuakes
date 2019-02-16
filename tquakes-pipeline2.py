@@ -49,23 +49,12 @@ elif int(out)==-1:
 if qdisabled:exit(0)
 
 # CHECK IF THERE IS PENDING QUAKES
-out=System("ls -d data/quakes/??????? 2> /dev/null")
-if out!="":
-    print "Processing pending jobs.".upper()
-    system("python tquakes-prepare.py")
-    system("python tquakes-run.py")
-    system("python tquakes-analysis.py")
-    system("python tquakes-submit.py")
-
-# FETCH QUAKES
 out=System("python tquakes-fetch.py")
-print out
-
-# PROCESS
-system("python tquakes-prepare.py")
-system("python tquakes-run.py")
-system("python tquakes-analysis.py")
-system("python tquakes-submit.py")
+quakes=out
+System("python tquakes-prepare.py "+quakes)
+system("python tquakes-run.py "+quakes)
+system("python tquakes-analysis.py "+quakes)
+system("python tquakes-submit.py "+quakes)
 
 # ##################################################
 # STATUS
