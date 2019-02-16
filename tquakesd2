@@ -40,7 +40,7 @@ do
 	    python tquakes-pipeline2.py > log/tquakes-proc$i.log 2>&1 &
 	else
 	    echo "Process $i/$station_nproc..."
-	    python tquakes-pipeline.py
+	    python tquakes-pipeline2.py
 	fi
     done
     
@@ -49,5 +49,5 @@ do
     ((j++))
 
     # BREAK AFTER 
-    if [ $j -gt $DAEMON_LIMIT ];then exit 0;fi
+    if [ $j -ge $DAEMON_LIMIT ];then exit 0;fi
 done
