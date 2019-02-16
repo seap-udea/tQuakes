@@ -54,18 +54,19 @@ if not len(fquakeid):
         nquakes=len(qlist)
         print "\t%d analysed quakes found..."%nquakes
 else:
+    print "Submitting from list ",fquakeid
     qlist=""
-    nquakes=0
     for fquake in fquakeid.split("."):
         qlist+="data/quakes/%s/.analysis\n"%fquake
-        nquakes+=1
     qlist.strip("\n")
+    qlist=qlist.split("\n")
+    nquakes=len(qlist)
     
 # ##################################################
 # LOOP OVER QUAKES
 # ##################################################
 iq=1
-for quake in qlist.split("\n"):
+for quake in qlist:
     if quake=="":continue
     search=re.search("\/(\w+)\/\.analysis",quake)
     quakeid=search.group(1)

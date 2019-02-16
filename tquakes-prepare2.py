@@ -34,6 +34,7 @@ if not len(fquakeid):
         nquakes=len(qlist.split("\n"))
         print "\t%d quakes found..."%nquakes
 else:
+    print "Preparing from list ",fquakeid
     qlist=""
     nquakes=0
     for fquake in fquakeid.split("."):

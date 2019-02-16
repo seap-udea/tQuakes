@@ -33,6 +33,7 @@ if not len(fquakeid):
     # SETTING STATUS
     System("links -dump '%s/action.php?action=status&station_id=%s&station_status=3'"%(conf.WEBSERVER,station.station_id))
 else:
+    print "Running from list ",fquakeid
     qlist=""
     nquakes=0
     for fquake in fquakeid.split("."):

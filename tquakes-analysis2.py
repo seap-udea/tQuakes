@@ -35,12 +35,13 @@ if not len(fquakeid):
         nquakes=len(qlist)
         print "\t%d calculated quakes found..."%nquakes
 else:
+    print "Analyzing from list ",fquakeid
     qlist=""
-    nquakes=0
     for fquake in fquakeid.split("."):
         qlist+="data/quakes/%s/.gotic2\n"%fquake
-        nquakes+=1
     qlist.strip("\n")
+    qlist=qlist.split("\n")
+    nquakes=len(qlist)
 
 # SETTING STATION STATUS
 System("links -dump '%s/action.php?action=status&station_id=%s&station_status=4'"%(conf.WEBSERVER,station.station_id))
@@ -49,7 +50,7 @@ System("links -dump '%s/action.php?action=status&station_id=%s&station_status=4'
 # LOOP OVER QUAKES
 # ##################################################
 iq=1
-for quake in qlist.split("\n"):
+for quake in qlist:
     if quake=="":continue
     search=re.search("\/(\w+)\/\.gotic2",quake)
     quakeid=search.group(1)
