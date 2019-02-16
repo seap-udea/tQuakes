@@ -50,6 +50,8 @@ do
     ((j++))
 
     # BREAK AFTER 
-    if [ $j -ge $DAEMON_LIMIT ];then exit 0;fi
+    if [ $j -ge $DAEMON_LIMIT ];then
+	rm .start
+	exit 0
+    fi
 done
-rm .start
