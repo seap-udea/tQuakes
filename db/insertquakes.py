@@ -2,7 +2,7 @@ from tquakes import *
 import spiceypy as sp
 sp.furnsh("util/kernels/kernels.mk")
 
-verbose=0
+verbose=1
 freq=1000
 
 # ############################################################
@@ -89,18 +89,6 @@ for quake in content:
         print "Analizando sismo %d fecha = %s (insertados %d, saltados %d)"%(itot,quake["qdatetime"],iins,iskp)
 
     # CALCULATE JULIAN DAY AND EPHEMERIS TIME
-    """
-    try:
-        qdate=datetime.datetime.strptime(quake["qdatetime"],DATETIME_FORMAT)
-    except:
-        try:
-            qdate=datetime.datetime.strptime(quake["qdatetime"],"%Y/%m/%d %H:%M:%S")
-        except:
-            qdate=datetime.datetime.strptime(quake["qdatetime"],"%Y-%m-%d %H:%M:%S")
-        quake["Fecha"]=qdate.strftime("%d/%m/%y")
-        quake["qdate"]=quake["Fecha"]
-        quake["qdatetime"]=quake["qdate"]+" "+quake["Hora UTC"];
-    """
     try:
         qdate=datetime.datetime.strptime(quake["qdatetime"],DATETIME_FORMAT)
     except:
@@ -121,10 +109,14 @@ for quake in content:
     if(verbose):print "\tString: ",quake["quakestr"]
 
     # CHECK IF QUAKE ALREADY EXIST IN DATABASE
-    if quake["quakestr"] in qs and quake["Sobreescribe"]=="0":
-        iskp+=1
-        if(verbose):print >>stderr,"\tQuake already exist in database. Skipping."
-        continue
+    if quake["quakestr"] in qs:
+        if quake["Sobreescribe"]=="0":
+            iskp+=1
+            if(verbose):print >>stderr,"\tQuake already exist in database. Skipping."
+            continue
+        else:
+            iins+=1
+            if(verbose):print >>stderr,"\tOld quake. Overwriting.";
     else:
         iins+=1
         if(verbose):print >>stderr,"\tNew quake. Inserting.";

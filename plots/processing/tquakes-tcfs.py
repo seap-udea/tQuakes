@@ -34,14 +34,24 @@ u4=0.8
 
 #for i,quake in tqdm(enumerate(Quakes)):
 for i,quake in enumerate(Quakes):
-    
+
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    #BASIC INFO
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     quakeid=quake["quakeid"]
     print("Processing quake %d/%d %s..."%(i,nquakes,quakeid))
 
-    #print(quake["qdatetime"],quake["municipio"],quake["qdepth"])
     qjd=float(quake["qjd"])
     print "\tDate: %s (JD = %s)"%(quake["qdatetime"],qjd)
+
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    #SQL UPDATE STRING
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    sql="update Quakes set "
     
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    #FOCAL MECHANISM
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     #Main plane
     phimain=float(quake["qstrikemain"]) #Strike
     deltamain=float(quake["qdipmain"]) #Dip
@@ -56,6 +66,9 @@ for i,quake in enumerate(Quakes):
     print "\t\tMain (strike = %.2f, dip = %.2f, rake = %.2f)"%(phimain,deltamain,lambdamain)
     print "\t\tAux (strike = %.2f, dip = %.2f, rake = %.2f)"%(phiaux,deltaaux,lambdaaux)
         
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    #GET TIDAL TIMESERIES
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     #Get data
     data=getQuakeData(quakeid)
     qjds=data[:,0]
@@ -68,34 +81,53 @@ for i,quake in enumerate(Quakes):
         qvalues=data[:,GOTIC2_NCOLUMNS[component]]
         strain[component]=interpolate(qjds,qvalues,kind="slinear")
     
-    #Get strains at earthquake origin time (AEOT)
-    eNS=strain["T=ST.L=S.C=NSEXP"](qjd)
-    eEW=strain["T=ST.L=S.C=EW"](qjd)
-    shear=strain["T=ST.L=S.C=SHEARNE"](qjd)
-    areal=strain["T=ST.L=S.C=AREAL"](qjd)
-    cubic=strain["T=ST.L=S.C=CUBIC"](qjd)
-    ezz=(-v/(1.0-v))*(eNS+eEW)  #According to Royer et al. (2014)
-    print("\tStrain components (AEOT): eNS = %.5e, eEW = %.5e, shear = %.5e, areal = %.5e, cubic = %.5e, ezz = %.5e"%(eNS,eEW,shear,areal,cubic,ezz))
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    #GET TIME OF PREVIOUS MAXIMUM
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    #Strain
+    listMax=[
+        dict(
+            var="st",
+            etots=numpy.sqrt(data[:,GOTIC2_NCOLUMNS["T=ST.L=B.C=NSEXP"]]**2+data[:,GOTIC2_NCOLUMNS["T=ST.L=S.C=EW"]]**2)
+        ),
+        dict(
+            var="rd",
+            etots=data[:,GOTIC2_NCOLUMNS["T=RD.L=B.C=UPWARD"]]
+        ),
+        dict(
+            var="gv",
+            etots=data[:,GOTIC2_NCOLUMNS["T=GV.L=B.C=UPWARD"]]
+        ),
+    ]
 
-    #Get strains at maximum strain before earthquake (MSBE)
-    #Total strain vector
-    etots=numpy.sqrt(data[:,GOTIC2_NCOLUMNS["T=ST.L=S.C=NSEXP"]]**2+data[:,GOTIC2_NCOLUMNS["T=ST.L=S.C=EW"]]**2)
-    straintot=interpolate(qjds,etots,kind="slinear")
-    ts=numpy.linspace(qjd-1.0,qjd,50)
-    its=numpy.arange(len(ts))
-    sts=straintot(ts)
-    #Find gradient and second derivative
-    dsts=numpy.concatenate((sts[1:]-sts[:-1],[0]));dsts[dsts>0]=+1;dsts[dsts<0]=-1
-    ddsts=numpy.concatenate((dsts[1:]-dsts[:-1],[0]))
-    #Fin time of last maximum
-    tlastmax=ts[its[ddsts==-2][-1]+1]
-    strainmax=straintot(tlastmax)
+    sql_qjdmax=""
+    for qMax in listMax:
+        straintot=interpolate(qjds,qMax["etots"],kind="slinear")
+        ts=numpy.linspace(qjd-1.0,qjd,50)
+        its=numpy.arange(len(ts))
+        sts=straintot(ts)
+        dsts=numpy.concatenate((sts[1:]-sts[:-1],[0]));dsts[dsts>0]=+1;dsts[dsts<0]=-1
+        ddsts=numpy.concatenate((dsts[1:]-dsts[:-1],[0]))
+        qjdmax=ts[its[ddsts==-2][-1]+1]
+        strainmax=straintot(qjdmax)
+        sql_qjdmax+="%.7lf;"%qjdmax
+        
+        #Show
+        """
+        print(numpy.column_stack(((ts-qjd)*24,sts,dsts,ddsts)))
+        print "\tTime of latest maximum for var. %s: jd = %lf (dt = %lf hours)"%(qMax["var"],qjdmax,(qjdmax-qjd)*24)
+        print "\tValue at latest maximum: strain = %lf"%strainmax
+        exec("qjd%smax=qjdmax"%qMax["var"])
+        raw_input()
+        """
 
-    #Show result
-    print(numpy.column_stack(((ts-qjd)*24,sts,dsts,ddsts)))
-    print "\tTime of latest maximum: jd = %lf (dt = %lf hours)"%(tlastmax,(tlastmax-qjd)*24)
-    print "\tTotal strain at latest maximum: strain = %lf"%strainmax
-    exit(0)
+    sql+="qjdmax='%s',"%sql_qjdmax
+    print(sql)
+    
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    #CALCULATE TCFS
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    raw_input()
 
     """
     print (ezz)
@@ -153,4 +185,7 @@ for i,quake in enumerate(Quakes):
     print ("")
     """
     
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    #STORE VALUES IN DATABASE
+    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
