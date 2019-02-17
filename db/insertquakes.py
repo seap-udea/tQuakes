@@ -26,7 +26,7 @@ content=csv.DictReader(csvfile,fieldnames=FIELDS_CSV,dialect="excel",delimiter="
 # ############################################################
 # LOAD DATABASE
 # ############################################################
-tQuakes,connection=loadDatabase()
+connection=connectDatabase()
 db=connection.cursor()
 
 # ############################################################
@@ -121,7 +121,7 @@ for quake in content:
     if(verbose):print "\tString: ",quake["quakestr"]
 
     # CHECK IF QUAKE ALREADY EXIST IN DATABASE
-    if quake["quakestr"] in qs:
+    if quake["quakestr"] in qs and quake["Sobreescribe"]=="0":
         iskp+=1
         if(verbose):print >>stderr,"\tQuake already exist in database. Skipping."
         continue
