@@ -12,6 +12,7 @@ start:cleandata
 	@touch stop
 	@rm stop
 	@nohup ./tquakesd2 > log/tquakes.out 2>&1 &
+	@make status
 
 stop:
 	@echo "Stopping process..."
