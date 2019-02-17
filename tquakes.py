@@ -4,12 +4,17 @@ except:
     import pymysql
     pymysql.install_as_MySQLdb()
     import MySQLdb as mdb
-import csv,datetime,commands,re,os,numpy,cmath,time as timing
+import csv,datetime,commands,re,os,numpy,cmath,tarfile,time as timing
 from scipy import signal
 from sys import exit,argv,stderr
 from util.jdcal import *
 from scipy.stats import chisquare
 from scipy.stats import chi2 as chiSquare
+from dateutil.parser import parse
+from glob import glob
+from collections import OrderedDict
+from tqdm import tqdm
+from scipy.interpolate import interp1d as interpolate 
 
 # ######################################################################
 # MACROS
@@ -90,26 +95,54 @@ for field in FIELDS_DB:
 FIELDSTXT=FIELDSTXT.strip(",")+")"
 FIELDSUP=FIELDSUP.strip(",")
 
-DATETIME_FORMAT="%d/%m/%y %H:%M:%S"
+DATETIME_FORMAT="%Y-%m-%d %H:%M:%S"
 
-"""
-ETERNA COMPONENTS:
--1: for tidal potential in m**2/s**2.
-0: for tidal gravity in nm/s**2.
-1: for tidal tilt in mas, at azimuth STATAZIMUT.
-2: for tidal vertical displacement in mm.
-3: for tidal horizontal displacement in mm at azimuth 0 deg.
-4: for tidal vertical strain in 10**-9 = nstr.
-5: for tidal horizontal strain in 10**-9 = nstr, at azimuth 0 deg.
-6: for tidal areal  strain in 10**-9 = nstr.
-7: for tidal shear  strain in 10**-9 = nstr.
-8: for tidal volume strain in 10**-9 = nstr.
-9: for tidal horizontal strain at azimuth 90 deg.
-"""
+# COMPONENTS IN GOTIC
+GOTIC2=OrderedDict(
+    GV=0, #Gravity, mugal
+    TL=1, #Tilt, nanorad
+    RD=2, #Radial displacement, mm
+    DV=3, #Vertical displacement, nanorad
+    ST=4, #Strain, nanostrain
+    HN=5, #Horizontal displacement 0 degrees, mm
+    HE=6, #Horizontal displacement 90 degrees, mm
+)
 
-# NAME    :  g  tilt  vd vs hs0 hs90   areal shear volume
-# IN FILE :  1  2     3  4  5   6      7     8     9
-COMPONENTS=[ 0, 1,    2, 4, 5,  9]#,     6,    7,    8]
+# GOTIC2 SIGNAL:  solid + ocean  Solid  Ocean
+GOTIC2_TYPES=OrderedDict(
+    B=1,
+    S=2,
+    O=3
+)
+
+GOTIC2_COLUMNS=OrderedDict(
+    GV=["UPWARD"], #Gravity, mugal
+    TL=["NS","EW","AZIMUTHAL"], #Tilt, nanorad
+    RD=["UPWARD"], #Radial displacement, mm
+    DV=["NS","EW"], #Vertical displacement, nanorad
+    ST=["NSEXP","EW","SHEARNE","AZIMUTHAL","AREAL","CUBIC"], #Strain, nanostrain
+    HD=["NS","EW","AZIMUTHAL"], #Horizontal displacement 0 degrees, mm
+)    
+
+#GENERATE MAP FROM COMPONENT TO COLUMN
+n=1
+GOTIC2_NCOLUMNS=OrderedDict()
+GOTIC2_HEADER=""
+PHASE_COMPONENTS=[]
+for k,gn in GOTIC2.items():
+    gname=k
+    if k=="HN" or k=="HE":gname="HD"
+    g=GOTIC2_COLUMNS[gname]
+    for gt,gtn in GOTIC2_TYPES.items():
+        if gt=="O":qphase=False
+        else:qphase=True
+        for f in g:
+            GOTIC2_HEADER+="%d:%s/%s/%s "%(n,k,gt,f)
+            component="T=%s.L=%s.C=%s"%(k,gt,f)
+            GOTIC2_NCOLUMNS[component]=n
+            if qphase:PHASE_COMPONENTS+=[component]
+            n+=1
+
 PHASESGN=  [-1,+1,   +1,-1,+1, +1]   
 COMPONENTS_LONGTERM=[0]
 COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
@@ -244,7 +277,8 @@ def loadDatabase(server='localhost',
                 dbdict[table]['fields']+=[fieldname]
                 if fieldtype=='PRI':
                     dbdict[table]['primary']=fieldname
-
+            if not 'primary' in dbdict[table].keys():continue
+                    
             db.execute("select * from %s;"%table)
             rows=db.fetchall()
 
@@ -1624,3 +1658,41 @@ def filterSpikes(quakes,window=1.0):
         try:iquakes=iquakes[cond]
         except:pass
     return iquakes
+
+def getAllQuakes(db,cond="(1>0)"):
+
+    #Get database fields
+    sql="describe Quakes"
+    results=mysqlArray(sql,db)
+    fieldsdb=[]
+    for field in results:
+        fieldsdb+=[field[0]]
+
+    #Get quakes and store it in an array
+    sql="select * from Quakes where %s"%(cond)
+    results=mysqlArray(sql,db)
+    Quakes=[]
+    for row in results:
+        quake=dict()
+        for i,field in enumerate(fieldsdb):
+            quake[field]=row[i]
+        Quakes+=[quake]
+
+    return Quakes
+
+def getQuakeData(quakeid):
+    #Get tar file
+    files=glob("%s/%s/tQuakes/%s*.tar.gz"%(CONF.HOMEDIR,CONF.TQUSER,quakeid))
+    tar=tarfile.open(files[0])
+
+    #Search for data
+    for tarmember in tar.getmembers():
+        if tarmember.__dict__["name"]=='%s.data'%quakeid:break
+        
+    #Get Datafile
+    datafile=tarmember
+
+    #Load data
+    data=numpy.loadtxt(tar.extractfile(datafile))
+
+    return data

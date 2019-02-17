@@ -1120,7 +1120,7 @@ else if($if=="stations"){
   //////////////////////////////////////////////////////////////
   //BASIC STATISTICS
   //////////////////////////////////////////////////////////////
-  $CONTENT.="<h2><a name='stats'></a>Basic Statistics</h2><p><b>Database</b>: <span style=font-family:courier>$QUAKESRUN</span></p>";
+  $CONTENT.="<h2><a name='stats'></a>Basic Statistics</h2><p><a href=$URLPAGE> Refresh now</a></p><p><b>Database</b>: <span style=font-family:courier>$QUAKESRUN</span></p>";
   $SUBMENU.="<a href='#stats'>Basic Statistics</a> | ";
   
   $statlog="$SCRATCHDIR/stats.log";
@@ -1172,7 +1172,7 @@ $CONTENT.=<<<STAT
       <b>Elapsed time</b>: $elapsed[0] [ $perquake secs/earthquake ]
     </li>
     <li>
-      <b>Average ETERNA time</b>: $avgcalc1
+      <b>Average Run time</b>: $avgcalc1
     </li>
     <li>
       <b>Average Analysis time</b>: $avgcalc2

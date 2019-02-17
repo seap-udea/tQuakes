@@ -7,14 +7,6 @@ TABLE=Quakes
 show:
 	@echo "Branch: $(BRANCH)"
 
-start:	
-	@echo "Starting process..."
-	@nohup ./tquakesd > log/tquakes.out 2>&1 &
-
-stop:
-	@echo "Stopping process..."
-	@skill -9 tquakesd
-
 install:
 	@echo "Installing tQuakes..."
 	@bash install.sh
@@ -102,8 +94,13 @@ station:
 	@git checkout station
 
 resetquakes:
-	@echo "Resetting quakes..."
+	@echo "Resetting all quakes..."
 	@mysql -u root -p tQuakes -e "update $(TABLE) set astatus='0',stationid='',adatetime='',calctime1='',calctime2='',calctime3='',qsignal='',qphases='',aphases=''"
+	@rm -rf ~tquakes/tQuakes/*
+
+resetdirty:
+	@echo "Resetting dirty quakes..."
+	@mysql -u root -p tQuakes -e "update $(TABLE) set astatus='0',stationid='',adatetime='',calctime1='',calctime2='',calctime3='',qsignal='',qphases='',aphases='' where astatus+0<4"
 
 plotdata:
 	@echo "Generating website plots..."

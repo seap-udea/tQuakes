@@ -10,7 +10,8 @@ freq=1000
 # ############################################################
 filexls=argv[1]
 label=argv[2]
-if not os.path.isfile("%s.csv"%filexls) or True:
+
+if os.path.isfile("%s.xls"%filexls):
     print "%s.xls..."%filexls
     system("LC_NUMERIC='en_US.UTF-8' LC_CURRENCY=' ' /usr/bin/ssconvert %s.xls %s.csv 2> /tmp/convert"%(filexls,filexls))
 else:
@@ -88,6 +89,7 @@ for quake in content:
         print "Analizando sismo %d fecha = %s (insertados %d, saltados %d)"%(itot,quake["qdatetime"],iins,iskp)
 
     # CALCULATE JULIAN DAY AND EPHEMERIS TIME
+    """
     try:
         qdate=datetime.datetime.strptime(quake["qdatetime"],DATETIME_FORMAT)
     except:
@@ -98,7 +100,13 @@ for quake in content:
         quake["Fecha"]=qdate.strftime("%d/%m/%y")
         quake["qdate"]=quake["Fecha"]
         quake["qdatetime"]=quake["qdate"]+" "+quake["Hora UTC"];
-        
+    """
+    try:
+        qdate=datetime.datetime.strptime(quake["qdatetime"],DATETIME_FORMAT)
+    except:
+        print "Date is not in the format %s"%DATETIME_FORMAT
+        exit(1)
+
     quake["qjd"]=date2jd(qdate)
     dtime=qdate.strftime("%m/%d/%Y %H:%M:%S.%f")
 

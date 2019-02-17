@@ -25,6 +25,63 @@ $action_error="";
 //FETCHING EVENTS
 ////////////////////////////////////////////////////////////////////////
 if(!isBlank($action)){
+  
+if($action=="fetch2"){
+
+  if(isset($condition)){
+    //echo "With condition: $condition";
+  }else{
+    //echo "Conditionless";
+    $condition="(1>0)";
+  }
+
+  // ============================================================
+  // CHECK IF STATION IS ENABLED
+  // ============================================================
+  $sql="select station_receiving from Stations where station_id='$station_id';";
+  $result=mysqlCmd($sql);
+  $station_receiving=$result[0];
+  if($station_receiving<0){
+    echo "-1";
+    return 0;
+  }
+
+  // ============================================================
+  // COMPUTE TIME LIMITS
+  // ============================================================
+  $results=mysqlCmd("select max(calctime1+calctime2+calctime3) from $QUAKESRUN");
+  $maxtime=$results[0];
+  if(isBlank($maxtime)){$maxtime=0;}
+  $maxtime=2*$NUMQUAKES*$maxtime;
+
+  // ============================================================
+  // FETCH QUAKES NOT FETCHED OR FETCHED TOO MUCH TIME AGO
+  // ============================================================
+  if(isBlank($fquakeid)){
+    //$sql="select * from $QUAKESRUN where $condition and (astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>$maxtime)) order by TIME_TO_SEC(TIMEDIFF(NOW(),adatetime)) desc limit $numquakes";
+    $sql="select * from $QUAKESRUN where $condition and (astatus+0=0 or (astatus+0>0 and astatus+0<4 and adatetime<>'' and TIME_TO_SEC(TIMEDIFF(NOW(),adatetime))>$maxtime)) order by RAND() limit $numquakes";
+  }else{
+    $sql="select * from $QUAKESRUN where quakeid='$fquakeid'";
+  }
+
+  $quakes=mysqlCmd($sql,$out=1);
+  if($quakes==0){
+    echo "No quakes available for fecthing.";
+    return 0;
+  }
+  //print_r($quakes[0]);
+  $disprops=array("quakeid","qjd","qlat","qlon","qdepth","qdate","qtime","hmoon","hsun");
+  foreach($quakes as $quake){
+    foreach($disprops as $prop){
+      $$prop=$quake["$prop"];
+      echo "$prop='".trim($quake["$prop"])."',";
+    }
+    echo "<br/>";
+    $sql="update $QUAKESRUN set astatus='1',stationid='$station_id',adatetime=now() where quakeid='$quakeid';";
+    mysqlCmd($sql);
+  }
+  return 0;
+}
 
 if($action=="fetch"){
 
