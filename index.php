@@ -43,6 +43,7 @@ $insert_msg_insert=<<<I
 	     function(e){
 	       alert(e);
 	       $("#insert_loader_insert").hide();
+	       $("#insert_error").show();
 	     });
     });
 </script>
@@ -1661,7 +1662,7 @@ $CONTENT.=<<<I
 <h2><a name='insert'>Insert new events</a></h2> 
 
 <p>
-  In order to add new events to the database, please upload the list of new earthquakes using <a href="db/template.xls">this template</a>.
+  In order to add new events to the database, please upload the list of new earthquakes using <a href="db/template.xls">this excel 95 template</a> (<a href="db/template.xls">csv template</a>).
 </p>
 
 <p>
@@ -1671,6 +1672,9 @@ $CONTENT.=<<<I
   <p>File with new events: <input type="file" name="file_insert"></p>
   <input type="submit" name="action" value="Upload">
   </form>
+</p>
+<p id="insert_error" style="display:none">
+<a href="/tmp/insert" target="_blank">Error</a>
 </p>
 </div>
 I;
