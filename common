@@ -7,4 +7,4 @@ TIMEWIDTH=-1;
 
 # Comment if you want to prevent submission
 QSUBMIT=1;
-NUMQUAKES=20;
+NUMQUAKES=5;
