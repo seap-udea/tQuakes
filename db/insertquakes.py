@@ -2,7 +2,7 @@ from tquakes import *
 import spiceypy as sp
 sp.furnsh("util/kernels/kernels.mk")
 
-verbose=1
+verbose=0
 freq=1000
 
 # ############################################################
