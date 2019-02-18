@@ -34,6 +34,10 @@ db=connection.cursor()
 # ############################################################
 q=db.execute("select quakestr from Quakes;")
 qs=[s[0] for s in db.fetchall()]
+q=db.execute("select customid from Quakes;")
+cs=[s[0] for s in db.fetchall()]
+q=db.execute("select quakeid from Quakes;")
+qids=[s[0] for s in db.fetchall()]
 
 # ############################################################
 # GET DATA FROM FILE
@@ -79,10 +83,12 @@ for quake in content:
     quake["extra2"]=quake["Extra2"]
     quake["extra3"]=quake["Extra3"]
     quake["extra4"]=quake["Extra4"]
+
+    quake["overwrite"]=quake["Sobreescribe"]
+    quake["customid"]=quake["Identificador"]
+    quake["qclass"]=quake["Clasificacion"]
     
     # CONVERT DATE TO FORMAT
-
-    # DATE
     quake["qdatetime"]=quake["Fecha"]+" "+quake["Hora UTC"];
 
     if (itot%freq)==0:
@@ -109,23 +115,37 @@ for quake in content:
     if(verbose):print "\tString: ",quake["quakestr"]
 
     # CHECK IF QUAKE ALREADY EXIST IN DATABASE
-    if quake["quakestr"] in qs:
-        if quake["Sobreescribe"]=="0":
+    qgen=1
+    if (quake["quakestr"] in qs) or (quake["customid"] in cs):
+        if quake["overwrite"]=="0":
             iskp+=1
             if(verbose):print >>stderr,"\tQuake already exist in database. Skipping."
             continue
         else:
+            qgen=0
+            if quake["quakestr"] in qs:
+                for i,q in enumerate(qs):
+                    if q==quake["quakestr"]:
+                        quakeid=qids[i]
+                        break
+            if quake["customid"] in cs:
+                for i,c in enumerate(cs):
+                    if c==quake["customid"]:
+                        quakeid=qids[i]
+                        break
+            
             iins+=1
-            if(verbose):print >>stderr,"\tOld quake. Overwriting.";
+            if(verbose):print >>stderr,"\tOld quake (quakeid=%s). Overwriting."%quakeid;
     else:
         iins+=1
         if(verbose):print >>stderr,"\tNew quake. Inserting.";
 
     # GENERATE A RANDOM ID
-    q=1
-    while q:
-        quakeid=randomStr(7)
-        q=db.execute("select quakeid from Quakes where quakeid='%s';"%quakeid)
+    if qgen:
+        q=1
+        while q:
+            quakeid=randomStr(7)
+            q=db.execute("select quakeid from Quakes where quakeid='%s';"%quakeid)
     quake["quakeid"]=quakeid
     if(verbose):print "\tQuake id: ",quakeid
 
@@ -157,9 +177,8 @@ for quake in content:
     sql=sql.strip(",")
     sql+=") on duplicate key update %s;\n"%FIELDSUP
 
-    print >>stderr,sql
+    if(verbose):print >>stderr,sql
     db.execute(sql)
-    if(verbose):print sql
 
 print "Number of quakes read: ",itot
 print "Number of quakes inserted: ",iins

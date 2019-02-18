@@ -7,6 +7,9 @@ use('Agg')
 import matplotlib.pyplot as plt
 execfile("%s.conf"%BASENAME)
 
+verbose=1
+if verbose:tqdm=lambda x:x
+
 # ############################################################
 # DATABASE CONNECTION
 # ############################################################
@@ -20,52 +23,25 @@ Quakes=getAllQuakes(db,cond="extra5='tcfs'")
 nquakes=len(Quakes)
 
 # ############################################################
-# CONSTANTS
+# COMPUTATION
 # ############################################################
-#Constantes
-u= 30 #constante de lame rigidez en GPa
-v= 0.25  # coeficiente de Poisson
-
-#coeficientes de friccion
-u1=0.2
-u2=0.4
-u3=0.6
-u4=0.8
-
 #for i,quake in tqdm(enumerate(Quakes)):
-for i,quake in enumerate(Quakes):
+for i,quake in tqdm(enumerate(Quakes)):
 
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     #BASIC INFO
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     quakeid=quake["quakeid"]
-    print("Processing quake %d/%d %s..."%(i,nquakes,quakeid))
+    if verbose:print "Processing quake %d/%d %s..."%(i,nquakes,quakeid)
 
     qjd=float(quake["qjd"])
-    print "\tDate: %s (JD = %s)"%(quake["qdatetime"],qjd)
+    if verbose:print "\tDate: %s (JD = %s)"%(quake["qdatetime"],qjd)
 
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     #SQL UPDATE STRING
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     sql="update Quakes set "
     
-    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    #FOCAL MECHANISM
-    #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    #Main plane
-    phimain=float(quake["qstrikemain"]) #Strike
-    deltamain=float(quake["qdipmain"]) #Dip
-    lambdamain=float(quake["qrakemain"]) #Rake
-
-    #Auxiliar plane
-    phiaux=float(quake["qstrikeaux"]) #Strike
-    deltaaux=float(quake["qdipaux"]) #Dip
-    lambdaaux=float(quake["qrakeaux"]) #Rake
-
-    print "\tFocal mechanism:"
-    print "\t\tMain (strike = %.2f, dip = %.2f, rake = %.2f)"%(phimain,deltamain,lambdamain)
-    print "\t\tAux (strike = %.2f, dip = %.2f, rake = %.2f)"%(phiaux,deltaaux,lambdaaux)
-        
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     #GET TIDAL TIMESERIES
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,6 +77,7 @@ for i,quake in enumerate(Quakes):
     ]
 
     sql_qjdmax=""
+    qjdmaxs=dict()
     for qMax in listMax:
         straintot=interpolate(qjds,qMax["etots"],kind="slinear")
         ts=numpy.linspace(qjd-1.0,qjd,50)
@@ -111,81 +88,86 @@ for i,quake in enumerate(Quakes):
         qjdmax=ts[its[ddsts==-2][-1]+1]
         strainmax=straintot(qjdmax)
         sql_qjdmax+="%.7lf;"%qjdmax
-        
+        qjdmaxs[qMax["var"]]=qjdmax
         #Show
         """
-        print(numpy.column_stack(((ts-qjd)*24,sts,dsts,ddsts)))
-        print "\tTime of latest maximum for var. %s: jd = %lf (dt = %lf hours)"%(qMax["var"],qjdmax,(qjdmax-qjd)*24)
-        print "\tValue at latest maximum: strain = %lf"%strainmax
+        if verbose:print numpy.column_stack(((ts-qjd)*24,sts,dsts,ddsts)))
+        if verbose:print "\tTime of latest maximum for var. %s: jd = %lf (dt = %lf hours)"%(qMax["var"],qjdmax,(qjdmax-qjd)*24)
+        if verbose:print "\tValue at latest maximum: strain = %lf"%strainmax
         exec("qjd%smax=qjdmax"%qMax["var"])
         raw_input()
         """
 
     sql+="qjdmax='%s',"%sql_qjdmax
-    print(sql)
-    
+
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    #CALCULATE TCFS
+    #TCFS COMBINATIONS
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    raw_input()
+    tcfs_string=""
+    sigman_string=""
+    sigmas_string=""
+    for key,tcfsCombination in TCFS_COMBINATIONS.items():
+        if verbose:print "\tComputing TCFS for:",key
+        plane=tcfsCombination["plane"]
 
-    """
-    print (ezz)
-    eyz=0
-    exz=0
-    exx=eEW
-    eyy=eNS
-    exy=shear   #porque segun Gotic2 es (dv/dy+dv/dx)/2
+        #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        #FOCAL MECHANISM
+        #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        #Main plane
+        phi=float(quake["qstrike%s"%plane]) #Strike
+        delta=float(quake["qdip%s"%plane]) #Dip
+        lamb=float(quake["qrake%s"%plane]) #Rake
+        
+        if verbose:print "\t\tFocal mechanism: Strike = %.2f, Dip = %.2f, Rake = %.2f"%(phi,
+                                                                             delta,
+                                                                             lamb)
+        #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        #TIME
+        #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        time=tcfsCombination["time"]
+        var=tcfsCombination["var"]
+        if time=="quake":jd=qjd
+        elif time=="max":jd=qjdmaxs[var]
+        else:jd=qjd
 
-    factor=((2*u)/(1-2*v))
-    print ("factor=", factor)
-    print ("")
-    
-    a=sin(30*pi/180)
-    print ("VERIFICANDO sen(30)=0.5,  a=", a)
+        if verbose:print "\t\tTime of computation (%s,%s) = %.7lf"%(time,var,jd)
+        
+        #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        #CALCULATE STRAIN
+        #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        eNS=strain["T=ST.L=S.C=NSEXP"](jd)
+        eEW=strain["T=ST.L=S.C=EW"](jd)
+        shear=strain["T=ST.L=S.C=SHEARNE"](jd)
+        areal=strain["T=ST.L=S.C=AREAL"](jd)
+        cubic=strain["T=ST.L=S.C=CUBIC"](jd)
+        if verbose:print "\t\tStrains:"
+        if verbose:print "\t\t\teNS=%.2lf,eEW=%.2lf"%(eNS,eEW)
+        if verbose:print "\t\t\tshear=%.2lf,areal=%.2lf,cubic=%.2lf"%(shear,
+                                                           areal,
+                                                           cubic)
+        
+        #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        #CALCULATE TCFS
+        #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        mu=tcfsCombination["mu"]
+        sigmaN,sigmaS,tcfs=calculateTCFS(phi*DEG,delta*DEG,lamb*DEG,
+                           eNS,eEW,shear,areal,cubic,mu)
+        if verbose:print "\t\tStress (mu = %.2lf): Normal = %.3lf, Sheart = %.3lf"%(mu,
+                                                                                    sigmaN,sigmaS)
+        if verbose:print "\t\tTCFS (mu = %.2lf) = %.3lf"%(mu,tcfs)
 
-    A=(exx*(1-v)+(eyy*v)+(ezz*v))*(cos(phi*pi/180)*sin(delta*pi/180))-((1-2*v)*(exy)*(sin(phi*pi/180)*sin(delta*pi/180)))+((1-2*v)*(exz)*(cos(delta*pi/180)))
-    B=((1-2*v)*(exy)*(cos(phi*pi/180)*sin(delta*pi/180)))-((exx*v+eyy*(1-v)+ezz*v)*(sin(phi*pi/180)*sin(delta*pi/180)))+((1-2*v)*(eyz)*cos(delta*pi/180))
-    C=((1-2*v)*(exz)*cos(phi*pi/180)*sin(delta*pi/180))-((1-2*v)*(eyz)*sin(phi*pi/180)*sin(delta*pi/180))+(((1-v)*(ezz)+(exx)*v+(eyy)*v)*cos(delta*pi/180))
-    
-    q=[A,B,C]
-    Q1=factor*A
-    Q2=factor*B
-    Q3=factor*C
+        sigman_string+="%.7e;"%sigmaN
+        sigmas_string+="%.7e;"%sigmaS
 
-    Q=[Q1,Q2,Q3]  #vector traccion
-    print ("A=", A, "B=", B, "C=", C, "q=", q)
-    print ("Vector traccion Q=", Q)
-    print ("")
-
-    #Calculo del esfuerzo normal
-    
-    DeltasigmaN=(Q1*(cos(phi*pi/180)*sin(delta*pi/180)))-(Q2*(sin(phi*pi/180)*sin(delta*pi/180)))+(Q3*cos(delta*pi/180))
-
-    #Calculo del esfuerzo cortante
-
-    DeltasigmaS=(Q1*(sin(phi*pi/180)*cos(lambdas*pi/180)-cos(phi*pi/180)*cos(delta*pi/180)*sin(lambdas*pi/180)))+(Q2*(cos(phi*pi/180)*cos(lambdas*pi/180)+sin(phi*pi/180)*cos(delta*pi/180)*sin(lambdas*pi/180)))+(Q3*(sin(delta*pi/180)*sin(lambdas*pi/180)))
-
-    print ("Esfuerzo Normal=", DeltasigmaN, "Esfuerzo Cortante=", DeltasigmaS)
-    print ("")
-
-    ##########################################
-    #Calculo del Tidal Coulomb Failure Stress
-    ##########################################
-    
-    DeltasigmaC1=DeltasigmaS+u1*DeltasigmaN
-    DeltasigmaC2=DeltasigmaS+u2*DeltasigmaN
-    DeltasigmaC3=DeltasigmaS+u3*DeltasigmaN
-    DeltasigmaC4=DeltasigmaS+u4*DeltasigmaN
-    print ("PRIMER PLANO, TFCS para diferentes coeficientes de friccion")
-    print ("u1=", u1, "TFCS1=", DeltasigmaC1)
-    print ("u2=", u2, "TFCS2=", DeltasigmaC2)
-    print ("u3=", u3, "TFCS3=", DeltasigmaC3)
-    print ("u4=", u4, "TFCS4=", DeltasigmaC4)
-    print ("")
-    """
+    sql+="sigman='%s',sigmas='%s',"%(sigman_string,sigmas_string)
     
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     #STORE VALUES IN DATABASE
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+    sql=sql.strip(",")
+    sql+=" where quakeid='%s'"%quakeid
+    if verbose:
+        print "\tExecuting command:\n\t\t%s"%sql
+        raw_input("Press enter to continue...")
+    else:
+        db.execute(sql)

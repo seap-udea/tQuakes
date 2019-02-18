@@ -1674,7 +1674,7 @@ $CONTENT.=<<<I
   </form>
 </p>
 <p id="insert_error" style="display:none">
-<a href="tmp/insert" target="_blank">Error</a>
+<a href="tmp/insert" target="_blank">Task output</a>
 </p>
 </div>
 I;

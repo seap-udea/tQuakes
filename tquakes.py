@@ -47,11 +47,17 @@ FEARTH=0.00335281310846
 # MOON ANGULAR RATE
 MOONRATE=(360.0-360.0/27.32166) # Degrees per day
 
+# TCFS PARAMETERS
+POISSON_COEFFICIENT=0.25 #Adim 
+LAME_RIGIDITY=75 #GPa
+
 # ######################################################################
 # GLOBAL
 # ######################################################################
 FIELDS_CSV2DB={
     'Sobreescribe':'overwrite',
+    'Identificador':'customid',
+    'Clasificacion':'qclass',
     'Fecha':'qdate','Hora UTC':'qtime',
     'Latitud':'qlat','Longitud':'qlon','Profundidad':'qdepth',
     'Magnitudl':'Ml','Magnitudw':'Mw','Departamento':'departamento',
@@ -72,7 +78,7 @@ FIELDS_CSV2DB={
     'Extra1':'extra1','Extra2':'extra2','Extra3':'extra3','Extra4':'extra4',
 };
 
-FIELDS_CSV=['Sobreescribe',
+FIELDS_CSV=['Sobreescribe','Identificador','Clasificacion',
             'Fecha','Hora UTC','Latitud','Longitud','Profundidad',
             'Magnitudl','Magnitudw','Departamento',
             'Municipio','# Estaciones','Rms','Gap',
@@ -152,6 +158,20 @@ for k,gn in GOTIC2.items():
             if qphase:PHASE_COMPONENTS+=[component]
             n+=1
 
+#TCFS COMBINATIONS
+TCFS_COMBINATIONS=OrderedDict()
+for plane in ["main","aux"]:
+    for time in ["quake","max"]:
+        for var in ["rd"]:
+            for mu in [0.2,0.4]:
+                combination=dict(plane=plane,time=time,var=var,mu=mu)
+                key="P=%s.T=%s.V=%s.MU=%s"%(plane.upper(),
+                                            time.upper(),
+                                            var.upper(),
+                                            str(mu).replace(".","_"))
+                TCFS_COMBINATIONS[key]=combination
+
+            
 PHASESGN=  [-1,+1,   +1,-1,+1, +1]   
 COMPONENTS_LONGTERM=[0]
 COMPONENTS_DICT=dict(pot=[-1,"Tidal potential",r"m$^2$/s$^2$"],
@@ -1705,3 +1725,58 @@ def getQuakeData(quakeid):
     data=numpy.loadtxt(tar.extractfile(datafile))
 
     return data
+
+def calculateTCFS(phi,delta,lamb,
+                  eNS,eEW,shear,areal,cubic,
+                  mu,
+                  u=LAME_RIGIDITY,v=POISSON_COEFFICIENT):
+
+    #Components of the strain tensor
+    exx=eEW
+    exy=shear  #according to Gotic2 it is (dv/dy+dv/dx)/2
+    exz=0
+    eyy=eNS
+    eyz=0
+    ezz=(-v/(1.0-v))*(eNS+eEW)
+    factor=((2*u)/(1-2*v))
+
+    #Traction vector calculation
+    A=(exx*(1-v)+(eyy*v)+(ezz*v))*\
+        (numpy.cos(phi)*numpy.sin(delta))-\
+        ((1-2*v)*(exy)*(numpy.sin(phi)*numpy.sin(delta)))\
+        +((1-2*v)*(exz)*(numpy.cos(delta)))
+    
+    B=((1-2*v)*(exy)*\
+       (numpy.cos(phi)*numpy.sin(delta)))-\
+       ((exx*v+eyy*(1-v)+ezz*v)*(numpy.sin(phi)*\
+                                 numpy.sin(delta)))+\
+                                 ((1-2*v)*(eyz)*numpy.cos(delta))
+
+    C=((1-2*v)*(exz)*numpy.cos(phi)*numpy.sin(delta))-\
+        ((1-2*v)*(eyz)*numpy.sin(phi)*numpy.sin(delta))+\
+        (((1-v)*(ezz)+(exx)*v+(eyy)*v)*numpy.cos(delta))
+    
+    q=[A,B,C]
+    Q1=factor*A
+    Q2=factor*B
+    Q3=factor*C
+
+    #Traction vector
+    Q=[Q1,Q2,Q3]
+    
+    #Normal and shear stress
+    DeltasigmaN=(Q1*(numpy.cos(phi)*numpy.sin(delta)))-\
+        (Q2*(numpy.sin(phi)*numpy.sin(delta)))+\
+        (Q3*numpy.cos(delta))
+
+    DeltasigmaS=(Q1*(numpy.sin(phi)*numpy.cos(lamb)-\
+                     numpy.cos(phi)*numpy.cos(delta)*\
+                     numpy.sin(lamb)))+\
+                     (Q2*(numpy.cos(phi)*numpy.cos(lamb)+\
+                          numpy.sin(phi)*numpy.cos(delta)*\
+                          numpy.sin(lamb)))+\
+                    (Q3*(numpy.sin(delta)*numpy.sin(lamb)))
+
+    #TCFS
+    TCFS=DeltasigmaS+mu*DeltasigmaN
+    return DeltasigmaN,DeltasigmaS,TCFS
