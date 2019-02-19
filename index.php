@@ -50,18 +50,47 @@ $insert_msg_insert=<<<I
 I;
   }
   ////////////////////////////////////////////////////////////////////////
-  //UPLOAD EARTHQUAKES FILE
+  //TCFS
   ////////////////////////////////////////////////////////////////////////
-  else if($action=="Decluster"){
-    $all="0";
-    statusMsg("Declustering latest upload earthquakes...");
+  else if($action=="TCFS"){
+    statusMsg("$action earthquakes...");
+    
+$insert_msg_tcfs=<<<I
+<p id="insert_loader_tcfs" style="background:white;padding:10px">
+  Computing the TCFS of the earthquakes.  It may take a while.  Take a cup of coffee <img src="img/loader.gif">
+</p>
+<script>
+  $(document).ready(function(){
+      ajaxDo("tcfs","",
+	     function(e){
+	       alert(e);
+	       $("#insert_loader_tcfs").hide();
+	     },
+	     function(e){
+	       alert(e);
+	       $("#insert_loader_tcfs").hide();
+	     }
+	     );
+    });
+</script>
+I;
+  }
+  ////////////////////////////////////////////////////////////////////////
+  //DECLUSTER
+  ////////////////////////////////////////////////////////////////////////
+  else if($action=="Decluster Tectonic" or $action=="Decluster Volcanotectonic"){
+    statusMsg("$action earthquakes...");
+
+    if($action=="Decluster Tectonic"){$opt="tectonic";}
+    if($action=="Decluster Volcanotectonic"){$opt="volcanotectonic";}
+    
 $insert_msg_decluster=<<<I
 <p id="insert_loader_decluster" style="background:white;padding:10px">
   Declustering.  It may take a while (15-30 min).  Take a cup of coffee <img src="img/loader.gif">
 </p>
 <script>
   $(document).ready(function(){
-      ajaxDo("decluster","all=$all",
+      ajaxDo("decluster","opt=$opt",
 	     function(e){
 	       alert(e);
 	       $("#insert_loader_decluster").hide();
@@ -1381,8 +1410,6 @@ else if($if=="search"){
   ////////////////////////////////////////////////////////////////////////
 $CONTENT.=<<<C
   <center>
-  $insert_msg_insert
-  $insert_msg_decluster
   </center>
 
   <h2><a name='search'>Search database</a>
@@ -1661,6 +1688,8 @@ $CONTENT.=<<<I
 <hr/>
 <h2><a name='insert'>Insert new events</a></h2> 
 
+  $insert_msg_insert
+  
 <p>
   In order to add new events to the database, please upload the list of new earthquakes using <a href="db/template.xls">this excel 95 template</a> (<a href="db/template.xls">csv template</a>).
 </p>
@@ -1690,8 +1719,10 @@ I;
 $CONTENT.=<<<I
 <div class='level3'>
 <hr/>
-<h2><a name='insert'>Decluster events</a></h2> 
+<h2><a name='decluster'>Decluster events</a></h2> 
 
+$insert_msg_decluster
+  
 <p>
   In order to avoid "clustering bias" the earthquake database must be
   declustered.  Decluster could be ran over the latest uploaded
@@ -1702,18 +1733,50 @@ $CONTENT.=<<<I
 <p>
   $FORM
   <form method="get">
-  <input type="submit" name="action" value="Decluster">
-  <!--<input type="submit" name="action" value="Decluster all">-->
+  <input type="submit" name="action" value="Decluster Volcanotectonic">
+  <input type="submit" name="action" value="Decluster Tectonic">
   </form>
 </p>
 </div>
 I;
 
-  $SUBMENU.="<span class='level3'><a href='#insert'>Decluster</a> | </span>";
+  $SUBMENU.="<span class='level3'><a href='#decluster'>Decluster</a> | </span>";
 
  }
 
   ////////////////////////////////////////////////////////////////////////
+  //COMPUTE TCFS
+  ////////////////////////////////////////////////////////////////////////
+ if($QPERM){
+$CONTENT.=<<<I
+<div class='level3'>
+<hr/>
+<h2><a name='tcfs'>Compute TCFS</a></h2> 
+
+$insert_msg_tcfs
+  
+<p>
+  Here you may compute or recompute the TCFS of a subset of
+  earthquakes with available focal mechanisms.
+</p>
+
+<p>
+  $FORM
+  <form method="get">
+  <!--
+  <p>Criteria:<input type="text" name="criteria" value="(1>0)"><br/><i style="font-size:0.8em;color:red">Only earthquakes fulfilling this criteria will be changed.</i></p>
+  -->
+    <input type="submit" name="action" value="TCFS">
+  </form>
+</p>
+</div>
+I;
+
+  $SUBMENU.="<span class='level3'><a href='#tcfs'>TCFS</a> | </span>";
+
+ }
+
+////////////////////////////////////////////////////////////////////////
   //LIST OF CALCULATED EARTHQUAKES
   ////////////////////////////////////////////////////////////////////////
 $CONTENT.=<<<C
@@ -1909,7 +1972,75 @@ $CONTENT.=<<<QUAKE
 <h4>Notes:</h4>
 <ul>
   <li>
-    <b>qsignal</b> value of the signal for each component.  Values are
+    <b>sigmas, sigman</b> (tidal stresses).
+    P=MAIN.T=QUAKE.V=RD.MU=0_2, P=MAIN.T=QUAKE.V=RD.MU=0_4,
+    P=MAIN.T=MAX.V=RD.MU=0_2, P=MAIN.T=MAX.V=RD.MU=0_4,
+    P=AUX.T=QUAKE.V=RD.MU=0_2, P=AUX.T=QUAKE.V=RD.MU=0_4,
+    P=AUX.T=MAX.V=RD.MU=0_2, P=AUX.T=MAX.V=RD.MU=0_4.  Here P is the
+    failure plane (main or auxiliar), T is the time when the stress
+    was computed (at the time of the QUAKE, or at the time before the
+    earthquake when the tide was maximum at the location of the
+    event), and MU is the friction coefficient.
+  </li>
+  <li>
+    <b>qsignal (gotic2)</b> value of the signal for each component.
+    T=GV.L=S.C=UPWARD, T=GV.L=B.C=UPWARD, T=ST.L=S.C=NSEXP,
+    T=ST.L=S.C=EW, T=ST.L=S.C=SHEARNE, T=ST.L=S.C=AZIMUTHAL,
+    T=ST.L=S.C=AREAL, T=ST.L=S.C=CUBIC, T=ST.L=B.C=NSEXP,
+    T=ST.L=B.C=EW, T=ST.L=B.C=SHEARNE, T=ST.L=B.C=AZIMUTHAL,
+    T=ST.L=B.C=AREAL, T=ST.L=B.C=CUBIC, T=RD.L=S.C=UPWARD,
+    T=RD.L=B.C=UPWARD, T=TL.L=S.C=NS, T=TL.L=S.C=EW,
+    T=TL.L=S.C=AZIMUTHAL, T=TL.L=B.C=NS, T=TL.L=B.C=EW,
+    T=TL.L=B.C=AZIMUTHAL, T=HN.L=S.C=NS, T=HN.L=S.C=EW,
+    T=HN.L=S.C=AZIMUTHAL, T=HN.L=B.C=NS, T=HN.L=B.C=EW,
+    T=HN.L=B.C=AZIMUTHAL, T=DV.L=S.C=NS, T=DV.L=S.C=EW, T=DV.L=B.C=NS,
+    T=DV.L=B.C=EW, T=HE.L=S.C=NS, T=HE.L=S.C=EW, T=HE.L=S.C=AZIMUTHAL,
+    T=HE.L=B.C=NS, T=HE.L=B.C=EW, T=HE.L=B.C=AZIMUTHAL.  Where GV
+    (gravity, mugal), TL (tilt in nanorad), RD (radial displacement in
+    mm), DV (vertical displacement in nanorad), ST (strain in
+    nanostrain), HD (horizontal displacement, HN towards north, HE
+    towards east, in mm.  L is the type of componente, S (body tide),
+    O (ocean tide) and B (both).  C is the component of the tide, in
+    this way:
+    <pre>
+             NO.       COMPONENT                  +SIGHN CONVENTION
+              1    RADIAL DISPLACEMENT             UP WARD
+              2    HORIZONTAL DISPLACEMENT
+                      1:NS                         NORTH WARD
+                      2:EW                         EAST  WARD
+                      3:AZIMUTHAL                  AZIMURTHAL
+              3    GRAVITATIONAL ATRACTION         UP WARD ATTRACTION
+              4    TILT
+                      1:NS                    UP WARD MOTION OF N-GROUND
+                      2:EW                    UP WARD MOTION OF E-GROUND
+                      3:AZIMUTHAL             UP WARD MOTION OF A-GROUND
+              5    STRAIN
+                      1:NS(FAI-FAI)                EXPANSION
+                      2:EW(RAMDA-RAMDA)            EXPANSION
+                      3:SHEAR(FAI-RAMDA)           N TO E
+                      4:AZIMUTHAL                  EXPANSION
+                      5 AREAL STRAIN               EXPANSION
+                      6:CUBIC DILATATION           EXPANSION
+              6    DEFLECTION OF LOCAL VERTICAL
+                      1:NS
+                      2:EW
+    </pre>
+  </li>
+  <li>
+    <b>qphases (gotic2)</b> contain all the phases for every single
+    component in the format:
+    time_wave1:phase_wave1;time_wave2:phase_wave2; etc.  Thus when the
+    string looks like:
+    0.5042:0.9680;1.0250:1.0041;1.0250:0.0683;1.0250:0.0353;0.5042:0.9680;1.0250:1.0041;1.0250:0.0707;1.0250:0.0353;...
+    The part
+    <i>0.5042:0.9680;1.0250:1.0041;1.0250:0.0683;1.0250:0.0353;</i>
+    correspond to times and phases of the <i>T=GV.L=S.C=UPWARD</i>
+    tidal component, being 0.9680 the phase corresponding to the
+    semidiurnal, 1.0041 the phase of the diurnal, 0.0683 the
+    fornightly and 0.0353 the monthly component.
+  </li>
+  <li>
+    <b>qsignal (eterna)</b> value of the signal for each component.  Values are
     sorted in this way: gravitational acceleration (symbol gt,
     comp. num. 0, nm/s<sup>2</sup>), tidal tilt (t, 1, mas), vertical
     displacement (vd, 2, mm), vertical strain (vs, 3, corresponding to
@@ -1918,7 +2049,7 @@ $CONTENT.=<<<QUAKE
     nstr).
   </li>
   <li>
-    <b>qphases</b> contain all the phases for every single component
+    <b>qphases (eterna)</b> contain all the phases for every single component
     in the format: [fourier_phase1_sd]; [fourier_phase1_d];
     [fourier_phase1_fn]; [fourier_phase1_mn]; [time1_sd]:[phase1_sd];
     [time1_sd]:[phase1_sd]; [time1_d]:[phase1_d];

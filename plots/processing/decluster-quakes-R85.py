@@ -7,12 +7,29 @@ use('Agg')
 import matplotlib.pyplot as plt
 execfile("%s.conf"%BASENAME)
 
+try:
+    qtype=argv[1]
+except:
+    qtype="tectonic"
+print "Declustering %s earthquakes"%qtype
+
+# ############################################################
+# CONNECT TO DATABASE
+# ############################################################
+connection=connectDatabase()
+db=connection.cursor()
+
+# ############################################################
+# REMOVE ALL CLUSTERS FROM DATABASE
+# ############################################################
+sql="delete from Clusters where qtype='%s'"%qtype
+db.execute(sql)
+
+sql="update Quakes set cluster1=NULL where qtype='%s'"%qtype
+db.execute(sql)
+
 def decluster(inicent):
-    # ############################################################
-    # CONNECT TO DATABASE
-    # ############################################################
-    connection=connectDatabase()
-    db=connection.cursor()
+    global qtype,connection,db
     
     # ############################################################
     # READ CLUSTER DATABASE
@@ -21,7 +38,7 @@ def decluster(inicent):
     icent=int(icent[:2])
     jd1=date2jd(datetime.datetime(inicent,1,1,0,0,0))
     jd2=date2jd(datetime.datetime(inicent+100,1,1,0,0,0))
-    search="where Ml+0>%.1f and qjd+0>%.5f and qjd+0<%.5f and cluster1 is NULL order by qjd+0 asc, Ml+0 desc"%(Mc,jd1,jd2)
+    search="where Ml+0>%.1f and qjd+0>%.5f and qjd+0<%.5f and cluster1 is NULL and qtype='%s' order by qjd+0 asc, Ml+0 desc"%(Mc,jd1,jd2,qtype)
     qids,quakes=getQuakes(search,db)
     nquakes=len(qids)
     print "Declustering %d earthquakes from century %d..."%(nquakes,inicent)
@@ -145,6 +162,7 @@ def decluster(inicent):
         c.cluster_type="R85"
         c.cluster_pars="%.1f;%.1f;"%(Mc,Rf)
         c.numquakes=int(props[5])
+        c.qtype=qtype
 
         c.qlatequiv=s2d(int(props[6]),float(props[7]),0)
         c.qlonequiv=s2d(int(props[8]),float(props[9]),0)
@@ -206,7 +224,7 @@ def decluster(inicent):
 
 db=decluster(1900)
 db=decluster(2000)
-nclustered=mysqlSimple("select count(quakeid) from Quakes where cluster1<>'0'",db)
-ndeclustered=mysqlSimple("select count(quakeid) from Quakes where cluster1='0' or cluster1 like '-%'",db)
+nclustered=mysqlSimple("select count(quakeid) from Quakes where qtype='%s' and cluster1<>'0'"%qtype,db)
+ndeclustered=mysqlSimple("select count(quakeid) from Quakes where  qtype='%s' and (cluster1='0' or cluster1 like '-%%')"%qtype,db)
 print>>stderr,"Total number of clustered quakes:",nclustered
 print>>stderr,"Total number of declustered quakes:",ndeclustered

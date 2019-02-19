@@ -7,8 +7,13 @@ use('Agg')
 import matplotlib.pyplot as plt
 execfile("%s.conf"%BASENAME)
 
-verbose=1
+verbose=0
 if verbose:tqdm=lambda x:x
+
+try:
+    criteria=argv[1]
+except:
+    criteria="(2>0)"
 
 # ############################################################
 # DATABASE CONNECTION
@@ -19,15 +24,28 @@ db=connection.cursor()
 # ############################################################
 # LOOK FOR QUAKES
 # ############################################################
-Quakes=getAllQuakes(db,cond="extra5='tcfs'")
-nquakes=len(Quakes)
+try:
+    Quakes=getAllQuakes(db,cond="((ABS(qstrikemain)+ABS(qdipmain)+ABS(qrakemain))>0 and (ABS(qstrikeaux)+ABS(qdipaux)+ABS(qrakeaux)>0)) and %s"%criteria)
+    nquakes=len(Quakes)
+except:
+    print "Something went wrong with the criteria"
+    exit(1)
+if nquakes==0:
+    print "No quakes fulfilling the criteria"
+    exit(0)
+
+print "Calculating the TCFS of %d earthquakes..."%nquakes
+freq=int(nquakes/10)
 
 # ############################################################
 # COMPUTATION
 # ############################################################
 #for i,quake in tqdm(enumerate(Quakes)):
-for i,quake in tqdm(enumerate(Quakes)):
+for i,quake in enumerate(Quakes):
 
+    if (i%freq)==0:
+        print "Quake %d/%d..."%(i,nquakes)
+    
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     #BASIC INFO
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -50,8 +68,8 @@ for i,quake in tqdm(enumerate(Quakes)):
     qjds=data[:,0]
 
     #Interpolate strains
-    components=["T=ST.L=S.C=NSEXP","T=ST.L=S.C=EW","T=ST.L=S.C=SHEARNE",
-                "T=ST.L=S.C=AREAL","T=ST.L=S.C=CUBIC"]
+    components=["T=ST.L=B.C=NSEXP","T=ST.L=B.C=EW","T=ST.L=B.C=SHEARNE",
+                "T=ST.L=B.C=AREAL","T=ST.L=B.C=CUBIC"]
     strain=dict()
     for component in components:
         qvalues=data[:,GOTIC2_NCOLUMNS[component]]
@@ -64,7 +82,7 @@ for i,quake in tqdm(enumerate(Quakes)):
     listMax=[
         dict(
             var="st",
-            etots=numpy.sqrt(data[:,GOTIC2_NCOLUMNS["T=ST.L=B.C=NSEXP"]]**2+data[:,GOTIC2_NCOLUMNS["T=ST.L=S.C=EW"]]**2)
+            etots=numpy.sqrt(data[:,GOTIC2_NCOLUMNS["T=ST.L=B.C=NSEXP"]]**2+data[:,GOTIC2_NCOLUMNS["T=ST.L=B.C=EW"]]**2)
         ),
         dict(
             var="rd",
@@ -135,11 +153,11 @@ for i,quake in tqdm(enumerate(Quakes)):
         #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         #CALCULATE STRAIN
         #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        eNS=strain["T=ST.L=S.C=NSEXP"](jd)
-        eEW=strain["T=ST.L=S.C=EW"](jd)
-        shear=strain["T=ST.L=S.C=SHEARNE"](jd)
-        areal=strain["T=ST.L=S.C=AREAL"](jd)
-        cubic=strain["T=ST.L=S.C=CUBIC"](jd)
+        eNS=strain["T=ST.L=B.C=NSEXP"](jd)
+        eEW=strain["T=ST.L=B.C=EW"](jd)
+        shear=strain["T=ST.L=B.C=SHEARNE"](jd)
+        areal=strain["T=ST.L=B.C=AREAL"](jd)
+        cubic=strain["T=ST.L=B.C=CUBIC"](jd)
         if verbose:print "\t\tStrains:"
         if verbose:print "\t\t\teNS=%.2lf,eEW=%.2lf"%(eNS,eEW)
         if verbose:print "\t\t\tshear=%.2lf,areal=%.2lf,cubic=%.2lf"%(shear,
@@ -171,3 +189,5 @@ for i,quake in tqdm(enumerate(Quakes)):
         raw_input("Press enter to continue...")
     else:
         db.execute(sql)
+
+connection.commit()

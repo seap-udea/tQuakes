@@ -16,15 +16,27 @@ if(0){}
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //DECLUSTER EARTHQUAKES
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+else if($action=="tcfs"){
+  $ps=parseParams($params);
+
+  //DECLUSTERING EARTHQUAKES
+  $cmd="cd plots/processing;PYTHONPATH=. python tquakes-tcfs.py 2>&1 |tee tmp/tcfs";
+  shell_exec("echo '$cmd' > /tmp/cmd");
+  $out=shell_exec($cmd);
+  echo "$out";
+}
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//DECLUSTER EARTHQUAKES
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else if($action=="decluster"){
   $ps=parseParams($params);
 
   //DECLUSTERING EARTHQUAKES
-  $cmd="cd plots/processing;PYTHONPATH=. python decluster-quakes-R85.py ".$ps["all"]." 2> /tmp/decluster";
+  $cmd="cd plots/processing;PYTHONPATH=. python decluster-quakes-R85.py ".$ps["opt"]." 2>&1 |tee tmp/decluster";
   $out=shell_exec($cmd);
-  $err=shell_exec("cat /tmp/decluster");
-
-  echo "$err";
+  echo "$out";
+  shell_exec("echo '$cmd' > /tmp/cmd");
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

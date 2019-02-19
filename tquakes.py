@@ -130,6 +130,32 @@ GOTIC2_TYPES=OrderedDict(
     O=3
 )
 
+"""
+Taken from stide.f
+c     KIND: INTEGER NUMBER INDICATING TIDAL COMPONENT TO BE COMPUTED
+c          NO.       COMPONENT                  +SIGHN CONVENTION
+c           1    RADIAL DISPLACEMENT             UP WARD
+c           2    HORIZONTAL DISPLACEMENT
+c                   1:NS                         NORTH WARD
+c                   2:EW                         EAST  WARD
+c                   3:AZIMUTHAL                  AZIMURTHAL
+c           3    GRAVITATIONAL ATRACTION         UP WARD ATTRACTION
+c           4    TILT
+c                   1:NS                    UP WARD MOTION OF N-GROUND
+c                   2:EW                    UP WARD MOTION OF E-GROUND
+c                   3:AZIMUTHAL             UP WARD MOTION OF A-GROUND
+c           5    STRAIN
+c                   1:NS(FAI-FAI)                EXPANSION
+c                   2:EW(RAMDA-RAMDA)            EXPANSION
+c                   3:SHEAR(FAI-RAMDA)           N TO E
+c                   4:AZIMUTHAL                  EXPANSION
+c                   5 AREAL STRAIN               EXPANSION
+c                   6:CUBIC DILATATION           EXPANSION
+c           6    DEFLECTION OF LOCAL VERTICAL
+c                   1:NS
+c                   2:EW
+"""
+
 GOTIC2_COLUMNS=OrderedDict(
     GV=["UPWARD"], #Gravity, mugal
     TL=["NS","EW","AZIMUTHAL"], #Tilt, nanorad
@@ -421,9 +447,9 @@ def s2d(h,m,s,fac=1):
 def jd2date(jd):
     d=jd2gcal(0,jd)
     h,m,s=d2s(d[3],fac=24)
-    datetq=datetime.datetime.strptime("%02d/%02d/%s %02d:%02d:%02d"%(d[2],
+    datetq=datetime.datetime.strptime("%02d-%02d-%s %02d:%02d:%02d"%(d[0],
                                                                      d[1],
-                                                                     str(d[0])[2:],
+                                                                     d[2],
                                                                      h,m,s),
                                       DATETIME_FORMAT)
     return datetq
