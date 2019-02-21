@@ -37,7 +37,7 @@ do
     # RUN PROCESS PER EACH PROCESSOR
     for i in $(seq 1 $station_nproc)
     do
-	nsleep=$(( ( RANDOM % 2 ) ))
+	nsleep=$(( ( RANDOM % 2 ) + 1))
 	if [ $qdebug -eq 0 ];then
 	    echo "Running pipeline on processor $i (sleeping $nsleep s)..."
 	    sleep $nsleep
