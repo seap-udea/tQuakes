@@ -105,8 +105,8 @@ for quake in qlist:
                                                                                                                                         quake.qphases,
                                                                                                                                         quake.aphases,
                                                                                                                                         deltat))
-    except AttributeError:
-        print "Quake %s defectuous, removing"%quakeid
+    except AttributeError as error:
+        print "Quake %s defectuous:\n%s\nremoving"%(quakeid,error)
         system("rm -r %s"%quakedir)
         continue
 
