@@ -98,12 +98,17 @@ for quake in qlist:
 
     # REPORT END OF ANALYSIS
     print "\tReporting calculations..."
-    out=System("links -dump '%s/action.php?action=analysis&station_id=%s&quakeid=%s&qsignal=%s&qphases=%s&aphases=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,
-                                                                                                                                    quakeid,
-                                                                                                                                    quake.qsignal,
-                                                                                                                                    quake.qphases,
-                                                                                                                                    quake.aphases,
-                                                                                                                                    deltat))
+    try:
+        out=System("links -dump '%s/action.php?action=analysis&station_id=%s&quakeid=%s&qsignal=%s&qphases=%s&aphases=%s&deltat=%.3f'"%(conf.WEBSERVER,station.station_id,
+                                                                                                                                        quakeid,
+                                                                                                                                        quake.qsignal,
+                                                                                                                                        quake.qphases,
+                                                                                                                                        quake.aphases,
+                                                                                                                                        deltat))
+    except AttributeError:
+        print "Quake %s defectuous, removing"%quakeid
+        system("rm -r %s"%quakedir)
+        continue
 
     # DELETE LOCKFILE
     System("rm "+lockfile)
