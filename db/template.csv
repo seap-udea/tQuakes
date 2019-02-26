@@ -1,0 +1,2 @@
+Sobreescribe;Identificador;Clasificacion;Fecha;Hora UTC;Latitud;Longitud;Profundidad;Magnitudl;Magnitudw;Departamento;Municipio;# Estaciones;Rms;Gap;Error Latitud (Km);Error Longitud (Km);Error Profundidad (Km);Estado;Pais;Tipo;Tipo focal;Grado;Profundidad Focal;VTR;Strike_main;Strike_aux;Dip_main;Dip_aux;Rake_main;Rake_aux;T_Tr;T_Pl;P_Tr;P_Pl;B_Tr;B_Pl;Extra1;Extra2;Extra3;Extra4;
+0;S0001;BUCARAMANGA_NEST;2021-12-31;0:09:16;6,754;-73,156;153.9;1.7;;SANTANDER;LOS_SANTOS;7;0.40;233;5.1;5.5;6.6;REVISADO;COLOMBIA;TECTONIC;T;A;0;1;2;3;4;5;6;7;8;9;10;11;12;13;-1;-2;-3;-4;
