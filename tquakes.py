@@ -15,6 +15,7 @@ from glob import glob
 from collections import OrderedDict
 from tqdm import tqdm
 from scipy.interpolate import interp1d as interpolate 
+from scipy.stats import kurtosis, skew
 
 # ######################################################################
 # MACROS
