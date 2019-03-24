@@ -2152,6 +2152,35 @@ $FORM
     <input type="text" name="qdepth" value="$qdepth">
   </td>
 </tr>
+
+<tr>
+  <td>Local magnitude (Ml):</td>
+  <td>
+    <input type="text" name="Ml" value="$Ml">
+  </td>
+</tr>
+
+<tr>
+  <td>Strike (deg):</td>
+  <td>
+    <input type="text" name="qstrikemain" value="$qstrikemain">
+  </td>
+</tr>
+
+<tr>
+  <td>Dip (deg):</td>
+  <td>
+    <input type="text" name="qdipmain" value="$qdipmain">
+  </td>
+</tr>
+
+<tr>
+  <td>Rake (deg):</td>
+  <td>
+    <input type="text" name="qrakemain" value="$qrakemain">
+  </td>
+</tr>
+
 <tr>
   <td valign="top">
     Date and time:<br/>
@@ -2193,6 +2222,7 @@ $FORM
 </table>
 <input type="hidden" name="referer" value="$referer">
 <input type="hidden" name="qpreserve" value="$qpreserve">
+<input type="hidden" name="extra5" value="LOCAL">
 </form>
 $tideresults
 QUAKE;

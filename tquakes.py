@@ -1737,8 +1737,15 @@ def getAllQuakes(db,cond="(1>0)"):
     return Quakes
 
 def getQuakeData(quakeid):
+
+    #File
+    filename="%s/%s/tQuakes/%s*.tar.gz"%(CONF.HOMEDIR,CONF.TQUSER,quakeid)
+
     #Get tar file
-    files=glob("%s/%s/tQuakes/%s*.tar.gz"%(CONF.HOMEDIR,CONF.TQUSER,quakeid))
+    files=glob(filename)
+    if len(files)==0:
+        raise AssertionError("No file for this quake %s"%quakeid)
+
     tar=tarfile.open(files[0])
 
     #Search for data

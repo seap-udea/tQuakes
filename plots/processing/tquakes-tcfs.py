@@ -35,12 +35,13 @@ if nquakes==0:
     exit(0)
 
 print "Calculating the TCFS of %d earthquakes..."%nquakes
-freq=int(nquakes/10)
+freq=max(int(nquakes/10),1)
 
 # ############################################################
 # COMPUTATION
 # ############################################################
 #for i,quake in tqdm(enumerate(Quakes)):
+nodata=0
 for i,quake in enumerate(Quakes):
 
     if (i%freq)==0:
@@ -64,7 +65,13 @@ for i,quake in enumerate(Quakes):
     #GET TIDAL TIMESERIES
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     #Get data
-    data=getQuakeData(quakeid)
+    try:
+        data=getQuakeData(quakeid)
+    except AssertionError:
+        #print "No data for %s"%quakeid
+        nodata+=1
+        continue
+    
     qjds=data[:,0]
 
     #Interpolate strains
@@ -190,4 +197,5 @@ for i,quake in enumerate(Quakes):
     else:
         db.execute(sql)
 
+print "Data no available for %d quakes"%nodata
 connection.commit()
