@@ -1418,6 +1418,7 @@ C;
   $SUBMENU.="<a href='#search'>Search</a> | ";
 
 $CONTENT.=<<<C
+<div class="level3">
 <p>
   Use the following form to search on the earthquakes database.
   Queries should be written using
@@ -1431,6 +1432,7 @@ $CONTENT.=<<<C
   the database.  The <b>Database</b> link shows you the fields of the
   Earthquakes database.
 </p>
+</div>
 C;
 
   // INPUT
@@ -1516,6 +1518,7 @@ H;
 
   // TABLE HEADER
 $CONTENT.=<<<TABLE
+<div class="level3">
 $FORM
 <table border="0px" cellspacing="0" style="width:100%;margin-left:0px;border:solid black 1px;padding:5px">
   <tr style="font-size:20px">
@@ -1556,6 +1559,7 @@ $examples_cont
 $dbfields
 $history
 </form>
+</div>
 
 <center>
   <h4><a name="quakes">Quakes $offset-$end ($limit/$numquakes)</a></h4>
