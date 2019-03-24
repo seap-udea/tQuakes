@@ -73,7 +73,7 @@ if not qfail:
 # ##################################################
 if not qfail and qrec:
     print "Testing ssh connection..."
-    cmd="scp -i .keys/key.pem -o 'StrictHostKeyChecking no' .stationrc %s@%s:tQuakes/"%(conf.TQUSER,conf.DATASERVER)
+    cmd="scp -i .keys/tquakes.pem -o 'StrictHostKeyChecking no' .stationrc %s@%s:tQuakes/"%(conf.TQUSER,conf.DATASERVER)
     print "\t\tExecuting:",cmd
     out=System(cmd)
     if "Could not" in out:
