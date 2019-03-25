@@ -2222,7 +2222,6 @@ $FORM
 </tr>
 </table>
 <input type="hidden" name="referer" value="$referer">
-<input type="hidden" name="qpreserve" value="$qpreserve">
 <input type="hidden" name="extra5" value="LOCAL">
 </form>
 $tideresults

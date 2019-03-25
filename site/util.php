@@ -372,13 +372,63 @@ $COMPONENTS_DICT=array(array("pot",-1,"Tidal potential","m<sup>2</sup>/s<sup>2</
 		       array("volume",8,"Volume strain","nstr"),
 		       array("hst",9,"Horizontal strain (Az = 90)","nstr")
 		       );
-$QUAKE_PLOTS=array("tidal-boundaries","tidal-signal","astronomy");
+
+$GOTIC2_COLUMNS=array(
+		      //Gravity
+		      "GV"=>array(array("UPWARD"),
+				  "mugal"),
+		      //Strain
+		      "ST"=>array(array("NSEXP","EW","SHEARNE","AZIMUTHAL","AREAL","CUBIC"),
+				  "nanostrain"),
+		      //Radial displacement
+		      "RD"=>array(array("UPWARD"),
+				  "mm"),
+		      //Tilt
+		      "TL"=>array(array("NS","EW","AZIMUTHAL"),
+				  "nanorad"),
+		      //Horizontal displacement 0 degrees
+		      "HN"=>array(array("NS","EW","AZIMUTHAL"),
+				  "mm"),
+		      //Vertical displacement
+		      "DV"=>array(array("NS","EW"),
+				  "nanorad"),
+		      //Horizontal displacement 90 degrees, mm
+		      "HE"=>array(array("NS","EW","AZIMUTHAL"),
+				  "mm"),
+		      );
+
+$GOTIC2_TYPES=array("S","B","O");
+$GOTIC2_NCOLUMNS=array();
+$PHASE_COMPONENTS=array();
+$SIGNAL_COMPONENTS=array();
+foreach(array_keys($GOTIC2_COLUMNS) as $k){
+  $g=$GOTIC2_COLUMNS[$k][0];
+  $units=$GOTIC2_COLUMNS[$k][1];
+  $gname=$k;
+  if($gname=="HN" or $gname=="HE"){$gname="HD";}
+  foreach($GOTIC2_TYPES as $gtn){
+    if($gtn=="O"){$qphase=false;}
+    else{$qphase=true;}
+    foreach($g as $f){
+      $component="T=$k.L=$gtn.C=$f";
+      $GOTIC2_NCOLUMNS[$component]=$n;
+      if($qphase){
+	array_push($PHASE_COMPONENTS,array($component,$units));
+      }
+      array_push($SIGNAL_COMPONENTS,array($component,$units));
+      $n++;
+    }
+  }
+}
+
+//$QUAKE_PLOTS=array("tidal-boundaries","tidal-signal","astronomy");
+$QUAKE_PLOTS=array("tidal-signal","tidal-boundaries");
 
 ////////////////////////////////////////////////////////////////////////
 //DIRECTORIES
 ////////////////////////////////////////////////////////////////////////
 $SCRATCHDIR="scratch/$SESSID/";
-if(!is_dir($SCRATCHDIR) and !isset($action)){shell_exec("mkdir -p $SCRATCHDIR");}
+//if(!is_dir($SCRATCHDIR) and !isset($action)){shell_exec("mkdir -p $SCRATCHDIR");}
 if(isset($_SESSION["email"])){
   $email=$_SESSION["email"];
   $emailnoat=preg_replace("/@/","",$email);

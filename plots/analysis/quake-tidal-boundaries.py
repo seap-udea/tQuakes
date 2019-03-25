@@ -13,10 +13,9 @@ quake=loadConf("quake.conf")
 # CONNECT TO DATABASE
 # ############################################################
 connection=connectDatabase()
-tQuakes,connection=loadDatabase()
 db=connection.cursor()
-
 DT=CONF.TIMEWIDTH/2.0
+
 # ############################################################
 # ROUTINE
 # ############################################################
@@ -25,6 +24,7 @@ def plotBoundaries(quakeid,component,plt):
     # ############################################################
     # ASTRONOMY EXTREMES 
     # ############################################################
+
     table=numpy.loadtxt("util/astronomy-extremes-1970_2030.data")
     astro=loadExtremesTable(EXTREMES,table)
     full=numpy.loadtxt("util/astronomy-fullmoons-1970_2030.data")
@@ -32,12 +32,10 @@ def plotBoundaries(quakeid,component,plt):
     # ############################################################
     # COMPONENT
     # ############################################################
-    info=COMPONENTS_DICT[component]
-    compnum=info[0]
-    name=info[1]
-    units=info[2]
-    nc,np=numComponent(component)
-
+    nc=GOTIC2_NCOLUMNS[component][0]
+    np=GOTIC2_NPHASES[component]
+    units=GOTIC2_NCOLUMNS[component][1]
+    
     # ############################################################
     # QUAKE PROPERTIES
     # ############################################################
@@ -46,9 +44,8 @@ def plotBoundaries(quakeid,component,plt):
                        float(quake.qlon),
                        float(quake.qdepth),
                        float(quake.qjd))
-    quakedb=tQuakes['Quakes']['rows'][quakeid]
-    hmoon=float(quakedb["hmoon"])
-    qjd=float(quakedb["qjd"])
+    hmoon=float(quake.hmoon)
+    qjd=float(quake.qjd)
 
     # PERIGEA
     ps=astro["Perigea"][1:,0]-qjd
@@ -59,7 +56,7 @@ def plotBoundaries(quakeid,component,plt):
     pfs=full[:]-qjd
     cond=(pfs>-DT)*(pfs<+DT)
     pfs=pfs[cond]
-
+    
     # ############################################################
     # PREPARE FIGURE
     # ############################################################
@@ -71,34 +68,34 @@ def plotBoundaries(quakeid,component,plt):
     # ############################################################
     # GET SIGNAL VALUE
     qsignal=quake.qsignal.split(";")
-    value=float(qsignal[nc-1])
-
+    value=float(qsignal[np])
+    
     # GET PHASES
     qphases=quake.qphases.split(";")
-
-    phtime=qphases[np+3+1].split(":")
-    
+    phtime=qphases[np].split(":")
     phase_sd=float(phtime[1])
-    phtime=qphases[np+3+2].split(":")
+    phtime=qphases[np+1].split(":")
     phase_dn=float(phtime[1])
-    phtime=qphases[np+3+3].split(":")
+    phtime=qphases[np+2].split(":")
     phase_fn=float(phtime[1])
-    phtime=qphases[np+3+4].split(":")
+    phtime=qphases[np+3].split(":")
     phase_mn=float(phtime[1])
-
+    
     # READ SIGNAL
     sign=numpy.loadtxt(DIRNAME+"/%s.data"%quakeid)
     t=sign[:,0]-float(quake.qjd)
     s=sign[:,nc]
     smin=s.min();smax=s.max()
-
+    
     # ==============================
     # FIND MAXIMA AND MINIMA
     # ==============================
     # SEMIDIURNAL LEVEL PEAKS
     tmb,smb,tMb,sMb=signalBoundary(t,s)
 
+    # ==============================
     # SMOOTH MAXIMA & MINIMA
+    # ==============================
     b,a=signal.butter(8,0.125)
     sMs=signal.filtfilt(b,a,sMb,padlen=100)
     tMs=tMb
@@ -112,9 +109,12 @@ def plotBoundaries(quakeid,component,plt):
     tmf,smf,tMf,sMf=signalBoundary(tms,sms)
 
     # SIGN OF PHASES
-    psgn=PHASESGN[nc-1]
+    # psgn=PHASESGN[nc-1]
+    psgn=+1
 
-    # PEAKS SEMIDIURNAL
+    # ==============================
+    # SEMI-DIURNAL FREQUENCY
+    # ==============================
     if psgn>0:tb=tMb
     else:tb=tmb
 
@@ -123,7 +123,9 @@ def plotBoundaries(quakeid,component,plt):
     ipeak=ipeaks[tb<0][-1]
     tminb=tb[ipeak];tmaxb=tb[ipeak+1]
 
-    # PEAKS DIURNAL
+    # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+    # DIURNAL COMPONENT
+    # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     if psgn>0:tp=tMb
     else:tp=tmb
     dprev=hmoon/MOONRATE
@@ -144,7 +146,9 @@ def plotBoundaries(quakeid,component,plt):
     tmd=numpy.concatenate((tmb[ipeak::-2],tmb[ipeak::+2]))
     smd=numpy.concatenate((smb[ipeak::-2],smb[ipeak::+2]))
 
-    # PEAKS FORTNIGHTLY
+    # ==============================
+    # FORTNIGHTLY FREQUENCY
+    # ==============================
     npeaks=len(tMF)
     ipeaks=numpy.arange(npeaks)
     ipeak=ipeaks[tMF<0][-1]
@@ -153,36 +157,35 @@ def plotBoundaries(quakeid,component,plt):
     dt=-tMF[tMF<0][-1]
     dtmean=tMF[ipeak+1]-tMF[ipeak]
     dtphase=dt/dtmean;
-    print("Fornightly:%f"%dtphase)
 
-    # PEAKS MONTHLY
+    # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+    # MONTHLY
+    # &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     if psgn>0:tcF=tMF
     else:tcF=tmf
     cond=(tcF>-DT)*(tcF<+DT)
     tpF=tcF[cond]
-    
-    #DETECT INITIAL INDEX OF PEAK
-    ipeaks=numpy.arange(len(tcF))
-    cond=tcF<=-DT
-    inipeak=ipeaks[cond][-1]+1
-
     numpeak=len(tpF)
     ds=[]
-    for tf in tpF:ds+=[min(abs(pfs-tf))]
-
+    for tf in tpF:ds+=[min(abs(ps-tf))]
     iM=numpy.array(ds).argsort()[0]
-    ipeaks=numpy.arange(npeaks)
+
+    ipeaks=numpy.arange(numpeak)
     ipeak=ipeaks[tpF<0][-1]
+
     if abs(ipeak-iM)%2!=0:ipeak-=1
     if (ipeak+2)>=numpeak:npeak=ipeak-2
     else:npeak=ipeak+2
-    tminm=tcF[inipeak+ipeak];tmaxm=tcF[inipeak+ipeak+2]
 
     dtmean=abs(tpF[npeak]-tpF[ipeak])
+    if dtmean>35:dtmean=30.0
+
     dt=-tpF[ipeak]
     dtphase=dt/dtmean
-    print("Monthly:%f"%dtphase)
 
+    tminm=tpF[ipeak]
+    tmaxm=tpF[ipeak+1]
+    
     # ############################################################
     # ASTRONOMY TIMES
     # ############################################################
@@ -212,9 +215,9 @@ def plotBoundaries(quakeid,component,plt):
     ax.set_xlim((-CONF.TIMEWIDTH/1,+CONF.TIMEWIDTH/1))
     ax.set_ylim((smin,smax+(smax-smin)/2))
 
-    ax.set_title(r"%s for quake %s"%(name,quakeid))
+    ax.set_title(r"%s for quake %s"%(component,quakeid))
     ax.set_xlabel(r"Days to /since earthquake")
-    ax.set_ylabel(r"%s (%s)"%(name,units))
+    ax.set_ylabel(r"%s (%s)"%(component,units))
 
     # ############################################################
     # INSET PANEL

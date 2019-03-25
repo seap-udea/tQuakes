@@ -158,31 +158,37 @@ c                   2:EW
 """
 
 GOTIC2_COLUMNS=OrderedDict(
-    GV=["UPWARD"], #Gravity, mugal
-    TL=["NS","EW","AZIMUTHAL"], #Tilt, nanorad
-    RD=["UPWARD"], #Radial displacement, mm
-    DV=["NS","EW"], #Vertical displacement, nanorad
-    ST=["NSEXP","EW","SHEARNE","AZIMUTHAL","AREAL","CUBIC"], #Strain, nanostrain
-    HD=["NS","EW","AZIMUTHAL"], #Horizontal displacement 0 degrees, mm
+    GV=[["UPWARD"],"mugal"], #Gravity, mugal
+    TL=[["NS","EW","AZIMUTHAL"],"nanorad"], #Tilt, nanorad
+    RD=[["UPWARD"],"mm"], #Radial displacement, mm
+    DV=[["NS","EW"],"nanorad"], #Vertical displacement, nanorad
+    ST=[["NSEXP","EW","SHEARNE","AZIMUTHAL","AREAL","CUBIC"],"nanostrain"], #Strain, nanostrain
+    HD=[["NS","EW","AZIMUTHAL"],"mm"] #Horizontal displacement 0 degrees, mm
 )    
 
 #GENERATE MAP FROM COMPONENT TO COLUMN
 n=1
+p=0
 GOTIC2_NCOLUMNS=OrderedDict()
+GOTIC2_NPHASES=OrderedDict()
 GOTIC2_HEADER=""
 PHASE_COMPONENTS=[]
 for k,gn in GOTIC2.items():
     gname=k
     if k=="HN" or k=="HE":gname="HD"
-    g=GOTIC2_COLUMNS[gname]
+    g=GOTIC2_COLUMNS[gname][0]
+    u=GOTIC2_COLUMNS[gname][1]
     for gt,gtn in GOTIC2_TYPES.items():
         if gt=="O":qphase=False
         else:qphase=True
         for f in g:
             GOTIC2_HEADER+="%d:%s/%s/%s "%(n,k,gt,f)
             component="T=%s.L=%s.C=%s"%(k,gt,f)
-            GOTIC2_NCOLUMNS[component]=n
-            if qphase:PHASE_COMPONENTS+=[component]
+            GOTIC2_NCOLUMNS[component]=[n,u]
+            if qphase:
+                PHASE_COMPONENTS+=[component]
+                GOTIC2_NPHASES[component]=p
+                p+=1
             n+=1
 
 #TCFS COMBINATIONS

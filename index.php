@@ -388,7 +388,18 @@ M;
   ////////////////////////////////////////////////////////////////////////
   else if($action=="cleansynthetic"){
     statusMsg("Cleaning synthetic earthquakes");
-    shell_exec("rm -r $SCRATCHDIR/*.tar $SCRATCHDIR/???????");
+    $results=mysqlCmd("select quakeid from Quakes where extra3='MOCK'",1);
+    $dirquakes="$HOMEDIR/$TQUSER/tQuakes/";
+    foreach($results as $quakes){
+      $quakeid=$quakes["quakeid"];
+      $quakerm="$dirquakes/$quakeid";
+      if(file_exists("$quakerm.conf")){
+	$cmd="echo 'rm -f $quakerm*.*' >> tmp/clean-synthetic.sh";
+	statusMsg("Programming removal of $quakeid");
+	shell_exec($cmd);
+      }
+    }
+    mysqlCmd("delete from Quakes where extra3='MOCK'");
   }
   else if($action=="cleanhistory"){
     statusMsg("Cleaning history");
@@ -426,71 +437,63 @@ M;
     }
     statusMsg("All fields checked...");
 
-    //========================================
-    //PREPARE VARIABLES
-    //========================================
-    if(!isset($qpreserve)){$qpreserve=0;}
-    statusMsg("Preserve $qpreserve");
+    //BY DEFAULT THE EVENT IS NOT IN DATABASE NOR DONE
+    $qdb=0;
+    $qdone=0;
+    $parts=preg_split("/\s+/",$qdatetime);
+    $qdate=$parts[0];
+    $qtime=$parts[1];
+    
+    if(!$qlegacy and $action!="plot"){
+      statusMsg("Signature of event: $md5str");
 
-    //========================================
-    //GENERATE NEW QUAKEID
-    //========================================
-    $quakestr=sprintf("QUAKE-lat_%+08.4f-lon_%+09.4f-dep_%+010.4f-JD_%.6f",$qlat,$qlon,$qdepth,$qjd);
-    statusMsg("Quake string: $quakestr");
-    $md5str=md5($quakestr);
-    $tquakeid=strtoupper(substr($md5str,0,7));
-    statusMsg("New quakeid $tquakeid");
-    while(mysqlCmd("select quakeid from $QUAKES where quakeid='$tquakeid';")){
-      $tquakeid=str_shuffle($tquakeid);
-    }
+      //EVENT STRING AND ID ACCORDING TO PROVIDED DATA
+      $md5str=md5("$qdate$qtime$qdatetime$qjd$hsun$hmoon$qlat$qlon$qdepth$Ml$qstrikemain$qdipmain$qrakemain");
+      $quakeid=strtoupper(substr($md5str,0,7));
+      $quakestr=sprintf("QUAKE-lat_%+08.4f-lon_%+09.4f-dep_%+010.4f-JD_%.6f",$qlat,$qlon,$qdepth,$qjd);
+      statusMsg("Signature of form data: $md5str");
+      statusMsg("Corresponding id $quakeid");
 
-    //========================================
-    //CHECK IF QUAKEID IS IN DB
-    //========================================
-    $quakeindb=mysqlCmd("select * from $QUAKES where quakeid='$quakeid'");
-    if(!$quakeindb){
-      statusMsg("Quakeid $quakeid not in database...");
-      $qpreserve=0;
+      //CHECK IF THIS EVENT EXIST
+      $cmd="CONCAT(qdate,qtime,qdatetime,qjd,hsun,hmoon,qlat,qlon,qdepth,Ml,qstrikemain,qdipmain,qrakemain)";
+      $quakeindb=mysqlCmd("select $cmd as qstr from $QUAKES where quakeid='$quakeid'");
+      if($quakeindb){
+	$qstr=$quakeindb["qstr"];
+	$md5qstr=md5($qstr);
+	statusMsg("Signature of database event: $md5qstr");
+	if($md5str==$md5qstr){
+	  $qdb=1;
+	}
+      }else{
+	statusMsg("Event with quakeid $dquakeid not in database");
+	$qlegacy=0;
+      }
+
+      //CHECK IF IT IS DONE
+      $qdone=0;
     }else{
-      statusMsg("Stored quakestr: ".$quakeindb["quakestr"]);
-      //IF QUAKESTR DOES NOT MATCH THE QUAKE PARAMETERS HAVE CHANGED
-      if($quakeindb["quakestr"]!=$quakestr){
-	$qcopy=0;
-	$qpreserve=0;
-	$quakeid=$tquakeid;
-	statusMsg("Quakestrs does not match");
-	statusMsg("New quakeid $quakeid");
-      }else{
-	statusMsg("Quakestrs match");
-      }
-    }
-    statusMsg("After checking $qpreserve");
-
-    //========================================
-    //CHECK IF A QUAKEID HAS HAD BEEN PROVIDED
-    //========================================
-    $qcopy=0;
-    if(isset($quakeid)){
-      if(!$qpreserve){
-	//IF NO PRESERVE THE NEW QUAKEID IS THE CALCULATED ONE
-	if($quakeid!=$tquakeid){$quakeid=$tquakeid;}
-      }else{
-	//IF QUAKE IS PRESERVED CREATE A COPY OF THE DIRECTORY OF EARTHQUAKE
-	$qcopy=1;
-      }
-    }
-    statusMsg("Copy $qcopy");
-    statusMsg("Final $quakeid");
-
-    //========================================
-    //CREATE QUAKE SCRATCH DIRECTORY
-    //========================================
-    $quakedir="$SCRATCHDIR/$quakeid";
-    if(!is_dir($quakedir)){
-      shell_exec("mkdir -p $quakedir");
-      statusMsg("Scratch directory created...");
+      $calcbut="display:none";
+      $qdb=1;
     }
     
+    //CHECK IF DONE
+    if($qdb){
+      if(mysqlCmd("select * from $QUAKES where quakeid='$quakeid' and astatus+0=4")){
+	statusMsg("Quake done");
+	$qdone=1;
+	$sql="select NOW()";
+      }else{
+	statusMsg("Quake in db but not done. ");	
+	$sql="update Quakes set extra5='TIMELY' where quakeid='$quakeid'";
+      }
+    }
+    else{
+      statusMsg("Quake not in db");
+      //SPLIT DATE
+      //CREATE MOCK QUAKE
+      $sql="insert into Quakes (quakeid,quakestr,qdate,qtime,qdatetime,qjd,hsun,hmoon,qlat,qlon,qdepth,Ml,qstrikemain,qdipmain,qrakemain,qstrikeaux,qdipaux,qrakeaux,astatus,extra3) values ('$quakeid','$quakestr','$qdate','$qtime','$qdatetime','$qjd','$hsun','$hmoon','$qlat','$qlon','$qdepth','$Ml','$qstrikemain','$qdipmain','$qrakemain','$qstrikemain','$qdipmain','$qrakemain',0,'MOCK')";
+    }
+
     //========================================
     //CHECKTYPE
     //========================================
@@ -503,84 +506,19 @@ M;
          0.0) Earthquake is in queue (qdone=0)
 	 0.1) Earthquake is already calculated (qdone=1)
      */
-
-    //TYPE BY DEFAULT
-    $qdb=0;$qdone=0;
-
-    $quakeindb=mysqlCmd("select * from $QUAKES where quakeid='$quakeid'");
-    if($quakeindb){
-      statusMsg("Quake in db");
-      $qdb=1;
-      //CHECK IF IT'S DONE
-      if(mysqlCmd("select * from $QUAKES where quakeid='$quakeid' and astatus+0=4")){
-	statusMsg("Quake done");
-	$qdone=1;
-      }else{
-	statusMsg("Quake in db but not done");
-	if(file_exists("data/tQuakes/$quakeid.conf")){
-	  statusMsg("Quake already prepared");
-	  $qdone=1;
-	}else{
-	  statusMsg("Quake not prepared");
-	  $qdone=0;
-	}
-      }
-    }else{
-      statusMsg("Quake not in db");
-      $qdb=0;
-      if(file_exists("data/tQuakes/$quakeid.conf")){
-	statusMsg("Quake already prepared");
-	$qdone=1;
-      }else{
-	statusMsg("Quake not prepared");
-	$qdone=0;
-      }
-    }
     statusMsg("Quake type: qdb=$qdb, qdone=$qdone...");
+    statusMsg("SQL: $sql...");
     
     //========================================
     //IF QUAKE HAS NOT BEEN CALCULATED
     //========================================
+    //$qdone=0;//REMOVE AFTER DEBUGGING
     if(!$qdone){
-
-      //CREATE CALCULATION DIRECTORY
-      $cquakedir="data/quakes/$quakeid";
-      if(!is_dir($cquakedir)){
-	shell_exec("mkdir -p $cquakedir");
-	statusMsg("Calculation directory created...");
-
-	shell_exec("cp -rd data/quakes/TEMPLATE/* $cquakedir");
-	shell_exec("cp -rd data/quakes/TEMPLATE/.[a-z]* $cquakedir");
-	
-	//SPLIT DATETIME
-	$parts=preg_split("/\s+/",$qdatetime);
-	$date=$parts[0];
-	$time=$parts[1];
-	
-	//CREATE CONFIGURATION
-	$fl=fopen("$cquakedir/quake.conf","w");
-$conf=<<<C
-qdepth='$qdepth'
-quakeid='$quakeid'
-qlat='$qlat'
-qdate='$date'
-qlon='$qlon'
-qtime='$time'
-qjd='$qjd'
-hmoon='$hmoon'
-hsun='$hsun'
-
-C;
-         fwrite($fl,$conf);
-	 fclose($fl);
-	 
-	 //========================================
-	 //PREPARE RUN
-	 //========================================
-	 shell_exec("PYTHONPATH=. python $cquakedir/quake-prepare.py $quakeid");
-	 statusMsg("Eterna files generated...");
+      //RESULTS DIRECTORY
+      if(!$qlegacy and $action=="calculate"){
+	$quakeindb=mysqlCmd($sql);
       }
-      statusMsg("Quake $quakeid in queue...");
+      statusMsg("Quake database command for $quakeid fetchedin db...");
       goto endcalculate;
     }
 
@@ -588,36 +526,33 @@ C;
     //IF QUAKE HAS BEEN ALREADY CALCULATED
     //========================================
     else{
-      if($qdb){
-	statusMsg("Quake $quakeid in db...");
-	$dirquakes="$HOMEDIR/$TQUSER/tQuakes/";
-      }else{
-	statusMsg("Quake $quakeid not in db...");
-	$dirquakes="data/tQuakes/";
-      }
 
+      $dirquakes="$HOMEDIR/$TQUSER/tQuakes/";
+      $quakedir="$SCRATCHDIR/$quakeid";
+      if(!is_dir($quakedir)){
+	shell_exec("mkdir -p $quakedir");
+	statusMsg("Scratch directory created...");
+      }else{
+	statusMsg("Scratch directory $quakedir exist...");
+      }
+      
       //========================================
       // RECOVER QUAKE INFO
       //========================================
-      $filequake="$dirquakes/$quakeid-eterna.tar.7z";
+      $filequake="$dirquakes/$quakeid.tar.gz";
+      statusMsg("Recovering information from $filequake...");
 
       //CHECK IF PRECALCULATED FILES ALREADY EXISTS
       if(file_exists($filequake)){
 	statusMsg("Results for $quakeid found...");
-
+	
 	//CHECK IF THEY HAVE BEEN UNZIPED
 	if(!file_exists("$quakedir/$quakeid-eterna.tar")){
 	  statusMsg("Unzipping files...");
-	  shell_exec("cp -rf $dirquakes/$quakeid-* $quakedir/");
+	  shell_exec("cp -rf $filequake $quakedir/");
 	  shell_exec("cp -rf $dirquakes/$quakeid.conf $quakedir/");
-	  shell_exec("cd $quakedir;p7zip -d $quakeid-eterna.tar.7z");
-	  shell_exec("cd $quakedir;p7zip -d $quakeid-analysis.tar.7z");
-	  shell_exec("cd $SCRATCHDIR;tar cf $quakeid.tar $quakeid/$quakeid-*");
-	  
-	  //UNTAR ALL FILES
-	  shell_exec("cd $quakedir;tar xf $quakeid-eterna.tar");
-	  shell_exec("cd $quakedir;tar xf $quakeid-analysis.tar");
-	  
+	  shell_exec("cd $quakedir;tar zxf $quakeid.tar.gz");
+
 	  //COPY SUPPORTING PYTHON FILES
 	  shell_exec("cd $quakedir;ln -s ../../../tquakes.py");
 	  shell_exec("cd $quakedir;ln -s ../../../util");
@@ -627,34 +562,26 @@ C;
 	  //COPY PLOTTING SCRIPTS
 	  $cmd="cd $quakedir;ln -s ../../../plots/analysis/astronomy-extremes-1970_2030.data";
 	  shell_exec($cmd);
-	  foreach($COMPONENTS as $ncomp){
-	    $component=$COMPONENTS_DICT[$ncomp+1];
-	    $symbol=$component[0];
-	    $componentname=$component[2];
+	  foreach($PHASE_COMPONENTS as $component){
+	    $compname=$component[0];
+	    $comp=preg_replace("/=/","_",$compname);
+	    $comp=preg_replace("/\./","-",$comp);
+	    if(preg_match("/_S-/",$comp)){continue;}
 	    foreach($QUAKE_PLOTS as $plot){
 	      $ext="py";
-	      $cmd="cd $quakedir;cp -f ../../../plots/analysis/quake-$plot.$ext quake-$plot-$symbol.$ext";
+	      $cmd="cd $quakedir;cp -f ../../../plots/analysis/quake-$plot.$ext quake-$plot-$comp.$ext";
 	      shell_exec($cmd);
 	      foreach(array("conf","html","history") as $ext){
-		$cmd="cp -r plots/analysis/quake-$plot.$ext $quakedir/quake-$plot-$symbol.$ext";
+		$cmd="cp -r plots/analysis/quake-$plot.$ext $quakedir/quake-$plot-$comp.$ext";
 		shell_exec($cmd);
 	      }
-	      shell_exec("echo >> $quakedir/quake-$plot-$symbol.conf");
-	      shell_exec("echo 'component=\"$symbol\"' >> $quakedir/quake-$plot-$symbol.conf");
-	      shell_exec("echo 'description=\"Plot $plot for component $componentname\"' >> $quakedir/quake-$plot-$symbol.conf");
+	      shell_exec("echo >> $quakedir/quake-$plot-$comp.conf");
+	      shell_exec("echo 'component=\"$compname\"' >> $quakedir/quake-$plot-$comp.conf");
+	      shell_exec("echo 'description=\"Plot $plot for component $comp\"' >> $quakedir/quake-$plot-$comp.conf");
 	    }
 	  }
-
-	  //CREATE A COPY WITH THE NEW QUAKEID
-	  if($qcopy){
-	    statusMsg("Linking $tquakeid with $quakeid...");
-	    shell_exec("cd $SCRATCHDIR/;ln -s $quakeid $tquakeid");
-	    shell_exec("cd $SCRATCHDIR/$quakeid;ln -s $quakeid.data $tquakeid.data");
-	    shell_exec("cd $SCRATCHDIR/;ln -s $quakeid.tar $tquakeid.tar");
-	  }
-
-	}//End tar file exists
-      }//End quake has been completed
+	}
+      }
     }
     
     //========================================
@@ -664,9 +591,8 @@ C;
     $SUBMENU.="<a href='#results'>Results</a> : ";
     
     //FILES
-    $size_eterna=round(filesize("$quakedir/$quakeid-eterna.tar")/1024.0,0);
-    $size_analysis=round(filesize("$quakedir/$quakeid-analysis.tar")/1024.0,0);
-    $size_full=round(filesize("$SCRATCHDIR/$quakeid.tar")/1024.0,0);
+    $size_all=round(filesize("$quakedir/$quakeid.tar.gz")/1024.0,0);
+    $size_data=round(filesize("$quakedir/$quakeid.data")/1024.0,0);
 
     //QUAKE PROPERTIES
     $quakeconf="$quakedir/$quakeid.conf";
@@ -684,12 +610,12 @@ C;
       $tideresults.=$signaltxt;
       goto download;
     }
+
     $i=0;
     foreach($signals as $signal){
-      $ncomp=$COMPONENTS[$i];
-      $component=$COMPONENTS_DICT[$ncomp+1];
-      $namecomponent=$component[2];
-      $units=$component[3];
+      $component=$PHASE_COMPONENTS[$i];
+      $namecomponent=$component[0];
+      $units=$component[1];
       if(isBlank($signal)){continue;}
       $signaltxt.="<li><b>$namecomponent</b>:$signal $units</li>";
       $i++;
@@ -701,6 +627,7 @@ C;
     $SUBMENU.="<a href='#phases'>Tidal Phases</a> | ";
 
     $phases=preg_split("/;/",$quake["qphases"]);
+
 $phasetxt=<<<P
 <h3><a name=phases>Component phases</a></h3>
 <table border=1px cellspacing=0px>
@@ -714,20 +641,17 @@ $phasetxt=<<<P
 P;
 
     $i=0;
-    foreach($COMPONENTS as $ncomp){
-      $component=$COMPONENTS_DICT[$ncomp+1];
-      $namecomponent=$component[2];
-      $phasetxt.="<tr><td>$namecomponent</td>";
+    foreach($PHASE_COMPONENTS as $phase){
+      $component=$phase[0];
+      $phasetxt.="<tr><td>$component</td>";
       for($j=0;$j<4;$j++){
-	$iphase=8*$i+4+$j;
-	$phasetime=$phases[$iphase];
-	$parts=preg_split("/:/",$phasetime);
+	$parts=preg_split("/:/",$phases[$i]);
 	$time=$parts[0];
 	$phase=$parts[1];
 	$phasetxt.="<td>$phase</td>";
+	$i++;
       }
       $phasetxt.="</tr>";
-      $i++;
     }
     
     $phasetxt.="</table>";
@@ -758,21 +682,74 @@ A;
     }
     $table.="</table>";
     $tideresults.=$table;
+
+    //////////////////////////////////////////////////////////////
+    //TCFS
+    //////////////////////////////////////////////////////////////
+    $SUBMENU.="<a href='#TCFS'>TCFS</a> | ";
+    $tideresults.="<h3><a name=TCFS>Tidal stresses</a></h3>";
+    if(preg_match("/\d+/",$qstrikemain)){
+      $sql="select sigmas,sigman from Quakes where quakeid='$quakeid'";
+      $result=mysqlCmd($sql);
+
+      //IF NOT CALCULATED CALCULATE TCFS COMPONENTS
+      if(isBlank($result["sigmas"])){
+	$cmd="cd plots/processing;PYTHONPATH=. python tquakes-tcfs.py \"quakeid='$quakeid'\" 2>&1 |tee tmp/tcfs";
+	shell_exec($cmd);
+      }
+      $vsigmas=preg_split("/;/",$result["sigmas"]);
+      $vsigman=preg_split("/;/",$result["sigman"]);
+
+      $sigmas_main_quake=$vsigmas[0];
+      $sigmas_main_max=$vsigmas[2];
+      $sigmas_aux_quake=$vsigmas[4];
+      $sigmas_aux_max=$vsigmas[6];
+
+      $sigman_main_quake=$vsigman[0];
+      $sigman_main_max=$vsigman[2];
+      $sigman_aux_quake=$vsigman[4];
+      $sigman_aux_max=$vsigman[6];
+
+      $tcfs_main_quake=$sigmas_main_quake+0.4*$sigman_main_quake;
+      $tcfs_main_max=$sigmas_main_max+0.4*$sigman_main_max;
+      $tcfs_aux_quake=$sigmas_aux_quake+0.4*$sigman_aux_quake;
+      $tcfs_aux_max=$sigmas_aux_max+0.4*$sigman_aux_max;
+      
+$tideresults.=<<<A
+  <ul>
+    <li><b>Main plane:</b>
+      <ul>
+	<li><b>Sigma-s</b>: quake = $sigmas_main_quake, max = $sigmas_main_max</li>
+	<li><b>Sigma-n</b>: quake = $sigman_main_quake, max = $sigman_main_max </li>
+	<li><b>TCFS</b>: quake = $tcfs_main_quake, max = $tcfs_main_max</li>
+      </ul>
+    <li><b>Aux plane:</b>
+      <ul>
+	<li><b>Sigma-s</b>: quake = $sigmas_aux_quake, max = $sigmas_aux_max</li>
+	<li><b>Sigma-n</b>: quake = $sigman_aux_quake, max = $sigman_aux_max </li>
+	<li><b>TCFS</b>: quake = $tcfs_aux_quake, max = $tcfs_aux_max</li>
+      </ul>
+  </ul>
+A;
+    }else{
+      $tideresults.="<i>No focal mechanism available</i>";
+    }
     //////////////////////////////////////////////////////////////
     //DOWNLOAD
     //////////////////////////////////////////////////////////////
     download:
     $SUBMENU.="<a href='#download'>Download</a> | ";
+    $SUBMENU.="<a href='#plots'>Plots</a> | ";
     
 $tideresults.=<<<T
   <h3><a name=download>Downloads</a></h3>
   <ul>
     <li><a href=$quakeconf target=_blank>Summary file</a></li>
-    <li><a href=$quakedir/$quakeid-eterna.tar>Eterna results</a> ($size_eterna kB)</li>
-    <li><a href=$quakedir/$quakeid-analysis.tar>Analysis results</a> ($size_analysis kB)</li>
-    <li><a href=$SCRATCHDIR/$quakeid.tar>All results</a> ($size_full kB)</li>
+    <li><a href=$quakedir/$quakeid.tar.gz target=_blank>All results</a> ($size_all kB)</li>
+    <li><a href=$quakedir/$quakeid.data target=_blank>Data values</a> ($size_data kB)</li>
   </ul>
-  
+  <h3><a name=plots>Plots</a></h3>
+  <input type="submit" name="action" value="plot">
 T;
 
     //SHOW PLOTS
@@ -780,17 +757,16 @@ T;
       //========================================
       //PLOT
       //========================================
-      $SUBMENU.="<a href='#plots'>Plots</a> | ";
-      $tideresults.="<h3><a name=plots>Plots</a></h3>";
       $plots="";
 
       $plotmd5s=array();
-      foreach($COMPONENTS as $ncomp){
-	$component=$COMPONENTS_DICT[$ncomp+1];
-	$symbol=$component[0];
-	$componentname=$component[2];
+      foreach($PHASE_COMPONENTS as $component){
+	$compname=$component[0];
+	$comp=preg_replace("/=/","_",$compname);
+	$comp=preg_replace("/\./","-",$comp);
+	if(preg_match("/_S-/",$comp)){continue;}
 	foreach($QUAKE_PLOTS as $plot){
-	  $plotbase="quake-$plot-$symbol";
+	  $plotbase="quake-$plot-$comp";
 	  $description=shell_exec("cat $quakedir/$plotbase.html");
 	  if(isBlank($description)){$description="<h4>$plotbase</h4>";}
 	  statusMsg("Generating plot $plotbase...");
@@ -818,21 +794,18 @@ T;
 	    $plotfigure=generateFigure($quakedir,$plotbase,$pngmd5);
 	    $plots.="$plotfigure";
 	    statusMsg("Plot generated...");
-	    //break;
 	  }
 	  $plots.="</div>";
 	}
-	//break;
       }
       statusMsg("All plots generated...");
       $tideresults.=$plots;
     }
 
   endcalculate:
-    $qdone=1;
     if(!$qdone){
       $tideresults.="Processing request...<br/><img src=img/loader.gif>";
-      header("Refresh:3;url=index.php?if=quaketide&action=$action&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun");
+      header("Refresh:3;url=index.php?if=quaketide&action=$action&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun&qstrikemain=$qstrikemain&qdipmain=$qdipmain&qrakemain=$qrakemain&qdate=$qdate&qtime=$qtime&Ml=$Ml");
     }
 
   }//End action=calculate
@@ -1641,7 +1614,7 @@ $CONTENT.=<<<TABLE
     <td class="leveltab0 num">$i</td>
     <td class="leveltab0 txt">
       <a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a><br/>
-      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun">tides</a>
+      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qlegacy=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun&qstrikemain=$qstrikemain&qdipmain=$qdipmain&qrakemain=$qrakemain&qdate=$qdate&qtime=$qtime&Ml=$Ml">tides</a>
     </td>
     <td class="leveltab0 num">$qlat, $qlon</td>
     <td class="leveltab0 num">&pm;$qlaterr,&pm;$qlonerr</td>
@@ -1798,10 +1771,6 @@ C;
 
   $SUBMENU.="<a href='#synthetic'>Synthetic</a> | ";
 
-  $output=shell_exec("cd $SCRATCHDIR;ls -m *.tar");
-  $listquakes=preg_split("/\s*,\s*/",$output);
-  statusMsg("Synthetic quakes:");
-
 $tablesynth=<<<TABLE
 <table border=1px style="font-size:12px" cellspacing="0px">
 <tr class="header">
@@ -1818,26 +1787,25 @@ $tablesynth=<<<TABLE
 </tr>
 TABLE;
 
+  $results=mysqlCmd("select * from Quakes where extra3='MOCK'",1);
   $i=0;
-  foreach($listquakes as $quake){
-    if(isBlank($quake)){continue;}
-    $parts=preg_split("/\./",$quake);
-    $quakeid=$parts[0];
-    if(mysqlCmd("select * from $QUAKES where quakeid='$quakeid'")){continue;}
-    statusMsg("Quake $quakeid...");
-    $quake=parse_ini_file("$SCRATCHDIR/$quakeid/quake.conf");
-    $quakeid=$quake["quakeid"];
-    $qlat=$quake["qlat"];
-    $qlon=$quake["qlon"];
-    $qdepth=$quake["qdepth"];
-    $qdatetime=$quake["qdate"]." ".$quake["qtime"];
-    $qjd=$quake["qjd"];
-
+  foreach($results as $quakes){
+    /*
+      foreach(array_keys($quake) as $key){
+      if(preg_match("/^\d+$/",$key)){continue;}
+      $$key=$quakes[$key];
+    }
+    */
+    foreach(array_keys($quakes) as $key){
+      if(preg_match("/^\d+$/",$key)){continue;}
+      $$key=$quakes[$key];
+    }
+    
 $tablesynth.=<<<TABLE
   <tr>
     <td class="leveltab0 txt">
       <a href="?if=quakesimple&quakeid=$quakeid">$quakeid</a><br/>
-      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun">tides</a>
+      <a href="?if=quaketide&quakeid=$quakeid&action=calculate&qlegacy=1&quakeid=$quakeid&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun&qstrikemain=$qstrikemain&qdipmain=$qdipmain&qrakemain=$qrakemain&qdate=$qdate&qtime=$qtime&Ml=$Ml">tides</a>
     </td>
     <td class="leveltab0 num">$qlat, $qlon</td>
     <td class="leveltab0 txt">$qdepth</td>
@@ -1947,7 +1915,7 @@ BASIC;
 $SUBMENU.=<<<QUAKE
 <a href="$referer">Back</a> | 
 QUAKE;
-  $SUBMENU.="<a href='$WEBSERVER/?if=quaketide&quakeid=$quakeid&action=calculate&qpreserve=1&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun'>Tides</a>";
+  $SUBMENU.="<a href='$WEBSERVER/?if=quaketide&quakeid=$quakeid&action=calculate&qlegacy=1&qlat=$qlat&qlon=$qlon&qdepth=$qdepth&qdatetime=$qdatetime&qjd=$qjd&hmoon=$hmoon&hsun=$hsun&qstrikemain=$qstrikemain&qdipmain=$qdipmain&qrakemain=$qrakemain&qdate=$qdate&qtime=$qtime&Ml=$Ml'>Tides</a>";
   
   preg_match("/__([^\.]+).png/",$img,$matches);
   $plotmd5=$matches[1];
@@ -2076,7 +2044,6 @@ else if($if=="quaketide"){
   if(isset($quakeid)){
     $result=mysqlCmd("select * from $QUAKES where quakeid='$quakeid'",$qout=1);
     $quake=$result[0];
-    
     foreach(array_keys($quake) as $key){
       if(preg_match("/^\d+$/",$key)){continue;}
       $value=$$key=$quake["$key"];
@@ -2093,22 +2060,8 @@ else if($if=="quaketide"){
   if(!isset($qjd)){
     $hsun=$hmoon=$qjd="<i style='font-size:10px;color:gray'>Enter the Date and time...</i>";
   }
-
-  // CHECK IF THE CALCULATOR IS WORKING
-  $logfile="log/tquakes.out";
-  $stats=stat($logfile);
-  $timefile=$stats[9];
-  statusMsg("Log time:".$timefile);
-  statusMsg("Now:".time());
-  if(abs($timefile-time())<60 and !file_exists("stop")){
-    statusMsg("Calculator is on");
-    $qcalculator="<span style='background:green;color:white;padding:10px'>Calculator on</span>";
-  }
-  else{
-    statusMsg("Calculator is down");
-    $qcalculator="<span style='background:red;color:yellow;padding:10px'>Calculator off</span>";
-  }
-
+  $qcalculator="";
+  
 $SUBMENU.=<<<QUAKE
 <a href="$referer">Back</a> |
 QUAKE;
@@ -2138,19 +2091,19 @@ $FORM
 <tr>
   <td>Latitude:</td>
   <td>
-    <input type="text" name="qlat" value="$qlat">
+    <input type="text" name="qlat" value="$qlat" onchange="$('#calcbut').show()">
   </td>
 </tr>
 <tr>
   <td>Longitude:</td>
   <td>
-    <input id="qlon" type="text" name="qlon" value="$qlon">
+    <input id="qlon" type="text" name="qlon" value="$qlon" onchange="$('#calcbut').show()">
   </td>
 </tr>
 <tr>
   <td>Depth (km):</td>
   <td>
-    <input type="text" name="qdepth" value="$qdepth">
+    <input type="text" name="qdepth" value="$qdepth" onchange="$('#calcbut').show()">
   </td>
 </tr>
 
@@ -2164,21 +2117,21 @@ $FORM
 <tr>
   <td>Strike (deg):</td>
   <td>
-    <input type="text" name="qstrikemain" value="$qstrikemain">
+    <input type="text" name="qstrikemain" value="$qstrikemain" onchange="$('#calcbut').show()">
   </td>
 </tr>
 
 <tr>
   <td>Dip (deg):</td>
   <td>
-    <input type="text" name="qdipmain" value="$qdipmain">
+    <input type="text" name="qdipmain" value="$qdipmain" onchange="$('#calcbut').show()">
   </td>
 </tr>
 
 <tr>
   <td>Rake (deg):</td>
   <td>
-    <input type="text" name="qrakemain" value="$qrakemain">
+    <input type="text" name="qrakemain" value="$qrakemain" onchange="$('#calcbut').show()">
   </td>
 </tr>
 
@@ -2188,7 +2141,7 @@ $FORM
     <i style="font-size:10px">CCYY-MM-DD HH:MM:SS</i>
   </td>
   <td valign="top">
-    <input type="text" name="qdatetime" value="$qdatetime" onchange="updateJD(this);updateHmoonsun(this,$('#qlon').val());">
+    <input type="text" name="qdatetime" value="$qdatetime" onchange="updateJD(this);updateHmoonsun(this,$('#qlon').val());$('#calcbut').show();">
   </td>
 </tr>
 <tr>
@@ -2215,17 +2168,15 @@ $FORM
 </tr>
 <tr>
 <td colspan=2>
-<input type="submit" name="action" value="calculate">
-<input type="submit" name="action" value="plot">
-<input type="reset" value="reset">
+<input id="calcbut" type="submit" name="action" value="calculate" style="$calcbut">
 </td>
 </tr>
 </table>
 <input type="hidden" name="referer" value="$referer">
-<input type="hidden" name="qpreserve" value="$qpreserve">
 <input type="hidden" name="extra5" value="LOCAL">
-</form>
+<input type="hidden" name="qlegacy" value="0">
 $tideresults
+</form>
 QUAKE;
 }
 

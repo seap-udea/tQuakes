@@ -22,11 +22,9 @@ def plotSignal(quakeid,component,plt):
     # ############################################################
     # COMPONENT
     # ############################################################
-    info=COMPONENTS_DICT[component]
-    compnum=info[0]
-    name=info[1]
-    units=info[2]
-    nc,np=numComponent(component)
+    nc=GOTIC2_NCOLUMNS[component][0]
+    np=GOTIC2_NPHASES[component]
+    units=GOTIC2_NCOLUMNS[component][1]
     
     # ############################################################
     # QUAKE PROPERTIES
@@ -48,7 +46,7 @@ def plotSignal(quakeid,component,plt):
     # CREATE FIGURE
     # ############################################################
     qsignal=quake.qsignal.split(";")
-    value=float(qsignal[nc-1])
+    value=float(qsignal[np])
 
     signal=numpy.loadtxt(DIRNAME+"/%s.data"%quakeid)
     t=signal[:,0]-float(quake.qjd)
@@ -65,9 +63,9 @@ def plotSignal(quakeid,component,plt):
     ax.set_xlim((-CONF.TIMEWIDTH,+CONF.TIMEWIDTH))
     ax.set_ylim((smin,smax+(smax-smin)/2))
 
-    ax.set_title(r"%s for quake %s"%(name,quakeid))
+    ax.set_title(r"%s for quake %s"%(component,quakeid))
     ax.set_xlabel(r"Days to/since earthquake")
-    ax.set_ylabel(r"%s (%s)"%(name,units))
+    ax.set_ylabel(r"%s (%s)"%(component,units))
 
     # ############################################################
     # INSET PANEL

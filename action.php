@@ -63,7 +63,6 @@ if($action=="fetch2"){
   }else{
     $sql="select * from $QUAKESRUN where quakeid='$fquakeid'";
   }
-
   $quakes=mysqlCmd($sql,$out=1);
   if($quakes==0){
     echo "No quakes available for fecthing.";
