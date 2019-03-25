@@ -16,10 +16,10 @@ start:cleandata
 
 stop:
 	@echo "Stopping process..."
-	@skill -9 tquakesd2
-	@sudo pkill python
-	@touch stop
-	@rm .start &> /dev/null
+	@-skill -9 tquakesd2
+	@-sudo pkill python
+	@-touch stop
+	@-rm .start &> /dev/null
 
 status:
 	@echo "Checking status..."
