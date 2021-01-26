@@ -11,7 +11,8 @@ fi
 echo $tables
 
 echo "Dumping..."
-mysqldump -u $DBUSER --password="$DBPASSWORD" tQuakes $tables > data/sql/$filename.sql
+#mysqldump -u $DBUSER --password="$DBPASSWORD" tQuakes $tables > data/sql/$filename.sql
+mysqldump -u root --password=seap-udea tQuakes $tables > data/sql/$filename.sql
 echo "Compressing..."
 p7zip data/sql/$filename.sql
 echo "Splitting..."

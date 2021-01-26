@@ -20,13 +20,11 @@ db=connection.cursor()
 #cluster="BucaramangaNest"
 #cluster="PucallpaCluster"
 #cluster="PuyoCluster"
-cluster="CaucaCluster"
+cluster="CAUCA_CLUSTER"
 
 sql="select qjd,sigman,sigmas from Quakes where sigman is not NULL and qclass='%s'"%cluster # and quakeid='00NZUT3'"
 results=mysqlArray(sql,db)
 nquakes=len(results)
-print("Number of selected earthquakes: ",len(results))
-
 sigmans=[]
 sigmass=[]
 tcfs=[]
@@ -46,7 +44,7 @@ for i,quake in enumerate(results):
         sigmans[i][comb]=sigmanAll[j]
         sigmass[i][comb]=sigmasAll[j]
         tcfs[i][comb]=sigmass[i][comb]+mu*sigmans[i][comb]
-        print(quake[0],j,comb,sigmans[i][comb],sigmass[i][comb],tcfs[i][comb])
+        #print(quake[0],j,comb,sigmans[i][comb],sigmass[i][comb],tcfs[i][comb])
         if "MAIN" in comb:
             values1+=[tcfs[i][comb]]
         if "MAIN" in comb:
@@ -55,9 +53,9 @@ for i,quake in enumerate(results):
     table2+=[values2]
 
 table=numpy.vstack((numpy.array(table1),numpy.array(table2)))
+print table.shape
 numpy.savetxt("%s.txt"%cluster,table)
 nquakes=i+1
-exit(0)
 
 # ############################################################
 # ENSAMBLE TCFS ARRAYS
@@ -67,10 +65,13 @@ tcfsArray=[]
 mu=0.4
 mustr=str(mu).replace(".","_")
 
-time="QUAKE"
-#time="MAX"
+#time="QUAKE"
+time="MAX"
 
-hcombs=['P=MAIN.T=%s.V=RD.MU=%s'%(time,mustr),'P=AUX.T=%s.V=RD.MU=%s'%(time,mustr)]
+#hcombs=['P=MAIN.T=%s.V=RD.MU=%s'%(time,mustr)],['P=AUX.T=%s.V=RD.MU=%s'%(time,mustr)]
+#hcombs=['P=MAIN.T=%s.V=RD.MU=%s'%(time,mustr)]
+hcombs=['P=AUX.T=%s.V=RD.MU=%s'%(time,mustr)]
+
 for hcomb in hcombs:
     for i in range(nquakes):
         tcfsArray+=[tcfs[i][hcomb]]

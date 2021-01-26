@@ -68,7 +68,7 @@ for i,quake in enumerate(Quakes):
     try:
         data=getQuakeData(quakeid)
     except AssertionError:
-        #print "No data for %s"%quakeid
+        print "No data for %s"%quakeid
         nodata+=1
         continue
     
@@ -79,7 +79,11 @@ for i,quake in enumerate(Quakes):
                 "T=ST.L=B.C=AREAL","T=ST.L=B.C=CUBIC"]
     strain=dict()
     for component in components:
-        qvalues=data[:,GOTIC2_NCOLUMNS[component]]
+        try:
+            qvalues=data[:,GOTIC2_NCOLUMNS[component]]
+        except:
+            print "Problems with (%s,%s)"%(quakeid,component)
+            exit(1)
         strain[component]=interpolate(qjds,qvalues,kind="slinear")
     
     #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
